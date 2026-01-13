@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Circle, Clock, Tag, Trash2, Edit2, AlertCircle, Calendar } from 'lucide-react';
+import { CheckCircle2, Circle, Tag, Trash2, Edit2, AlertCircle, Calendar } from 'lucide-react';
 import { Task } from '../api/tasks';
 import { format, isBefore } from 'date-fns';
 import clsx from 'clsx';
@@ -135,24 +135,18 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                         {getPriorityLabel(task.priority)}
                     </span>
 
-                    {task.dueDate && (
-                        <span className={clsx(
-                            "flex items-center text-xs font-medium",
-                            isOverdue
-                                ? "text-red-600 dark:text-red-400"
-                                : "text-gray-500 dark:text-gray-400"
-                        )}>
-                            <Calendar className="w-3 h-3 mr-1" />
-                            {format(new Date(task.dueDate), 'MMM d, p')}
-                        </span>
-                    )}
-
-                    {!task.dueDate && (
-                        <span className="flex items-center text-xs text-gray-400 italic">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {format(new Date(task.createdAt), 'MMM d')}
-                        </span>
-                    )}
+                    <span className={clsx(
+                        "flex items-center text-xs font-medium",
+                        task.dueDate
+                            ? (isOverdue ? "text-red-600 dark:text-red-400" : "text-gray-500 dark:text-gray-400")
+                            : "text-gray-400 italic"
+                    )}>
+                        <Calendar className="w-3 h-3 mr-1" />
+                        {task.dueDate
+                            ? format(new Date(task.dueDate), 'MMM d, p')
+                            : t('tasks.noDueDate')
+                        }
+                    </span>
                 </div>
 
                 {task.tags && task.tags.length > 0 && (

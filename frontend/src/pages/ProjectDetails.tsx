@@ -11,7 +11,7 @@ import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
 import clsx from 'clsx';
 
-export const priorityWeight = {
+export const priorityWeight: Record<string, number> = {
     'LOW': 1,
     'MEDIUM': 2,
     'HIGH': 3

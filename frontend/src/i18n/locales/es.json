@@ -79,7 +79,7 @@
         "tasksCount": "{{count}} tarea",
         "tasksCount_plural": "{{count}} tareas",
         "deleteConfirm": "¿Estás seguro de que quieres eliminar este proyecto? Todas las tareas en este proyecto se eliminarán permanentemente.",
-        "addTask": "Add Task",
+        "addTask": "Agregar tarea",
         "noTasksInProject": "No hay tareas en este proyecto aún.",
         "viewList": "Vista de lista",
         "viewBoard": "Tablero Kanban",
