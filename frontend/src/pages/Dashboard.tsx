@@ -21,8 +21,8 @@ const Dashboard = () => {
     const queryClient = useQueryClient();
 
     const { data: tasks, isLoading, error } = useQuery({
-        queryKey: ['tasks', { search: debouncedSearch, status, priority }],
-        queryFn: () => getTasks({ search: debouncedSearch, status, priority }),
+        queryKey: ['tasks', { search: debouncedSearch, status, priority, projectId: null }],
+        queryFn: () => getTasks({ search: debouncedSearch, status, priority, projectId: null }),
     });
 
     const deleteMutation = useMutation({

@@ -13,7 +13,7 @@ export const createTask = async (userId: string, input: CreateTaskInput) => {
 };
 
 export const getTasks = async (userId: string, query: TaskQuery) => {
-    const { status, priority, search, sort } = query;
+    const { status, priority, search, sort, projectId } = query;
 
     const where: any = {
         userId,
@@ -31,7 +31,16 @@ export const getTasks = async (userId: string, query: TaskQuery) => {
         where.OR = [
             { title: { contains: search, mode: 'insensitive' } },
             { description: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
         ];
+    }
+
+    if (projectId) {
+        if (projectId === 'null') {
+            where.projectId = null;
+        } else {
+            where.projectId = projectId;
+        }
     }
 
     const tasks = await prisma.task.findMany({

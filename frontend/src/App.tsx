@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import Projects from './pages/Projects';
+import ProjectDetails from './pages/ProjectDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import { useAuthStore } from './store/auth.store';
@@ -44,7 +46,8 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
-          {/* Añadir más rutas protegidas aquí (ej., Perfil, DetallesTarea) */}
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<ProjectDetails />} />
         </Route>
       </Route>
 

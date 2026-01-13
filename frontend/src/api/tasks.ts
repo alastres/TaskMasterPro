@@ -16,6 +16,7 @@ export interface CreateTaskPayload {
     status?: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
     priority?: 'LOW' | 'MEDIUM' | 'HIGH';
     tags?: string[];
+    projectId?: string;
 }
 
 export interface UpdateTaskPayload extends Partial<CreateTaskPayload> { }
@@ -25,14 +26,20 @@ export interface TaskQuery {
     priority?: string;
     search?: string;
     sort?: 'newest' | 'oldest';
+    projectId?: string | null;
 }
 
-export const getTasks = async (query: TaskQuery) => {
+export const getTasks = async (query?: TaskQuery) => {
     const params = new URLSearchParams();
-    if (query.status) params.append('status', query.status);
-    if (query.priority) params.append('priority', query.priority);
-    if (query.search) params.append('search', query.search);
-    if (query.sort) params.append('sort', query.sort);
+    if (query?.status) params.append('status', query.status);
+    if (query?.priority) params.append('priority', query.priority);
+    if (query?.search) params.append('search', query.search);
+    if (query?.sort) params.append('sort', query.sort);
+    if (query?.projectId === null) {
+        params.append('projectId', 'null');
+    } else if (query?.projectId) {
+        params.append('projectId', query.projectId);
+    }
 
     const response = await api.get<{ data: { tasks: Task[] } }>(`/tasks?${params.toString()}`);
     return response.data.data.tasks;

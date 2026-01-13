@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createTask, updateTask, Task } from '../api/tasks';
+import { getProjects } from '../api/projects';
 import { X, Loader2 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +15,7 @@ const taskSchema = z.object({
     status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED']),
     priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
     tags: z.string().optional(),
+    projectId: z.string().optional(),
 });
 
 type TaskForm = z.infer<typeof taskSchema>;
@@ -22,16 +24,25 @@ interface CreateTaskModalProps {
     isOpen: boolean;
     onClose: () => void;
     taskToEdit?: Task | null;
+    defaultProjectId?: string;
 }
 
-const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, taskToEdit }) => {
+const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, taskToEdit, defaultProjectId }) => {
     const queryClient = useQueryClient();
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<TaskForm>({
         resolver: zodResolver(taskSchema),
         defaultValues: {
             status: 'PENDING',
             priority: 'MEDIUM',
+            projectId: defaultProjectId || '',
         },
+    });
+
+    // Fetch projects for the dropdown
+    const { data: projects } = useQuery({
+        queryKey: ['projects'],
+        queryFn: getProjects,
+        enabled: !defaultProjectId, // Only fetch if not pre-assigned to a project
     });
 
     useEffect(() => {
@@ -41,6 +52,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
             setValue('status', taskToEdit.status);
             setValue('priority', taskToEdit.priority);
             setValue('tags', taskToEdit.tags.join(', '));
+            // Note: Task interface might need projectId field added
         } else {
             reset({
                 title: '',
@@ -48,14 +60,22 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
                 status: 'PENDING',
                 priority: 'MEDIUM',
                 tags: '',
+                projectId: defaultProjectId || '',
             });
         }
-    }, [taskToEdit, isOpen, setValue, reset]);
+    }, [taskToEdit, isOpen, setValue, reset, defaultProjectId]);
 
     const createMutation = useMutation({
         mutationFn: createTask,
         onSuccess: () => {
+            // Invalidate all task queries
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            // Invalidate all project queries to update counts
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+            // Invalidate specific project if task was created within a project
+            if (defaultProjectId) {
+                queryClient.invalidateQueries({ queryKey: ['project', defaultProjectId] });
+            }
             reset();
             onClose();
         },
@@ -64,7 +84,14 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
     const updateMutation = useMutation({
         mutationFn: (data: any) => updateTask(taskToEdit!.id, data),
         onSuccess: () => {
+            // Invalidate all task queries
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            // Invalidate all project queries
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+            // Invalidate specific project if task belongs to a project
+            if (defaultProjectId) {
+                queryClient.invalidateQueries({ queryKey: ['project', defaultProjectId] });
+            }
             reset();
             onClose();
         },
@@ -74,6 +101,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
         const payload = {
             ...data,
             tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+            projectId: data.projectId || undefined, // Convert empty string to undefined
         };
 
         if (taskToEdit) {
@@ -136,6 +164,24 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
                                                         {...register('description')}
                                                     />
                                                 </div>
+
+                                                {/* Project Selector - Only show if not locked to a project */}
+                                                {!defaultProjectId && (
+                                                    <div className="space-y-1">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project (Optional)</label>
+                                                        <select
+                                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+                                                            {...register('projectId')}
+                                                        >
+                                                            <option value="">No Project</option>
+                                                            {projects?.map((project) => (
+                                                                <option key={project.id} value={project.id}>
+                                                                    {project.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
 
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-1">

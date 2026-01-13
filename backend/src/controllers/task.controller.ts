@@ -2,25 +2,44 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import * as taskService from '../services/task.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import prisma from '../config/db';
+import { AppError } from '../utils/AppError';
+
+// Define enums for Zod validation (assuming these are defined elsewhere or will be added)
+// For the purpose of this change, we'll assume they are available or will be imported.
+// If not, you might need to define them or import them from your Prisma schema or a types file.
+enum Priority {
+    LOW = 'LOW',
+    MEDIUM = 'MEDIUM',
+    HIGH = 'HIGH',
+}
+
+enum TaskStatus {
+    PENDING = 'PENDING',
+    IN_PROGRESS = 'IN_PROGRESS',
+    COMPLETED = 'COMPLETED',
+}
 
 // Esquemas de validación
 export const createTaskSchema = z.object({
     body: z.object({
         title: z.string().min(1, 'Title is required'),
         description: z.string().optional(),
-        status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED']).optional(),
-        priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
+        status: z.nativeEnum(TaskStatus).optional(), // Changed to nativeEnum
+        priority: z.nativeEnum(Priority).optional(), // Changed to nativeEnum
         tags: z.array(z.string()).optional(),
+        projectId: z.string().uuid().optional().nullable(), // Added projectId
     }),
 });
 
 export const updateTaskSchema = z.object({
     body: z.object({
-        title: z.string().optional(),
+        title: z.string().min(1).optional(), // Added min(1)
         description: z.string().optional(),
-        status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED']).optional(),
-        priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
+        status: z.nativeEnum(TaskStatus).optional(), // Changed to nativeEnum
+        priority: z.nativeEnum(Priority).optional(), // Changed to nativeEnum
         tags: z.array(z.string()).optional(),
+        projectId: z.string().uuid().optional().nullable(), // Added projectId
     }),
     params: z.object({
         id: z.string().uuid(),
@@ -35,6 +54,7 @@ export interface TaskQuery {
     priority?: string;
     search?: string;
     sort?: 'newest' | 'oldest';
+    projectId?: string | 'null'; // 'null' string for filtering unassigned tasks
 }
 
 export const createTask = async (
@@ -43,7 +63,28 @@ export const createTask = async (
     next: NextFunction
 ) => {
     try {
-        const task = await taskService.createTask(req.user!.id, req.body as CreateTaskInput);
+        const { title, description, status, priority, tags, projectId } = req.body;
+        const userId = req.user!.id;
+
+        // Verify project ownership if projectId is provided
+        if (projectId) {
+            const project = await prisma.project.findUnique({ where: { id: projectId } });
+            if (!project || project.userId !== userId) {
+                return next(new AppError('Project not found or access denied', 400));
+            }
+        }
+
+        const task = await prisma.task.create({
+            data: {
+                title,
+                description,
+                status, // Include status
+                priority,
+                tags,
+                userId,
+                projectId
+            },
+        });
         res.status(201).json({
             status: 'success',
             data: { task },
