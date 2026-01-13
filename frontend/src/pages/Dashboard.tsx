@@ -82,12 +82,12 @@ const Dashboard = () => {
 
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4 sm:space-y-0 sm:flex sm:space-x-4">
                 <div className="flex-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     </div>
                     <input
                         type="text"
-                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 md:text-lg sm:text-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg transition-colors"
+                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-3 py-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg transition-colors text-sm sm:text-base md:text-lg"
                         placeholder={t('tasks.searchPlaceholder')}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
