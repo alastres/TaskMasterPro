@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -19,6 +20,10 @@ app.use(morgan('dev'));
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
+
+// Servir archivos estáticos (uploads)
+// Serve uploads from root/uploads since we created uploads folder at project root level (../../uploads relative to src/middlewares)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Endpoint raíz
 app.get('/', (req, res) => {

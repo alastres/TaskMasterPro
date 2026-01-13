@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/auth.store';
 import api from '../api/axios';
-import { User, Lock, Save, Loader2, Camera } from 'lucide-react';
+import { User, Lock, Save, Loader2, Camera, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+// Modify schema to exclude avatarUrl validation since we handle it manually via FormData
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     nickname: z.string().min(1, 'Nickname is required').max(20, 'Nickname maximum 20 characters'),
-    avatarUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
 });
 
 const passwordSchema = z.object({
@@ -28,14 +28,14 @@ type PasswordForm = z.infer<typeof passwordSchema>;
 
 const Profile = () => {
     const { user, setAuth, token } = useAuthStore();
-    const queryClient = useQueryClient();
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(user?.avatarUrl || null);
 
     const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: profileErrors } } = useForm<ProfileForm>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
             name: user?.name || '',
             nickname: user?.nickname || '',
-            avatarUrl: user?.avatarUrl || '',
         },
     });
 
@@ -43,9 +43,32 @@ const Profile = () => {
         resolver: zodResolver(passwordSchema),
     });
 
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const updateProfileMutation = useMutation({
         mutationFn: async (data: ProfileForm) => {
-            const res = await api.put('/users/profile', data);
+            const formData = new FormData();
+            formData.append('name', data.name);
+            formData.append('nickname', data.nickname);
+            if (selectedFile) {
+                formData.append('avatar', selectedFile);
+            }
+
+            const res = await api.put('/users/profile', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             return res.data.data.user;
         },
         onSuccess: (updatedUser) => {
@@ -76,7 +99,7 @@ const Profile = () => {
     });
 
     return (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -101,6 +124,29 @@ const Profile = () => {
                     </div>
                     <form onSubmit={handleSubmitProfile(updateProfileMutation.mutate)} className="p-6 space-y-6">
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div className="sm:col-span-2 flex flex-col items-center justify-center space-y-4">
+                                <div className="relative h-24 w-24">
+                                    {previewUrl ? (
+                                        <img src={previewUrl} alt="Avatar Preview" className="h-24 w-24 rounded-full object-cover border-4 border-indigo-100 dark:border-indigo-900" />
+                                    ) : (
+                                        <div className="h-24 w-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                            <User className="h-12 w-12 text-gray-400" />
+                                        </div>
+                                    )}
+                                    <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-indigo-600 p-1.5 rounded-full text-white hover:bg-indigo-700 cursor-pointer shadow-sm transition-colors">
+                                        <Camera className="h-4 w-4" />
+                                        <input
+                                            id="avatar-upload"
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                        />
+                                    </label>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Click camera icon to change avatar</p>
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Full Name
@@ -126,26 +172,6 @@ const Profile = () => {
                                 />
                                 {profileErrors.nickname && (
                                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.nickname.message}</p>
-                                )}
-                            </div>
-
-                            <div className="sm:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Avatar URL
-                                </label>
-                                <div className="mt-1 flex rounded-md shadow-sm">
-                                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm">
-                                        <Camera className="h-4 w-4" />
-                                    </span>
-                                    <input
-                                        type="text"
-                                        className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
-                                        placeholder="https://example.com/avatar.jpg"
-                                        {...registerProfile('avatarUrl')}
-                                    />
-                                </div>
-                                {profileErrors.avatarUrl && (
-                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.avatarUrl.message}</p>
                                 )}
                             </div>
                         </div>

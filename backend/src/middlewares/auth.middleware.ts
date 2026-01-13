@@ -11,6 +11,7 @@ export interface AuthRequest<T = any> extends Request<any, any, T> {
         nickname: string;
         avatarUrl?: string | null;
     };
+    file?: Express.Multer.File;
 }
 
 export const protect = async (

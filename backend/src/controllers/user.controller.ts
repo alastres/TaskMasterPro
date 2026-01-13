@@ -35,9 +35,24 @@ export const updateProfile = async (
     res: Response,
     next: NextFunction
 ) => {
+    // Parse body if it's sent as formdata (multer handles this generally, but we need to ensure types match)
+    const { name, nickname } = req.body;
+    let dataToUpdate: any = { name, nickname };
+
+    // If a file was uploaded, add the avatarUrl to the update data
+    if (req.file) {
+        // Construct the URL. In production this would be full URL or relative path.
+        // Assuming we serve /uploads route
+        const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
+        dataToUpdate.avatarUrl = avatarUrl;
+    } else if (req.body.avatarUrl === '') {
+        // Allow clearing avatar
+        dataToUpdate.avatarUrl = null;
+    }
+
     try {
         const userId = req.user!.id;
-        const updatedUser = await userService.updateProfile(userId, req.body);
+        const updatedUser = await userService.updateProfile(userId, dataToUpdate);
         res.status(200).json({
             status: 'success',
             data: { user: updatedUser },
