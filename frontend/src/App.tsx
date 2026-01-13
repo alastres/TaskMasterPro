@@ -11,7 +11,7 @@ function App() {
 
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Rutas Públicas */}
       <Route
         path="/login"
         element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
@@ -21,15 +21,15 @@ function App() {
         element={!isAuthenticated ? <Register /> : <Navigate to="/" />}
       />
 
-      {/* Protected Routes */}
+      {/* Rutas Protegidas */}
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
-          {/* Add more protected routes here (e.g., Profile, TaskDetails) */}
+          {/* Añadir más rutas protegidas aquí (ej., Perfil, DetallesTarea) */}
         </Route>
       </Route>
 
-      {/* Catch all */}
+      {/* Capturar todo */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

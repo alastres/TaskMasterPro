@@ -10,7 +10,7 @@ const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
 
-    // Filters
+    // Filtros
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebounce(search, 500);
     const [status, setStatus] = useState<string>('');
@@ -46,8 +46,8 @@ const Dashboard = () => {
         setTaskToEdit(null);
     };
 
-    // Debounced search input handler (simplified)
-    // A real hook is better. I will create hooks/useDebounce.ts next.
+    // Manejador de entrada de búsqueda con debounce (simplificado)
+    // Un hook real es mejor. Crearé hooks/useDebounce.ts a continuación.
 
     return (
         <div className="space-y-6">

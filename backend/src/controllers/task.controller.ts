@@ -3,7 +3,7 @@ import { z } from 'zod';
 import * as taskService from '../services/task.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
 
-// Validation Schemas
+// Esquemas de validación
 export const createTaskSchema = z.object({
     body: z.object({
         title: z.string().min(1, 'Title is required'),

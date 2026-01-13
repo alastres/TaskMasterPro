@@ -31,7 +31,7 @@ const Login = () => {
         },
         onError: (error: any) => {
             console.error('Login failed', error);
-            // Ideally show toast/alert
+            // Idealmente mostrar notificación/alerta
             alert(error.response?.data?.message || 'Login failed');
         },
     });

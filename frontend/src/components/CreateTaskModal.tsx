@@ -11,7 +11,7 @@ const taskSchema = z.object({
     description: z.string().optional(),
     status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED']),
     priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
-    tags: z.string().optional(), // Comma separated string for input
+    tags: z.string().optional(), // Cadena separada por comas para la entrada
 });
 
 type TaskForm = z.infer<typeof taskSchema>;

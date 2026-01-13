@@ -13,7 +13,7 @@ import {
 
 const router = express.Router();
 
-router.use(protect); // Protect all routes
+router.use(protect); // Proteger todas las rutas
 
 router
     .route('/')

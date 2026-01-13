@@ -61,7 +61,7 @@ export const updateTask = async (
     taskId: string,
     input: UpdateTaskInput
 ) => {
-    const task = await getTask(userId, taskId); // verifies ownership
+    const task = await getTask(userId, taskId); // verifica propiedad
 
     return await prisma.task.update({
         where: { id: taskId },
@@ -70,7 +70,7 @@ export const updateTask = async (
 };
 
 export const deleteTask = async (userId: string, taskId: string) => {
-    const task = await getTask(userId, taskId); // verifies ownership
+    const task = await getTask(userId, taskId); // verifica propiedad
 
     await prisma.task.delete({
         where: { id: taskId },

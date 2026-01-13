@@ -15,17 +15,17 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 
-// Routes
+// Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 
-// Root Endpoint
+// Endpoint raíz
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to TaskMaster Pro API' });
 });
 
-// Error Handling
+// Manejo de errores
 app.use(errorHandler);
 
 export default app;

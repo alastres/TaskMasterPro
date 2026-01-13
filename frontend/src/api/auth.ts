@@ -1,6 +1,6 @@
 import api from './axios';
 
-// Redefining types to avoid build issues if backend is not in valid TS include path of frontend.
+// Redefiniendo tipos para evitar problemas de compilación si el backend no está en la ruta de inclusión TS válida del frontend.
 
 export interface LoginPayload {
     email: string;
