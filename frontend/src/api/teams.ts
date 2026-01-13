@@ -14,6 +14,25 @@ export interface Team {
     name: string;
     ownerId: string;
     members: TeamMember[];
+    projects: Array<{
+        id: string;
+        name: string;
+        members: Array<{
+            id: string;
+            userId: string;
+            user: User;
+        }>;
+        invitations: Array<{
+            id: string;
+            email: string;
+            createdAt: string;
+        }>;
+    }>;
+    invitations: Array<{
+        id: string;
+        email: string;
+        createdAt: string;
+    }>;
     createdAt: string;
     updatedAt: string;
 }
@@ -47,4 +66,8 @@ export const getMemberships = async (): Promise<Membership[]> => {
 
 export const removeMemberFromProject = async (projectId: string, userId: string): Promise<void> => {
     await api.delete(`/teams/project/${projectId}/member/${userId}`);
+};
+
+export const cancelInvitation = async (id: string): Promise<void> => {
+    await api.delete(`/teams/invitations/${id}`);
 };

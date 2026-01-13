@@ -64,7 +64,7 @@ model Invitation {
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
-  @@unique([teamId, email])
+  @@unique([teamId, email, projectId], name: "teamId_email_projectId")
 }
 
 model Notification {

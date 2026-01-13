@@ -20,6 +20,13 @@ export interface Project {
             avatarUrl?: string;
         };
     }>;
+    invitations?: Array<{
+        id: string;
+        email: string;
+        status: string;
+        inviter: { name: string };
+        createdAt: string;
+    }>;
     _count?: {
         tasks: number;
     };

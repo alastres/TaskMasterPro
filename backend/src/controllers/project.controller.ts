@@ -98,6 +98,12 @@ export const getProjectById = async (
                         }
                     }
                 },
+                invitations: {
+                    where: { status: 'PENDING' },
+                    include: {
+                        inviter: { select: { name: true } }
+                    }
+                },
                 tasks: {
                     orderBy: {
                         createdAt: 'desc'

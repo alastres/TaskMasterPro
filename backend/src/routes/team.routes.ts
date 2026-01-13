@@ -10,5 +10,6 @@ router.get('/my-team', teamController.getMyTeam);
 router.post('/invite', teamController.inviteMember);
 router.get('/memberships', teamController.getMemberships);
 router.delete('/project/:projectId/member/:userId', teamController.removeMemberFromProject);
+router.delete('/invitations/:id', teamController.cancelInvitation);
 
 export default router;

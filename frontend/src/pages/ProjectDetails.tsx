@@ -3,15 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getProjectById, deleteProject } from '../api/projects';
-import { Loader2, Plus, Trash2, ArrowLeft, Edit2, LayoutGrid, List as ListIcon, SortAsc, SortDesc, UserPlus, Mail, X } from 'lucide-react';
+import { Loader2, Plus, Trash2, ArrowLeft, Edit2, LayoutGrid, List as ListIcon, SortAsc, SortDesc, UserPlus } from 'lucide-react';
 import { updateTask, deleteTask, Task } from '../api/tasks';
 import TaskCard from '../components/TaskCard';
 import KanbanBoard from '../components/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
-import { getMyTeam, inviteMember, removeMemberFromProject } from '../api/teams';
+import ProjectMembersModal from '../components/ProjectMembersModal';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuthStore } from '../store/auth.store';
 import clsx from 'clsx';
 
 export const priorityWeight: Record<string, number> = {
@@ -25,11 +24,10 @@ const ProjectDetails = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const { user: currentUser } = useAuthStore();
+
     const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
     const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-    const [inviteEmail, setInviteEmail] = useState('');
+    const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
     const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
     const [prioritySort, setPrioritySort] = useState<'asc' | 'desc' | null>(null);
@@ -48,32 +46,7 @@ const ProjectDetails = () => {
         },
     });
 
-    const inviteMutation = useMutation({
-        mutationFn: async (email: string) => {
-            const team = await getMyTeam();
-            return inviteMember(team.id, email, id!);
-        },
-        onSuccess: () => {
-            setInviteEmail('');
-            setIsInviteModalOpen(false);
-            alert(t('teams.inviteSuccess'));
-        },
-        onError: (error: any) => {
-            alert(error.response?.data?.message || t('common.error'));
-        }
-    });
 
-    const removeMemberMutation = useMutation({
-        mutationFn: (userId: string) => removeMemberFromProject(id!, userId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['project', id] });
-        }
-    });
-
-    const handleInvite = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (inviteEmail) inviteMutation.mutate(inviteEmail);
-    };
 
     const sortedTasks = useMemo(() => {
         if (!project?.tasks) return [];
@@ -200,7 +173,7 @@ const ProjectDetails = () => {
                 {project.isOwner && (
                     <>
                         <button
-                            onClick={() => setIsInviteModalOpen(true)}
+                            onClick={() => setIsMembersModalOpen(true)}
                             className="p-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
                             title={t('teams.invite')}
                         >
@@ -227,41 +200,30 @@ const ProjectDetails = () => {
             <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-4">
                 <div className="flex items-center gap-6">
                     <h2 className="text-lg font-medium text-gray-900 dark:text-white">{t('tasks.tasks')}</h2>
-                    {project.members && project.members.length > 0 && (
-                        <div className="flex -space-x-2">
-                            {project.members.map((member: any) => (
-                                <div
-                                    key={member.id}
-                                    className="relative group"
-                                    title={member.user.name}
-                                >
-                                    {member.user.avatarUrl ? (
-                                        <img
-                                            src={member.user.avatarUrl}
-                                            alt={member.user.name}
-                                            className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-900 object-cover"
-                                        />
-                                    ) : (
-                                        <div className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-900 bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                                            {member.user.name.substring(0, 2).toUpperCase()}
-                                        </div>
-                                    )}
-                                    {project.isOwner && (
-                                        <button
-                                            onClick={() => {
-                                                if (window.confirm(`${t('common.delete')} ${member.user.name}?`)) {
-                                                    removeMemberMutation.mutate(member.user.id);
-                                                }
-                                            }}
-                                            className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                                        >
-                                            <X size={10} />
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    {/* Members list avatars - Click to manage */}
+                    <div
+                        onClick={() => setIsMembersModalOpen(true)}
+                        className="flex items-center -space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 p-1 rounded-full transition-colors"
+                        title="Gestionar miembros"
+                    >
+                        {project.members?.map((member: any) => (
+                            <div key={member.id} className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-800 bg-indigo-100 dark:bg-indigo-900 overflow-hidden flex items-center justify-center">
+                                {member.user.avatarUrl ? (
+                                    <img src={member.user.avatarUrl} alt="" className="h-full w-full object-cover" />
+                                ) : (
+                                    <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                                        {member.user.name.substring(0, 1).toUpperCase()}
+                                    </span>
+                                )}
+                            </div>
+                        ))}
+                        {project.invitations && project.invitations.length > 0 && (
+                            <div className="h-8 w-8 rounded-full border-2 border-white dark:border-gray-800 bg-yellow-100 dark:bg-yellow-900/50 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
+                                <Plus size={10} />
+                                {project.invitations.length}
+                            </div>
+                        )}
+                    </div>
                 </div>
                 {project.isOwner && (
                     <button
@@ -315,65 +277,17 @@ const ProjectDetails = () => {
                 project={project}
             />
 
-            <AnimatePresence>
-                {isInviteModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
-                        >
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                    <UserPlus className="h-5 w-5 text-indigo-600" />
-                                    {t('teams.inviteMember')}
-                                </h3>
-                                <button onClick={() => setIsInviteModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                                    <X size={20} />
-                                </button>
-                            </div>
-                            <form onSubmit={handleInvite} className="p-6 space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        {t('teams.inviteMemberInstructions') || 'Introduce el correo electrónico para invitar a colaborar en este proyecto.'}
-                                    </label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                        <input
-                                            type="email"
-                                            value={inviteEmail}
-                                            onChange={(e) => setInviteEmail(e.target.value)}
-                                            placeholder={t('teams.emailPlaceholder')}
-                                            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex gap-3 pt-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsInviteModalOpen(false)}
-                                        className="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                                    >
-                                        {t('common.cancel')}
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={inviteMutation.isPending}
-                                        className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
-                                    >
-                                        {inviteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-                                        {t('teams.invite')}
-                                    </button>
-                                </div>
-                            </form>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            {project && (
+                <ProjectMembersModal
+                    isOpen={isMembersModalOpen}
+                    onClose={() => setIsMembersModalOpen(false)}
+                    project={project}
+                    isOwner={!!project.isOwner}
+                />
+            )}
         </div>
     );
 };
 
 export default ProjectDetails;
+

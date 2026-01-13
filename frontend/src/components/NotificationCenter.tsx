@@ -26,9 +26,12 @@ const NotificationCenter: React.FC = () => {
     });
 
     const responseMutation = useMutation({
-        mutationFn: ({ invitationId, accept }: { invitationId: string; accept: boolean }) =>
-            respondToInvitation(invitationId, accept),
-        onSuccess: (data, variables) => {
+        mutationFn: ({ invitationId, accept, notificationId }: { invitationId: string; accept: boolean; notificationId: string }) =>
+            respondToInvitation(invitationId, accept).then(() => notificationId),
+        onSuccess: (notificationId, variables) => {
+            // Mark as read immediately to hide buttons
+            markReadMutation.mutate(notificationId);
+
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
             queryClient.invalidateQueries({ queryKey: ['projects'] });
             if (variables.accept) {
@@ -134,7 +137,11 @@ const NotificationCenter: React.FC = () => {
                                                     {notification.type === 'INVITATION' && !notification.isRead && notification.data?.invitationId && (
                                                         <div className="mt-3 flex gap-2">
                                                             <button
-                                                                onClick={() => responseMutation.mutate({ invitationId: notification.data.invitationId, accept: true })}
+                                                                onClick={() => responseMutation.mutate({
+                                                                    invitationId: notification.data.invitationId,
+                                                                    accept: true,
+                                                                    notificationId: notification.id
+                                                                })}
                                                                 disabled={responseMutation.isPending}
                                                                 className="px-3 py-1 bg-indigo-600 text-white text-[11px] font-bold rounded hover:bg-indigo-700 flex items-center gap-1 transition-colors"
                                                             >
@@ -142,7 +149,11 @@ const NotificationCenter: React.FC = () => {
                                                                 {t('notifications.accept')}
                                                             </button>
                                                             <button
-                                                                onClick={() => responseMutation.mutate({ invitationId: notification.data.invitationId, accept: false })}
+                                                                onClick={() => responseMutation.mutate({
+                                                                    invitationId: notification.data.invitationId,
+                                                                    accept: false,
+                                                                    notificationId: notification.id
+                                                                })}
                                                                 disabled={responseMutation.isPending}
                                                                 className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[11px] font-bold rounded hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-1 transition-colors"
                                                             >

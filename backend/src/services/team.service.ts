@@ -15,8 +15,44 @@ export const getOrCreateUserTeam = async (userId: string) => {
                 name: `Equipo de ${userId.substring(0, 5)}`,
                 ownerId: userId
             },
-            include: { members: { include: { user: true } } }
+            include: {
+                members: { include: { user: true } },
+                projects: {
+                    include: {
+                        members: { include: { user: true } },
+                        invitations: {
+                            where: { status: InvitationStatus.PENDING },
+                            include: { inviter: { select: { name: true } } }
+                        }
+                    }
+                },
+                invitations: {
+                    where: { status: InvitationStatus.PENDING, projectId: null },
+                    include: { inviter: { select: { name: true } } }
+                }
+            }
         });
+    } else {
+        // Refresh team data with projects and invitations
+        team = await prisma.team.findUnique({
+            where: { ownerId: userId },
+            include: {
+                members: { include: { user: true } },
+                projects: {
+                    include: {
+                        members: { include: { user: true } },
+                        invitations: {
+                            where: { status: InvitationStatus.PENDING },
+                            include: { inviter: { select: { name: true } } }
+                        }
+                    }
+                },
+                invitations: {
+                    where: { status: InvitationStatus.PENDING, projectId: null },
+                    include: { inviter: { select: { name: true } } }
+                }
+            }
+        }) as any;
     }
 
     return team;
@@ -38,30 +74,45 @@ export const inviteMember = async (teamId: string, email: string, inviterId: str
     // Check if user is already a member
     const targetUser = await prisma.user.findUnique({ where: { email } });
     if (targetUser) {
-        const isMember = await prisma.teamMember.findUnique({
-            where: { teamId_userId: { teamId, userId: targetUser.id } }
-        });
-        if (isMember) throw new Error('El usuario ya es miembro de este equipo');
+        if (projectId) {
+            const isProjectMember = await prisma.projectMember.findUnique({
+                where: { projectId_userId: { projectId, userId: targetUser.id } }
+            });
+            if (isProjectMember) throw new Error('El usuario ya es miembro de este proyecto');
+        } else {
+            const isTeamMember = await prisma.teamMember.findUnique({
+                where: { teamId_userId: { teamId, userId: targetUser.id } }
+            });
+            if (isTeamMember) throw new Error('El usuario ya es miembro de este equipo');
+        }
     }
 
-    // Upsert invitation (update if exists for the same team/email)
-    const token = uuidv4();
-    const invitation = await prisma.invitation.upsert({
-        where: { teamId_email: { teamId, email } },
-        update: {
-            status: InvitationStatus.PENDING,
-            token,
-            projectId: projectId || null,
-            updatedAt: new Date()
-        },
-        create: {
-            email,
-            teamId,
-            projectId,
-            inviterId,
-            token
-        }
+    // Logic to avoid multiple invitations or update existing one
+    let invitation = await prisma.invitation.findFirst({
+        where: { teamId, email, projectId: projectId || null }
     });
+
+    const token = uuidv4();
+    if (invitation) {
+        invitation = await prisma.invitation.update({
+            where: { id: invitation.id },
+            data: {
+                status: InvitationStatus.PENDING,
+                token,
+                updatedAt: new Date()
+            }
+        });
+    } else {
+        invitation = await prisma.invitation.create({
+            data: {
+                email,
+                teamId,
+                projectId,
+                inviterId,
+                token
+            }
+        });
+    }
 
     // If user exists in system, send notification
     if (targetUser) {
@@ -162,5 +213,19 @@ export const removeMemberFromProject = async (projectId: string, userId: string,
 
     return await prisma.projectMember.delete({
         where: { projectId_userId: { projectId, userId } }
+    });
+};
+
+export const cancelInvitation = async (invitationId: string, ownerId: string) => {
+    const invitation = await prisma.invitation.findUnique({
+        where: { id: invitationId },
+        include: { team: true }
+    });
+
+    if (!invitation) throw new Error('Invitación no encontrada');
+    if (invitation.team.ownerId !== ownerId) throw new Error('No tienes permiso para cancelar esta invitación');
+
+    return await prisma.invitation.delete({
+        where: { id: invitationId }
     });
 };

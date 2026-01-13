@@ -62,3 +62,16 @@ export const getMemberships = async (req: AuthRequest, res: Response, next: Next
         next(error);
     }
 };
+
+export const cancelInvitation = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        await teamService.cancelInvitation(id, req.user!.id);
+        res.status(204).json({
+            status: 'success',
+            data: null
+        });
+    } catch (error) {
+        next(error);
+    }
+};
