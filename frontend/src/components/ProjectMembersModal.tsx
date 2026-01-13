@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, User, Mail, Trash2, Clock, Loader2, UserPlus, Shield, Users, Plus } from 'lucide-react';
+import { X, Mail, Trash2, Clock, Loader2, UserPlus, Shield, Users, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { removeMemberFromProject, cancelInvitation, inviteMember, getMyTeam } from '../api/teams';
@@ -102,7 +102,7 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
                                     className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold rounded-xl text-sm transition-all flex items-center gap-2"
                                 >
                                     {inviteMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />}
-                                    {t('common.invite')}
+                                    {t('teams.invite')}
                                 </button>
                             </form>
                         </section>
@@ -133,7 +133,7 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
                                     {isOwner && member.userId !== project.userId && (
                                         <button
                                             onClick={() => {
-                                                if (window.confirm(`¿Quitar a ${member.user.name} del proyecto?`)) {
+                                                if (window.confirm(t('teams.removeMemberConfirm', { name: member.user.name }))) {
                                                     removeMemberMutation.mutate(member.userId);
                                                 }
                                             }}
@@ -170,13 +170,15 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
                                             </div>
                                             <div className="min-w-0">
                                                 <p className="text-sm font-bold text-gray-700 dark:text-gray-300 truncate">{invite.email}</p>
-                                                <p className="text-[10px] text-gray-400">Enviada el {new Date(invite.createdAt).toLocaleDateString()}</p>
+                                                <p className="text-[10px] text-gray-400">
+                                                    {t('teams.sentOn', { date: new Date(invite.createdAt).toLocaleDateString() })}
+                                                </p>
                                             </div>
                                         </div>
                                         {isOwner && (
                                             <button
                                                 onClick={() => {
-                                                    if (window.confirm(`¿Anular invitación para ${invite.email}?`)) {
+                                                    if (window.confirm(t('teams.cancelInviteConfirm', { email: invite.email }))) {
                                                         cancelInviteMutation.mutate(invite.id);
                                                     }
                                                 }}

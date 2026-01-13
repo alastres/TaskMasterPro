@@ -35,6 +35,18 @@ export const markAsRead = async (req: AuthRequest, res: Response, next: NextFunc
     }
 };
 
+export const markAllAsRead = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        await notificationService.markAllAsRead(req.user!.id);
+        res.status(200).json({
+            status: 'success',
+            data: null
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const respondToInvitation = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const { invitationId, accept } = respondInvitationSchema.parse(req.body);

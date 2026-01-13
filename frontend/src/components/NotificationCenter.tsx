@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Check, X, Trash2, Loader2, Info, Users, LayoutGrid } from 'lucide-react';
-import { getNotifications, markAsRead, respondToInvitation, deleteNotification } from '../api/notifications';
+import { getNotifications, markAsRead, markAllAsRead, respondToInvitation, deleteNotification } from '../api/notifications';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
@@ -22,6 +22,11 @@ const NotificationCenter: React.FC = () => {
 
     const markReadMutation = useMutation({
         mutationFn: markAsRead,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    });
+
+    const markAllReadMutation = useMutation({
+        mutationFn: markAllAsRead,
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
     });
 
@@ -92,8 +97,12 @@ const NotificationCenter: React.FC = () => {
                         <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                             <h3 className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-xs">{t('notifications.title')}</h3>
                             {unreadCount > 0 && (
-                                <button className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline">
-                                    {t('notifications.markAllAsRead')}
+                                <button
+                                    onClick={() => markAllReadMutation.mutate()}
+                                    disabled={markAllReadMutation.isPending}
+                                    className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline disabled:opacity-50"
+                                >
+                                    {markAllReadMutation.isPending ? t('common.loading') : t('notifications.markAllAsRead')}
                                 </button>
                             )}
                         </div>
@@ -127,7 +136,7 @@ const NotificationCenter: React.FC = () => {
                                                     {notification.data?.projectId && (
                                                         <div className="mt-1 flex items-center gap-1.5">
                                                             <LayoutGrid className="h-3 w-3 text-indigo-400" />
-                                                            <span className="text-[10px] font-medium text-indigo-500 uppercase tracking-tight">Project Collaboration</span>
+                                                            <span className="text-[10px] font-medium text-indigo-500 uppercase tracking-tight">{t('notifications.projectCollaboration')}</span>
                                                         </div>
                                                     )}
                                                     <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2">

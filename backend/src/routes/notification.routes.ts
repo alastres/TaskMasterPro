@@ -7,6 +7,7 @@ const router = Router();
 router.use(protect);
 
 router.get('/', notificationController.getMyNotifications);
+router.patch('/read-all', notificationController.markAllAsRead);
 router.patch('/:id/read', notificationController.markAsRead);
 router.post('/respond-invite', notificationController.respondToInvitation);
 router.delete('/:id', notificationController.deleteNotification);

@@ -31,7 +31,7 @@ const TeamManagement: React.FC = () => {
                     {t('teams.title')}
                 </h1>
                 <p className="mt-2 text-gray-500 dark:text-gray-400">
-                    Administra tus colaboradores y equipos de trabajo.
+                    {t('teams.subtitle')}
                 </p>
             </div>
 
@@ -39,8 +39,8 @@ const TeamManagement: React.FC = () => {
                 {team?.projects.length === 0 ? (
                     <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-dashed border-gray-200 dark:border-gray-700">
                         <LayoutGrid className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No hay proyectos aún</h3>
-                        <p className="text-gray-500 dark:text-gray-400">Crea un proyecto para empezar a colaborar.</p>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">{t('teams.noProjects')}</h3>
+                        <p className="text-gray-500 dark:text-gray-400">{t('teams.createProjectPrompt')}</p>
                     </div>
                 ) : (
                     team?.projects.map((project: any) => (
@@ -52,7 +52,7 @@ const TeamManagement: React.FC = () => {
                                     </div>
                                     <div>
                                         <h2 className="text-lg font-bold text-gray-900 dark:text-white">{project.name}</h2>
-                                        <p className="text-xs text-gray-500">{project.members.length} {t('teams.members')} • {project.invitations.length} pendientes</p>
+                                        <p className="text-xs text-gray-500">{project.members.length} {t('teams.members')} • {project.invitations.length} {t('teams.pending')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -75,13 +75,13 @@ const TeamManagement: React.FC = () => {
                                             </div>
                                             <button
                                                 onClick={async () => {
-                                                    if (window.confirm(`¿Quitar a ${member.user.name} del proyecto?`)) {
+                                                    if (window.confirm(t('teams.removeMemberConfirm', { name: member.user.name }))) {
                                                         await removeMemberFromProject(project.id, member.user.id);
                                                         queryClient.invalidateQueries({ queryKey: ['my-team'] });
                                                     }
                                                 }}
                                                 className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                                                title="Eliminar del proyecto"
+                                                title={t('teams.removeMemberTooltip')}
                                             >
                                                 <Trash2 size={14} />
                                             </button>
@@ -96,17 +96,17 @@ const TeamManagement: React.FC = () => {
                                             </div>
                                             <div className="ml-3 min-w-0 flex-1">
                                                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{invite.email}</p>
-                                                <p className="text-[10px] text-yellow-600 dark:text-yellow-500 uppercase font-bold tracking-tighter">Pendiente</p>
+                                                <p className="text-[10px] text-yellow-600 dark:text-yellow-500 uppercase font-bold tracking-tighter">{t('teams.pending')}</p>
                                             </div>
                                             <button
                                                 onClick={async () => {
-                                                    if (window.confirm(`¿Anular invitación para ${invite.email}?`)) {
+                                                    if (window.confirm(t('teams.cancelInviteConfirm', { email: invite.email }))) {
                                                         await cancelInvitation(invite.id);
                                                         queryClient.invalidateQueries({ queryKey: ['my-team'] });
                                                     }
                                                 }}
                                                 className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                                                title="Cancelar invitación"
+                                                title={t('teams.cancelInviteTooltip')}
                                             >
                                                 <X size={14} />
                                             </button>
@@ -128,7 +128,7 @@ const TeamManagement: React.FC = () => {
                         </div>
                         <div>
                             <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{t('teams.myTeam')}</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Eres el dueño de este equipo. Tienes control total sobre los proyectos y miembros.</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('teams.ownerInfo')}</p>
                         </div>
                     </div>
                     <div className="flex -space-x-2">

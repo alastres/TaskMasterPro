@@ -24,6 +24,11 @@ export const markAsRead = async (id: string) => {
     return response.data.data;
 };
 
+export const markAllAsRead = async () => {
+    const response = await api.patch('/notifications/read-all');
+    return response.data.data;
+};
+
 export const respondToInvitation = async (invitationId: string, accept: boolean) => {
     const response = await api.post('/notifications/respond-invite', { invitationId, accept });
     return response.data;

@@ -120,7 +120,8 @@
         "accept": "Accept",
         "reject": "Reject",
         "invitationTitle": "Team Invitation",
-        "invitationMessage": "{{name}} has invited you to join their team."
+        "invitationMessage": "{{name}} has invited you to join their team.",
+        "projectCollaboration": "Project Collaboration"
     },
     "teams": {
         "title": "Team Management",
@@ -134,7 +135,20 @@
         "roleOwner": "Owner",
         "roleMember": "Member",
         "noMembers": "No members in this team yet.",
-        "inviteSuccess": "Invitation sent successfully"
+        "inviteSuccess": "Invitation sent successfully",
+        "subtitle": "Manage your collaborators and work teams.",
+        "noProjects": "No projects yet",
+        "createProjectPrompt": "Create a project to start collaborating.",
+        "pending": "Pending",
+        "removeMemberConfirm": "Remove {{name}} from the project?",
+        "removeMemberTooltip": "Remove from project",
+        "cancelInviteConfirm": "Cancel invitation for {{email}}?",
+        "cancelInviteTooltip": "Cancel invitation",
+        "ownerInfo": "You are the owner of this team. You have full control over projects and members.",
+        "manageMembers": "Manage Members",
+        "inviteToProject": "Invite to Project",
+        "pendingInvitations": "Pending Invitations",
+        "sentOn": "Sent on {{date}}"
     },
     "breadcrumbs": {
         "home": "Home"

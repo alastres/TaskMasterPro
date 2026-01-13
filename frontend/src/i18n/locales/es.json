@@ -120,7 +120,8 @@
         "accept": "Aceptar",
         "reject": "Rechazar",
         "invitationTitle": "Invitación a equipo",
-        "invitationMessage": "{{name}} te ha invitado a unirte a su equipo."
+        "invitationMessage": "{{name}} te ha invitado a unirte a su equipo.",
+        "projectCollaboration": "Colaboración en Proyecto"
     },
     "teams": {
         "title": "Gestión de Equipo",
@@ -134,7 +135,20 @@
         "roleOwner": "Dueño",
         "roleMember": "Miembro",
         "noMembers": "No hay miembros en este equipo aún.",
-        "inviteSuccess": "Invitación enviada exitosamente"
+        "inviteSuccess": "Invitación enviada exitosamente",
+        "subtitle": "Administra tus colaboradores y equipos de trabajo.",
+        "noProjects": "No hay proyectos aún",
+        "createProjectPrompt": "Crea un proyecto para empezar a colaborar.",
+        "pending": "Pendiente",
+        "removeMemberConfirm": "¿Quitar a {{name}} del proyecto?",
+        "removeMemberTooltip": "Eliminar del proyecto",
+        "cancelInviteConfirm": "¿Anular invitación para {{email}}?",
+        "cancelInviteTooltip": "Cancelar invitación",
+        "ownerInfo": "Eres el dueño de este equipo. Tienes control total sobre los proyectos y miembros.",
+        "manageMembers": "Administrar Miembros",
+        "inviteToProject": "Invitar al Proyecto",
+        "pendingInvitations": "Invitaciones Pendientes",
+        "sentOn": "Enviada el {{date}}"
     },
     "breadcrumbs": {
         "home": "Inicio"
