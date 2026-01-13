@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTasks, deleteTask, Task } from '../api/tasks';
+import { getTasks, deleteTask, updateTask, Task } from '../api/tasks';
 import TaskCard from '../components/TaskCard';
 import CreateTaskModal from '../components/CreateTaskModal';
-import { Plus, Search, Filter, Loader2 } from 'lucide-react';
+import { Plus, Search, Loader2, LayoutDashboard } from 'lucide-react';
 import { useDebounce } from '../hooks/useDebounce';
+import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +32,14 @@ const Dashboard = () => {
         },
     });
 
+    const updateStatusMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string; status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' }) =>
+            updateTask(id, { status }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+        },
+    });
+
     const handleEdit = (task: Task) => {
         setTaskToEdit(task);
         setIsModalOpen(true);
@@ -41,35 +51,45 @@ const Dashboard = () => {
         }
     };
 
+    const handleToggleStatus = (task: Task) => {
+        const newStatus = task.status === 'COMPLETED' ? 'PENDING' : 'COMPLETED';
+        updateStatusMutation.mutate({ id: task.id, status: newStatus });
+    };
+
     const closeModal = () => {
         setIsModalOpen(false);
         setTaskToEdit(null);
     };
 
-    // Manejador de entrada de búsqueda con debounce (simplificado)
-    // Un hook real es mejor. Crearé hooks/useDebounce.ts a continuación.
-
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                    <Plus className="h-5 w-5 mr-2" />
-                    New Task
-                </button>
+                <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                        <LayoutDashboard className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+                </div>
+                <div className="flex items-center space-x-4">
+                    <ThemeToggle />
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-105"
+                    >
+                        <Plus className="h-5 w-5 mr-2" />
+                        New Task
+                    </button>
+                </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 space-y-4 sm:space-y-0 sm:flex sm:space-x-4">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-4 sm:space-y-0 sm:flex sm:space-x-4">
                 <div className="flex-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-400" />
+                        <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     </div>
                     <input
                         type="text"
-                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg transition-colors"
                         placeholder="Search tasks..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -80,7 +100,7 @@ const Dashboard = () => {
                     <select
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
-                        className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                        className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
                     >
                         <option value="">All Status</option>
                         <option value="PENDING">Pending</option>
@@ -91,7 +111,7 @@ const Dashboard = () => {
                     <select
                         value={priority}
                         onChange={(e) => setPriority(e.target.value)}
-                        className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                        className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
                     >
                         <option value="">All Priorities</option>
                         <option value="LOW">Low</option>
@@ -110,15 +130,30 @@ const Dashboard = () => {
                     Error loading tasks
                 </div>
             ) : tasks?.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg border border-dashed border-gray-300">
-                    <p className="text-gray-500">No tasks found. Create one to get started!</p>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center py-20 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700"
+                >
+                    <p className="text-gray-500 dark:text-gray-400 text-lg">No tasks found. Create one to get started!</p>
+                </motion.div>
             ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {tasks?.map((task) => (
-                        <TaskCard key={task.id} task={task} onEdit={handleEdit} onDelete={handleDelete} />
-                    ))}
-                </div>
+                <motion.div
+                    layout
+                    className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                >
+                    <AnimatePresence>
+                        {tasks?.map((task) => (
+                            <TaskCard
+                                key={task.id}
+                                task={task}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onToggleStatus={handleToggleStatus}
+                            />
+                        ))}
+                    </AnimatePresence>
+                </motion.div>
             )}
 
             <CreateTaskModal

@@ -3,15 +3,17 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createTask, updateTask, CreateTaskPayload, Task } from '../api/tasks';
+import { createTask, updateTask, Task } from '../api/tasks';
 import { X, Loader2 } from 'lucide-react';
+import * as Dialog from '@radix-ui/react-dialog';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const taskSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().optional(),
     status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED']),
     priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
-    tags: z.string().optional(), // Cadena separada por comas para la entrada
+    tags: z.string().optional(),
 });
 
 type TaskForm = z.infer<typeof taskSchema>;
@@ -81,99 +83,122 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
         }
     };
 
-    if (!isOpen) return null;
-
     const isPending = createMutation.isPending || updateMutation.isPending;
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                    <div className="absolute inset-0 bg-gray-500 opacity-75" onClick={onClose}></div>
-                </div>
-
-                <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-                    <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">
-                                {taskToEdit ? 'Edit Task' : 'Create New Task'}
-                            </h3>
-                            <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
-                                <X className="h-6 w-6" />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Title</label>
-                                <input
-                                    type="text"
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    {...register('title')}
-                                />
-                                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Description</label>
-                                <textarea
-                                    rows={3}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    {...register('description')}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Status</label>
-                                    <select
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                        {...register('status')}
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <AnimatePresence>
+                {isOpen && (
+                    <Dialog.Portal forceMount>
+                        <Dialog.Overlay asChild>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 grid place-items-center overflow-y-auto p-4"
+                            >
+                                <Dialog.Content asChild>
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="w-full max-w-lg relative z-50"
                                     >
-                                        <option value="PENDING">Pending</option>
-                                        <option value="IN_PROGRESS">In Progress</option>
-                                        <option value="COMPLETED">Completed</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Priority</label>
-                                    <select
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                        {...register('priority')}
-                                    >
-                                        <option value="LOW">Low</option>
-                                        <option value="MEDIUM">Medium</option>
-                                        <option value="HIGH">High</option>
-                                    </select>
-                                </div>
-                            </div>
+                                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden w-full">
+                                            <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-700">
+                                                <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                                                    {taskToEdit ? 'Edit Task' : 'Create New Task'}
+                                                </Dialog.Title>
+                                                <Dialog.Close asChild>
+                                                    <button className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full p-1 transition-colors">
+                                                        <X className="h-5 w-5" />
+                                                    </button>
+                                                </Dialog.Close>
+                                            </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Tags (comma separated)</label>
-                                <input
-                                    type="text"
-                                    placeholder="ui, frontend, urgency"
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    {...register('tags')}
-                                />
-                            </div>
+                                            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+                                                <div className="space-y-1">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+                                                    <input
+                                                        type="text"
+                                                        className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+                                                        {...register('title')}
+                                                    />
+                                                    {errors.title && <p className="text-red-500 text-xs">{errors.title.message}</p>}
+                                                </div>
 
-                            <div className="mt-5 sm:mt-6">
-                                <button
-                                    type="submit"
-                                    disabled={isPending}
-                                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm disabled:opacity-50"
-                                >
-                                    {isPending ? <Loader2 className="animate-spin h-5 w-5" /> : (taskToEdit ? 'Update Task' : 'Create Task')}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                                                <div className="space-y-1">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                                    <textarea
+                                                        rows={3}
+                                                        className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+                                                        {...register('description')}
+                                                    />
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="space-y-1">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                                                        <select
+                                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+                                                            {...register('status')}
+                                                        >
+                                                            <option value="PENDING">Pending</option>
+                                                            <option value="IN_PROGRESS">In Progress</option>
+                                                            <option value="COMPLETED">Completed</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
+                                                        <select
+                                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+                                                            {...register('priority')}
+                                                        >
+                                                            <option value="LOW">Low</option>
+                                                            <option value="MEDIUM">Medium</option>
+                                                            <option value="HIGH">High</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags (comma separated)</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="ui, frontend, urgency"
+                                                        className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+                                                        {...register('tags')}
+                                                    />
+                                                </div>
+
+                                                <div className="mt-8 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={onClose}
+                                                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        disabled={isPending}
+                                                        className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    >
+                                                        {isPending && <Loader2 className="animate-spin h-4 w-4 mr-2" />}
+                                                        {taskToEdit ? 'Update Task' : 'Create Task'}
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </motion.div>
+                                </Dialog.Content>
+                            </motion.div>
+                        </Dialog.Overlay>
+                    </Dialog.Portal>
+                )}
+            </AnimatePresence>
+        </Dialog.Root>
     );
 };
 
