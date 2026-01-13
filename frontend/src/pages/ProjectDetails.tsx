@@ -1,15 +1,21 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getProjectById, deleteProject } from '../api/projects';
-import { Loader2, Plus, Trash2, ArrowLeft, Edit2, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { Loader2, Plus, Trash2, ArrowLeft, Edit2, LayoutGrid, List as ListIcon, SortAsc, SortDesc } from 'lucide-react';
 import { updateTask, deleteTask, Task } from '../api/tasks';
 import TaskCard from '../components/TaskCard';
 import KanbanBoard from '../components/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
 import clsx from 'clsx';
+
+export const priorityWeight = {
+    'LOW': 1,
+    'MEDIUM': 2,
+    'HIGH': 3
+};
 
 const ProjectDetails = () => {
     const { t } = useTranslation();
@@ -20,6 +26,7 @@ const ProjectDetails = () => {
     const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
     const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
+    const [prioritySort, setPrioritySort] = useState<'asc' | 'desc' | null>(null);
 
     const { data: project, isLoading, isError } = useQuery({
         queryKey: ['project', id],
@@ -35,6 +42,21 @@ const ProjectDetails = () => {
         },
     });
 
+    const sortedTasks = useMemo(() => {
+        if (!project?.tasks) return [];
+        let tasks = [...project.tasks];
+
+        if (prioritySort) {
+            tasks.sort((a, b) => {
+                const weightA = priorityWeight[a.priority];
+                const weightB = priorityWeight[b.priority];
+                return prioritySort === 'desc' ? weightB - weightA : weightA - weightB;
+            });
+        }
+
+        return tasks;
+    }, [project?.tasks, prioritySort]);
+
     const handleDelete = () => {
         if (window.confirm(t('projects.deleteConfirm'))) {
             deleteMutation.mutate(id!);
@@ -49,6 +71,12 @@ const ProjectDetails = () => {
     const closeTaskModal = () => {
         setIsCreateTaskModalOpen(false);
         setTaskToEdit(null);
+    };
+
+    const togglePrioritySort = () => {
+        if (prioritySort === null) setPrioritySort('desc');
+        else if (prioritySort === 'desc') setPrioritySort('asc');
+        else setPrioritySort(null);
     };
 
     if (isLoading) {
@@ -89,32 +117,53 @@ const ProjectDetails = () => {
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{project.description}</p>
                     )}
                 </div>
-                <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mr-2">
+
+                {/* View/Sort Controls */}
+                <div className="flex items-center gap-2">
                     <button
-                        onClick={() => setViewMode('list')}
+                        onClick={togglePrioritySort}
                         className={clsx(
-                            "p-1.5 rounded-md transition-all shadow-sm",
-                            viewMode === 'list'
-                                ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-600"
-                                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border shadow-sm",
+                            prioritySort
+                                ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800"
+                                : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-800"
                         )}
-                        title={t('projects.viewList')}
+                        title={t('projects.sortByPriority')}
                     >
-                        <ListIcon className="h-4 w-4" />
+                        {prioritySort === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+                        <span className="hidden sm:inline">
+                            {prioritySort === 'desc' ? t('tasks.priorityHigh') : prioritySort === 'asc' ? t('tasks.priorityLow') : t('projects.sortByPriority')}
+                        </span>
                     </button>
-                    <button
-                        onClick={() => setViewMode('board')}
-                        className={clsx(
-                            "p-1.5 rounded-md transition-all shadow-sm",
-                            viewMode === 'board'
-                                ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-600"
-                                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                        )}
-                        title={t('projects.viewBoard')}
-                    >
-                        <LayoutGrid className="h-4 w-4" />
-                    </button>
+
+                    <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={clsx(
+                                "p-1.5 rounded-md transition-all shadow-sm",
+                                viewMode === 'list'
+                                    ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-600"
+                                    : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                            )}
+                            title={t('projects.viewList')}
+                        >
+                            <ListIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('board')}
+                            className={clsx(
+                                "p-1.5 rounded-md transition-all shadow-sm",
+                                viewMode === 'board'
+                                    ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-600"
+                                    : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                            )}
+                            title={t('projects.viewBoard')}
+                        >
+                            <LayoutGrid className="h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
+
                 <button
                     onClick={() => setIsEditProjectModalOpen(true)}
                     className="p-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
@@ -144,8 +193,8 @@ const ProjectDetails = () => {
 
             {viewMode === 'list' ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {project.tasks && project.tasks.length > 0 ? (
-                        project.tasks.map((task: Task) => (
+                    {sortedTasks.length > 0 ? (
+                        sortedTasks.map((task: Task) => (
                             <TaskCard
                                 key={task.id}
                                 task={task}
@@ -166,6 +215,7 @@ const ProjectDetails = () => {
                     onEdit={handleEditTask}
                     onDelete={onDeleteTask}
                     onToggleStatus={onToggleTaskStatus}
+                    prioritySort={prioritySort}
                 />
             )}
 

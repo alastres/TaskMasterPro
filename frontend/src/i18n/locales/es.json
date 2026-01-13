@@ -83,6 +83,7 @@
         "noTasksInProject": "No hay tareas en este proyecto aún.",
         "viewList": "Vista de lista",
         "viewBoard": "Tablero Kanban",
+        "sortByPriority": "Ordenar por prioridad",
         "kanban": {
             "todo": "Por hacer",
             "inProgress": "En proceso",

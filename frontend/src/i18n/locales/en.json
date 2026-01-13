@@ -83,6 +83,7 @@
         "noTasksInProject": "No tasks in this project yet.",
         "viewList": "List view",
         "viewBoard": "Board view",
+        "sortByPriority": "Sort by priority",
         "kanban": {
             "todo": "To Do",
             "inProgress": "In Progress",

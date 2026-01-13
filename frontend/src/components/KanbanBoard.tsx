@@ -1,17 +1,19 @@
-import React from 'react';
-import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
+import React, { useMemo } from 'react';
+import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { Task, updateTask } from '../api/tasks';
 import KanbanColumn from './KanbanColumn';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { priorityWeight } from '../pages/ProjectDetails';
 
 interface KanbanBoardProps {
     tasks: Task[];
     onEdit: (task: Task) => void;
     onDelete: (id: string) => void;
     onToggleStatus: (task: Task) => void;
+    prioritySort?: 'asc' | 'desc' | null;
 }
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onEdit, onDelete, onToggleStatus }) => {
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onEdit, onDelete, onToggleStatus, prioritySort }) => {
     const queryClient = useQueryClient();
 
     const updateStatusMutation = useMutation({
@@ -37,27 +39,40 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onEdit, onDelete, onTo
 
         const newStatus = destination.droppableId as Task['status'];
 
-        // Optimistic update would be nice, but let's start with a simple mutation
         updateStatusMutation.mutate({ id: draggableId, status: newStatus });
     };
 
-    const columns: { id: Task['status']; title: string; tasks: Task[] }[] = [
-        {
-            id: 'PENDING',
-            title: 'projects.kanban.todo',
-            tasks: tasks.filter(t => t.status === 'PENDING')
-        },
-        {
-            id: 'IN_PROGRESS',
-            title: 'projects.kanban.inProgress',
-            tasks: tasks.filter(t => t.status === 'IN_PROGRESS')
-        },
-        {
-            id: 'COMPLETED',
-            title: 'projects.kanban.done',
-            tasks: tasks.filter(t => t.status === 'COMPLETED')
-        }
-    ];
+    const columns = useMemo(() => {
+        const getColumnTasks = (status: Task['status']) => {
+            let colTasks = tasks.filter(t => t.status === status);
+            if (prioritySort) {
+                colTasks.sort((a, b) => {
+                    const weightA = priorityWeight[a.priority];
+                    const weightB = priorityWeight[b.priority];
+                    return prioritySort === 'desc' ? weightB - weightA : weightA - weightB;
+                });
+            }
+            return colTasks;
+        };
+
+        return [
+            {
+                id: 'PENDING' as const,
+                title: 'projects.kanban.todo',
+                tasks: getColumnTasks('PENDING')
+            },
+            {
+                id: 'IN_PROGRESS' as const,
+                title: 'projects.kanban.inProgress',
+                tasks: getColumnTasks('IN_PROGRESS')
+            },
+            {
+                id: 'COMPLETED' as const,
+                title: 'projects.kanban.done',
+                tasks: getColumnTasks('COMPLETED')
+            }
+        ];
+    }, [tasks, prioritySort]);
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
