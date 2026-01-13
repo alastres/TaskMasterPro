@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/auth.store';
 import api from '../api/axios';
-import { User, Lock, Save, Loader2, Camera, Upload } from 'lucide-react';
+import { User, Lock, Save, Loader2, Camera } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Modify schema to exclude avatarUrl validation since we handle it manually via FormData
@@ -30,6 +30,14 @@ const Profile = () => {
     const { user, setAuth, token } = useAuthStore();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(user?.avatarUrl || null);
+
+    // Update preview when user data changes (e.g. initial load or after update)
+    // Only update if we don't have a locally selected file pending upload
+    React.useEffect(() => {
+        if (!selectedFile && user?.avatarUrl) {
+            setPreviewUrl(user.avatarUrl);
+        }
+    }, [user?.avatarUrl, selectedFile]);
 
     const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: profileErrors } } = useForm<ProfileForm>({
         resolver: zodResolver(profileSchema),
@@ -76,6 +84,7 @@ const Profile = () => {
                 setAuth(updatedUser, token);
             }
             alert('Profile updated successfully');
+            setSelectedFile(null); // Clear selected file after successful upload
         },
         onError: (error: any) => {
             alert(error.response?.data?.message || 'Failed to update profile');
@@ -122,7 +131,7 @@ const Profile = () => {
                             <h2 className="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h2>
                         </div>
                     </div>
-                    <form onSubmit={handleSubmitProfile(updateProfileMutation.mutate)} className="p-6 space-y-6">
+                    <form onSubmit={handleSubmitProfile((data) => updateProfileMutation.mutate(data))} className="p-6 space-y-6">
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div className="sm:col-span-2 flex flex-col items-center justify-center space-y-4">
                                 <div className="relative h-24 w-24">
@@ -203,7 +212,7 @@ const Profile = () => {
                             <h2 className="text-lg font-medium text-gray-900 dark:text-white">Change Password</h2>
                         </div>
                     </div>
-                    <form onSubmit={handleSubmitPassword(changePasswordMutation.mutate)} className="p-6 space-y-6">
+                    <form onSubmit={handleSubmitPassword((data) => changePasswordMutation.mutate(data))} className="p-6 space-y-6">
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

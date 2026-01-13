@@ -89,7 +89,7 @@ const Dashboard = () => {
                     </div>
                     <input
                         type="text"
-                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg transition-colors"
+                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 md:text-lg sm:text-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg transition-colors"
                         placeholder="Search tasks..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
