@@ -14,7 +14,8 @@
         "confirm": "Confirm",
         "search": "Search",
         "filter": "Filter",
-        "noResults": "No results found"
+        "noResults": "No results found",
+        "optional": "Optional"
     },
     "nav": {
         "dashboard": "Dashboard",
@@ -28,6 +29,7 @@
         "email": "Email",
         "password": "Password",
         "name": "Name",
+        "nickname": "Nickname",
         "confirmPassword": "Confirm Password",
         "alreadyHaveAccount": "Already have an account?",
         "dontHaveAccount": "Don't have an account?",

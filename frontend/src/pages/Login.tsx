@@ -8,6 +8,8 @@ import { login, LoginPayload } from '../api/auth';
 import { useAuthStore } from '../store/auth.store';
 import { CheckSquare, Loader2 } from 'lucide-react';
 import { useToast } from '../components/ui/Toast';
+import ThemeToggle from '../components/ThemeToggle';
+import LanguageToggle from '../components/LanguageToggle';
 
 const Login = () => {
     const { t } = useTranslation();
@@ -47,7 +49,11 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-300">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-300 relative">
+            <div className="fixed top-4 right-4 flex items-center space-x-2 z-50">
+                <LanguageToggle />
+                <ThemeToggle />
+            </div>
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
                     <CheckSquare className="h-10 w-10 text-indigo-600 dark:text-indigo-500" />

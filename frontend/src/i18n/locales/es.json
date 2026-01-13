@@ -14,7 +14,8 @@
         "confirm": "Confirmar",
         "search": "Buscar",
         "filter": "Filtrar",
-        "noResults": "No se encontraron resultados"
+        "noResults": "No se encontraron resultados",
+        "optional": "Opcional"
     },
     "nav": {
         "dashboard": "Panel",
@@ -28,6 +29,7 @@
         "email": "Correo electrónico",
         "password": "Contraseña",
         "name": "Nombre",
+        "nickname": "Apodo",
         "confirmPassword": "Confirmar contraseña",
         "alreadyHaveAccount": "¿Ya tienes una cuenta?",
         "dontHaveAccount": "¿No tienes una cuenta?",
