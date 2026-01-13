@@ -8,6 +8,7 @@ import { updateProject, Project } from '../api/projects';
 import { X, Loader2 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from './ui/Toast';
 
 interface EditProjectModalProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ interface EditProjectModalProps {
 
 const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, project }) => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const queryClient = useQueryClient();
 
     const projectSchema = z.object({
@@ -47,6 +49,18 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
             queryClient.invalidateQueries({ queryKey: ['project', project.id] });
             queryClient.invalidateQueries({ queryKey: ['projects'] });
             onClose();
+            toast({
+                title: t('common.success'),
+                description: t('projects.updateSuccess') || 'Project updated successfully',
+                type: 'success'
+            });
+        },
+        onError: (error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Failed to update project',
+                type: 'error'
+            });
         },
     });
 

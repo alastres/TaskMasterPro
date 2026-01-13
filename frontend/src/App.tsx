@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import { useAuthStore } from './store/auth.store';
 import { useThemeStore } from './store/theme.store';
+import { ToastProvider } from './components/ui/Toast';
 
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
@@ -31,31 +32,33 @@ function App() {
   }, [theme]);
 
   return (
-    <Routes>
-      {/* Rutas Públicas */}
-      <Route
-        path="/login"
-        element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
-      />
-      <Route
-        path="/register"
-        element={!isAuthenticated ? <Register /> : <Navigate to="/" />}
-      />
+    <ToastProvider>
+      <Routes>
+        {/* Rutas Públicas */}
+        <Route
+          path="/login"
+          element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/register"
+          element={!isAuthenticated ? <Register /> : <Navigate to="/" />}
+        />
 
-      {/* Rutas Protegidas */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:id" element={<ProjectDetails />} />
-          <Route path="/team" element={<TeamManagement />} />
+        {/* Rutas Protegidas */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:id" element={<ProjectDetails />} />
+            <Route path="/team" element={<TeamManagement />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* Capturar todo */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Capturar todo */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </ToastProvider>
   );
 }
 

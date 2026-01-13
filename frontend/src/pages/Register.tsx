@@ -7,9 +7,11 @@ import { useTranslation } from 'react-i18next';
 import { register as registerUser, RegisterPayload } from '../api/auth';
 import { useAuthStore } from '../store/auth.store';
 import { CheckSquare, Loader2 } from 'lucide-react';
+import { useToast } from '../components/ui/Toast';
 
 const Register = () => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const navigate = useNavigate();
     const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -33,7 +35,11 @@ const Register = () => {
         },
         onError: (error: any) => {
             console.error('Registration failed', error);
-            alert(error.response?.data?.message || 'Registration failed');
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Registration failed',
+                type: 'error'
+            });
         },
     });
 

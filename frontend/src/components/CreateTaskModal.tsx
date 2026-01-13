@@ -9,6 +9,7 @@ import { getProjects } from '../api/projects';
 import { X, Loader2, Calendar } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from './ui/Toast';
 
 interface CreateTaskModalProps {
     isOpen: boolean;
@@ -19,6 +20,7 @@ interface CreateTaskModalProps {
 
 const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, taskToEdit, defaultProjectId }) => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const queryClient = useQueryClient();
 
     const taskSchema = z.object({
@@ -90,6 +92,18 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
             }
             reset();
             onClose();
+            toast({
+                title: t('common.success'),
+                description: t('tasks.createSuccess') || 'Task created successfully',
+                type: 'success'
+            });
+        },
+        onError: (error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Failed to create task',
+                type: 'error'
+            });
         },
     });
 
@@ -103,6 +117,18 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
             }
             reset();
             onClose();
+            toast({
+                title: t('common.success'),
+                description: t('tasks.updateSuccess') || 'Task updated successfully',
+                type: 'success'
+            });
+        },
+        onError: (error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Failed to update task',
+                type: 'error'
+            });
         },
     });
 

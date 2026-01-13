@@ -7,11 +7,15 @@ import CreateTaskModal from '../components/CreateTaskModal';
 import { Plus, Search, Loader2, LayoutDashboard } from 'lucide-react';
 import { useDebounce } from '../hooks/useDebounce';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '../components/ui/Toast';
+import { AlertDialog } from '../components/ui/AlertDialog';
 
 const Dashboard = () => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+    const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
     // Filters
     const [search, setSearch] = useState('');
@@ -30,7 +34,21 @@ const Dashboard = () => {
         mutationFn: deleteTask,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            toast({
+                title: t('common.success'),
+                description: t('tasks.deleteSuccess') || 'Task deleted successfully',
+                type: 'success'
+            });
+            setTaskToDelete(null);
         },
+        onError: (error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Failed to delete task',
+                type: 'error'
+            });
+            setTaskToDelete(null);
+        }
     });
 
     const updateStatusMutation = useMutation({
@@ -38,6 +56,10 @@ const Dashboard = () => {
             updateTask(id, { status }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            toast({
+                title: t('common.success'),
+                type: 'success'
+            });
         },
     });
 
@@ -47,8 +69,12 @@ const Dashboard = () => {
     };
 
     const handleDelete = (id: string) => {
-        if (confirm(t('tasks.deleteConfirm'))) {
-            deleteMutation.mutate(id);
+        setTaskToDelete(id);
+    };
+
+    const confirmDelete = () => {
+        if (taskToDelete) {
+            deleteMutation.mutate(taskToDelete);
         }
     };
 
@@ -158,6 +184,16 @@ const Dashboard = () => {
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 taskToEdit={taskToEdit}
+            />
+
+            <AlertDialog
+                isOpen={!!taskToDelete}
+                onOpenChange={(open) => !open && setTaskToDelete(null)}
+                onConfirm={confirmDelete}
+                title={t('tasks.deleteTask')}
+                description={t('tasks.deleteConfirm')}
+                variant="danger"
+                isLoading={deleteMutation.isPending}
             />
         </div>
     );

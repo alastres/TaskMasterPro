@@ -12,6 +12,8 @@ import EditProjectModal from '../components/EditProjectModal';
 import ProjectMembersModal from '../components/ProjectMembersModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
+import { useToast } from '../components/ui/Toast';
+import { AlertDialog } from '../components/ui/AlertDialog';
 
 export const priorityWeight: Record<string, number> = {
     'LOW': 1,
@@ -21,6 +23,7 @@ export const priorityWeight: Record<string, number> = {
 
 const ProjectDetails = () => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -31,6 +34,8 @@ const ProjectDetails = () => {
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
     const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
     const [prioritySort, setPrioritySort] = useState<'asc' | 'desc' | null>(null);
+    const [confirmDeleteProject, setConfirmDeleteProject] = useState(false);
+    const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
     const { data: project, isLoading, isError } = useQuery({
         queryKey: ['project', id],
@@ -42,8 +47,21 @@ const ProjectDetails = () => {
         mutationFn: deleteProject,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['projects'] });
+            toast({
+                title: t('common.success'),
+                description: t('projects.deleteSuccess') || 'Project deleted successfully',
+                type: 'success'
+            });
             navigate('/projects');
         },
+        onError: (error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Failed to delete project',
+                type: 'error'
+            });
+            setConfirmDeleteProject(false);
+        }
     });
 
 
@@ -64,9 +82,11 @@ const ProjectDetails = () => {
     }, [project?.tasks, prioritySort]);
 
     const handleDelete = () => {
-        if (window.confirm(t('projects.deleteConfirm'))) {
-            deleteMutation.mutate(id!);
-        }
+        setConfirmDeleteProject(true);
+    };
+
+    const onConfirmDeleteProject = () => {
+        deleteMutation.mutate(id!);
     };
 
     const handleEditTask = (task: Task) => {
@@ -101,13 +121,36 @@ const ProjectDetails = () => {
         const newStatus = task.status === 'COMPLETED' ? 'PENDING' : 'COMPLETED';
         updateTask(task.id, { status: newStatus }).then(() => {
             queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+            toast({
+                title: t('common.success'),
+                type: 'success'
+            });
         });
     };
 
     const onDeleteTask = async (id: string) => {
-        if (window.confirm(t('tasks.deleteConfirm'))) {
-            await deleteTask(id);
-            queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+        setTaskToDelete(id);
+    };
+
+    const onConfirmDeleteTask = async () => {
+        if (taskToDelete) {
+            try {
+                await deleteTask(taskToDelete);
+                queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+                toast({
+                    title: t('common.success'),
+                    description: t('tasks.deleteSuccess') || 'Task deleted successfully',
+                    type: 'success'
+                });
+            } catch (error: any) {
+                toast({
+                    title: t('common.error'),
+                    description: error.response?.data?.message || 'Failed to delete task',
+                    type: 'error'
+                });
+            } finally {
+                setTaskToDelete(null);
+            }
         }
     };
 
@@ -285,6 +328,25 @@ const ProjectDetails = () => {
                     isOwner={!!project.isOwner}
                 />
             )}
+
+            <AlertDialog
+                isOpen={confirmDeleteProject}
+                onOpenChange={setConfirmDeleteProject}
+                onConfirm={onConfirmDeleteProject}
+                title={t('projects.deleteProject')}
+                description={t('projects.deleteConfirm')}
+                variant="danger"
+                isLoading={deleteMutation.isPending}
+            />
+
+            <AlertDialog
+                isOpen={!!taskToDelete}
+                onOpenChange={(open) => !open && setTaskToDelete(null)}
+                onConfirm={onConfirmDeleteTask}
+                title={t('tasks.deleteTask')}
+                description={t('tasks.deleteConfirm')}
+                variant="danger"
+            />
         </div>
     );
 };

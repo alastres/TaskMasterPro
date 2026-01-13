@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, Mail, Trash2, Clock, Loader2, UserPlus, Shield, Users, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useToast } from './ui/Toast';
+import { AlertDialog } from './ui/AlertDialog';
 import { removeMemberFromProject, cancelInvitation, inviteMember, getMyTeam } from '../api/teams';
 import { motion } from 'framer-motion';
 
@@ -14,8 +16,21 @@ interface ProjectMembersModalProps {
 
 const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClose, project, isOwner }) => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const queryClient = useQueryClient();
-    const [inviteEmail, setInviteEmail] = React.useState('');
+    const [inviteEmail, setInviteEmail] = useState('');
+
+    // Alert Dialog State
+    const [confirmDeleteMember, setConfirmDeleteMember] = useState<{ isOpen: boolean; userId: string; name: string }>({
+        isOpen: false,
+        userId: '',
+        name: ''
+    });
+    const [confirmCancelInvite, setConfirmCancelInvite] = useState<{ isOpen: boolean; inviteId: string; email: string }>({
+        isOpen: false,
+        inviteId: '',
+        email: ''
+    });
 
     const inviteMutation = useMutation({
         mutationFn: async (email: string) => {
@@ -25,10 +40,17 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
         onSuccess: () => {
             setInviteEmail('');
             queryClient.invalidateQueries({ queryKey: ['project', project.id] });
-            alert(t('teams.inviteSuccess'));
+            toast({
+                title: t('teams.inviteSuccess'),
+                type: 'success'
+            });
         },
         onError: (error: any) => {
-            alert(error.response?.data?.message || t('common.error'));
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message,
+                type: 'error'
+            });
         }
     });
 
@@ -36,6 +58,19 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
         mutationFn: (userId: string) => removeMemberFromProject(project.id, userId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+            toast({
+                title: t('common.success'),
+                type: 'success'
+            });
+            setConfirmDeleteMember(prev => ({ ...prev, isOpen: false }));
+        },
+        onError: (error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message,
+                type: 'error'
+            });
+            setConfirmDeleteMember(prev => ({ ...prev, isOpen: false }));
         }
     });
 
@@ -43,6 +78,19 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
         mutationFn: (inviteId: string) => cancelInvitation(inviteId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+            toast({
+                title: t('common.success'),
+                type: 'success'
+            });
+            setConfirmCancelInvite(prev => ({ ...prev, isOpen: false }));
+        },
+        onError: (error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message,
+                type: 'error'
+            });
+            setConfirmCancelInvite(prev => ({ ...prev, isOpen: false }));
         }
     });
 
@@ -132,11 +180,7 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
                                     </div>
                                     {isOwner && member.userId !== project.userId && (
                                         <button
-                                            onClick={() => {
-                                                if (window.confirm(t('teams.removeMemberConfirm', { name: member.user.name }))) {
-                                                    removeMemberMutation.mutate(member.userId);
-                                                }
-                                            }}
+                                            onClick={() => setConfirmDeleteMember({ isOpen: true, userId: member.userId, name: member.user.name })}
                                             className="p-2 text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
                                             disabled={removeMemberMutation.isPending}
                                         >
@@ -177,11 +221,7 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
                                         </div>
                                         {isOwner && (
                                             <button
-                                                onClick={() => {
-                                                    if (window.confirm(t('teams.cancelInviteConfirm', { email: invite.email }))) {
-                                                        cancelInviteMutation.mutate(invite.id);
-                                                    }
-                                                }}
+                                                onClick={() => setConfirmCancelInvite({ isOpen: true, inviteId: invite.id, email: invite.email })}
                                                 className="p-2 text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
                                             >
                                                 <X size={18} />
@@ -194,6 +234,27 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
                     )}
                 </div>
             </motion.div>
+
+            {/* Confirm Actions */}
+            <AlertDialog
+                isOpen={confirmDeleteMember.isOpen}
+                onOpenChange={(isOpen) => setConfirmDeleteMember(prev => ({ ...prev, isOpen }))}
+                title={t('teams.removeMemberConfirm', { name: confirmDeleteMember.name })}
+                description={t('teams.removeMemberTooltip')}
+                onConfirm={() => removeMemberMutation.mutate(confirmDeleteMember.userId)}
+                variant="danger"
+                isLoading={removeMemberMutation.isPending}
+            />
+
+            <AlertDialog
+                isOpen={confirmCancelInvite.isOpen}
+                onOpenChange={(isOpen) => setConfirmCancelInvite(prev => ({ ...prev, isOpen }))}
+                title={t('teams.cancelInviteConfirm', { email: confirmCancelInvite.email })}
+                description={t('teams.cancelInviteTooltip')}
+                onConfirm={() => cancelInviteMutation.mutate(confirmCancelInvite.inviteId)}
+                variant="danger"
+                isLoading={cancelInviteMutation.isPending}
+            />
         </div>
     );
 };

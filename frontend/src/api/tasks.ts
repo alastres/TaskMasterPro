@@ -7,6 +7,7 @@ export interface Task {
     status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
     priority: 'LOW' | 'MEDIUM' | 'HIGH';
     tags: string[];
+    projectId?: string;
     dueDate?: string | null;
     createdAt: string;
 }

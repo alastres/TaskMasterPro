@@ -3,6 +3,7 @@ import { Bell, Check, X, Trash2, Loader2, Info, Users, LayoutGrid } from 'lucide
 import { getNotifications, markAsRead, markAllAsRead, respondToInvitation, deleteNotification } from '../api/notifications';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../components/ui/Toast';
 import { formatDistanceToNow } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +11,7 @@ import clsx from 'clsx';
 
 const NotificationCenter: React.FC = () => {
     const { t, i18n } = useTranslation();
+    const { toast } = useToast();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
@@ -40,7 +42,10 @@ const NotificationCenter: React.FC = () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
             queryClient.invalidateQueries({ queryKey: ['projects'] });
             if (variables.accept) {
-                alert(t('common.success'));
+                toast({
+                    title: t('common.success'),
+                    type: 'success'
+                });
             }
         },
     });

@@ -11,9 +11,11 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
+import { useToast } from '../components/ui/Toast';
 
 const Projects = () => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const queryClient = useQueryClient();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -35,6 +37,18 @@ const Projects = () => {
             queryClient.invalidateQueries({ queryKey: ['projects'] });
             setIsCreateModalOpen(false);
             reset();
+            toast({
+                title: t('common.success'),
+                description: t('projects.createSuccess') || 'Project created successfully',
+                type: 'success'
+            });
+        },
+        onError: (error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Failed to create project',
+                type: 'error'
+            });
         },
     });
 

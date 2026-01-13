@@ -7,9 +7,11 @@ import { useTranslation } from 'react-i18next';
 import { login, LoginPayload } from '../api/auth';
 import { useAuthStore } from '../store/auth.store';
 import { CheckSquare, Loader2 } from 'lucide-react';
+import { useToast } from '../components/ui/Toast';
 
 const Login = () => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const navigate = useNavigate();
     const setAuth = useAuthStore((state) => state.setAuth);
 
@@ -32,7 +34,11 @@ const Login = () => {
         },
         onError: (error: any) => {
             console.error('Login failed', error);
-            alert(error.response?.data?.message || 'Login failed');
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Login failed',
+                type: 'error'
+            });
         },
     });
 

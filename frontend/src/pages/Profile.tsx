@@ -8,9 +8,11 @@ import { useAuthStore } from '../store/auth.store';
 import api from '../api/axios';
 import { User, Lock, Save, Loader2, Camera, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useToast } from '../components/ui/Toast';
 
 const Profile = () => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const { user, setAuth, token } = useAuthStore();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(user?.avatarUrl || null);
@@ -99,11 +101,18 @@ const Profile = () => {
             if (token) {
                 setAuth(updatedUser, token);
             }
-            alert(t('profile.profileUpdated'));
+            toast({
+                title: t('profile.profileUpdated'),
+                type: 'success'
+            });
             setSelectedFile(null);
         },
         onError: (error: any) => {
-            alert(error.response?.data?.message || 'Failed to update profile');
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Failed to update profile',
+                type: 'error'
+            });
         },
     });
 
@@ -116,10 +125,17 @@ const Profile = () => {
         },
         onSuccess: () => {
             resetPassword();
-            alert(t('profile.passwordUpdated'));
+            toast({
+                title: t('profile.passwordUpdated'),
+                type: 'success'
+            });
         },
         onError: (error: any) => {
-            alert(error.response?.data?.message || 'Failed to change password');
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || 'Failed to change password',
+                type: 'error'
+            });
         },
     });
 

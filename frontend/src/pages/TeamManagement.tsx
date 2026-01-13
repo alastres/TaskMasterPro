@@ -1,17 +1,67 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getMyTeam, removeMemberFromProject, cancelInvitation } from '../api/teams';
 import { Users, Loader2, Shield, Clock, Trash2, LayoutGrid, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../components/ui/Toast';
+import { AlertDialog } from '../components/ui/AlertDialog';
 
 const TeamManagement: React.FC = () => {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const queryClient = useQueryClient();
+
+    // Alert Dialog State
+    const [confirmDeleteMember, setConfirmDeleteMember] = useState<{ isOpen: boolean; projectId: string; userId: string; name: string }>({
+        isOpen: false,
+        projectId: '',
+        userId: '',
+        name: ''
+    });
+    const [confirmCancelInvite, setConfirmCancelInvite] = useState<{ isOpen: boolean; inviteId: string; email: string }>({
+        isOpen: false,
+        inviteId: '',
+        email: ''
+    });
 
     const { data: team, isLoading: isLoadingTeam } = useQuery({
         queryKey: ['my-team'],
         queryFn: getMyTeam
     });
+
+    const handleRemoveMember = async (projectId: string, userId: string) => {
+        try {
+            await removeMemberFromProject(projectId, userId);
+            queryClient.invalidateQueries({ queryKey: ['my-team'] });
+            toast({
+                title: t('common.success'),
+                type: 'success'
+            });
+        } catch (error: any) {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message,
+                type: 'error'
+            });
+        }
+    };
+
+    const handleCancelInvite = async (inviteId: string) => {
+        try {
+            await cancelInvitation(inviteId);
+            queryClient.invalidateQueries({ queryKey: ['my-team'] });
+            toast({
+                title: t('common.success'),
+                type: 'success'
+            });
+        } catch (error: any) {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message,
+                type: 'error'
+            });
+        }
+    };
 
 
 
@@ -74,12 +124,7 @@ const TeamManagement: React.FC = () => {
                                                 <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{member.user.email}</p>
                                             </div>
                                             <button
-                                                onClick={async () => {
-                                                    if (window.confirm(t('teams.removeMemberConfirm', { name: member.user.name }))) {
-                                                        await removeMemberFromProject(project.id, member.user.id);
-                                                        queryClient.invalidateQueries({ queryKey: ['my-team'] });
-                                                    }
-                                                }}
+                                                onClick={() => setConfirmDeleteMember({ isOpen: true, projectId: project.id, userId: member.user.id, name: member.user.name })}
                                                 className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
                                                 title={t('teams.removeMemberTooltip')}
                                             >
@@ -99,12 +144,7 @@ const TeamManagement: React.FC = () => {
                                                 <p className="text-[10px] text-yellow-600 dark:text-yellow-500 uppercase font-bold tracking-tighter">{t('teams.pending')}</p>
                                             </div>
                                             <button
-                                                onClick={async () => {
-                                                    if (window.confirm(t('teams.cancelInviteConfirm', { email: invite.email }))) {
-                                                        await cancelInvitation(invite.id);
-                                                        queryClient.invalidateQueries({ queryKey: ['my-team'] });
-                                                    }
-                                                }}
+                                                onClick={() => setConfirmCancelInvite({ isOpen: true, inviteId: invite.id, email: invite.email })}
                                                 className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
                                                 title={t('teams.cancelInviteTooltip')}
                                             >
@@ -136,6 +176,24 @@ const TeamManagement: React.FC = () => {
                     </div>
                 </div>
             </div>
+            {/* AlertDialogs */}
+            <AlertDialog
+                isOpen={confirmDeleteMember.isOpen}
+                onOpenChange={(isOpen) => setConfirmDeleteMember(prev => ({ ...prev, isOpen }))}
+                title={t('teams.removeMemberConfirm', { name: confirmDeleteMember.name })}
+                description={t('teams.removeMemberTooltip')}
+                onConfirm={() => handleRemoveMember(confirmDeleteMember.projectId, confirmDeleteMember.userId)}
+                variant="danger"
+            />
+
+            <AlertDialog
+                isOpen={confirmCancelInvite.isOpen}
+                onOpenChange={(isOpen) => setConfirmCancelInvite(prev => ({ ...prev, isOpen }))}
+                title={t('teams.cancelInviteConfirm', { email: confirmCancelInvite.email })}
+                description={t('teams.cancelInviteTooltip')}
+                onConfirm={() => handleCancelInvite(confirmCancelInvite.inviteId)}
+                variant="danger"
+            />
         </div>
     );
 };
