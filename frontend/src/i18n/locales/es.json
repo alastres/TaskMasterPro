@@ -164,7 +164,11 @@
         "acceptSuccess": "Te has unido al equipo"
     },
     "breadcrumbs": {
-        "home": "Inicio"
+        "home": "Inicio",
+        "dashboard": "Panel",
+        "projects": "Proyectos",
+        "profile": "Perfil",
+        "team": "Equipo"
     },
     "validation": {
         "required": "Este campo es obligatorio",

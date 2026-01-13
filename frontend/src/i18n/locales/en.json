@@ -164,7 +164,11 @@
         "acceptSuccess": "You have joined the team"
     },
     "breadcrumbs": {
-        "home": "Home"
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "projects": "Projects",
+        "profile": "Profile",
+        "team": "Team"
     },
     "validation": {
         "required": "This field is required",

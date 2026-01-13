@@ -3,8 +3,10 @@ import { useLocation, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronRight, Home } from 'lucide-react';
 import { getProjectById } from '../api/projects';
+import { useTranslation } from 'react-i18next';
 
 const Breadcrumbs = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const pathnames = location.pathname.split('/').filter((x) => x);
     const [projectName, setProjectName] = useState<string>('');
@@ -32,7 +34,7 @@ const Breadcrumbs = () => {
                 <li className="inline-flex items-center">
                     <Link to="/" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-white">
                         <Home className="w-4 h-4 mr-2" />
-                        Dashboard
+                        {t('breadcrumbs.dashboard')}
                     </Link>
                 </li>
                 {pathnames.map((value, index) => {
@@ -40,7 +42,7 @@ const Breadcrumbs = () => {
                     const isLast = index === pathnames.length - 1;
 
                     // Determine display name
-                    let name = value.charAt(0).toUpperCase() + value.slice(1);
+                    let name = t(`breadcrumbs.${value}`, value.charAt(0).toUpperCase() + value.slice(1));
 
                     // If this is the project ID segment and we have the project name, use it
                     if (isProjectDetails && index === 1 && projectName) {
