@@ -80,7 +80,14 @@
         "tasksCount_plural": "{{count}} tasks",
         "deleteConfirm": "Are you sure you want to delete this project? All tasks in this project will be permanently deleted.",
         "addTask": "Add Task",
-        "noTasksInProject": "No tasks in this project yet."
+        "noTasksInProject": "No tasks in this project yet.",
+        "viewList": "List view",
+        "viewBoard": "Board view",
+        "kanban": {
+            "todo": "To Do",
+            "inProgress": "In Progress",
+            "done": "Done"
+        }
     },
     "profile": {
         "profile": "Profile",

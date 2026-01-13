@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getProjectById, deleteProject } from '../api/projects';
-import { Loader2, Plus, Trash2, ArrowLeft, Edit2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, ArrowLeft, Edit2, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { updateTask, deleteTask, Task } from '../api/tasks';
 import TaskCard from '../components/TaskCard';
+import KanbanBoard from '../components/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
+import clsx from 'clsx';
 
 const ProjectDetails = () => {
     const { t } = useTranslation();
@@ -17,6 +19,7 @@ const ProjectDetails = () => {
     const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
     const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+    const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
 
     const { data: project, isLoading, isError } = useQuery({
         queryKey: ['project', id],
@@ -60,6 +63,20 @@ const ProjectDetails = () => {
         return <div className="text-center text-red-500 dark:text-red-400">{t('common.error')}</div>;
     }
 
+    const onToggleTaskStatus = (task: Task) => {
+        const newStatus = task.status === 'COMPLETED' ? 'PENDING' : 'COMPLETED';
+        updateTask(task.id, { status: newStatus }).then(() => {
+            queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+        });
+    };
+
+    const onDeleteTask = async (id: string) => {
+        if (window.confirm(t('tasks.deleteConfirm'))) {
+            await deleteTask(id);
+            queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center space-x-4">
@@ -71,6 +88,32 @@ const ProjectDetails = () => {
                     {project.description && (
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{project.description}</p>
                     )}
+                </div>
+                <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mr-2">
+                    <button
+                        onClick={() => setViewMode('list')}
+                        className={clsx(
+                            "p-1.5 rounded-md transition-all shadow-sm",
+                            viewMode === 'list'
+                                ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-600"
+                                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        )}
+                        title={t('projects.viewList')}
+                    >
+                        <ListIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={() => setViewMode('board')}
+                        className={clsx(
+                            "p-1.5 rounded-md transition-all shadow-sm",
+                            viewMode === 'board'
+                                ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-600"
+                                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        )}
+                        title={t('projects.viewBoard')}
+                    >
+                        <LayoutGrid className="h-4 w-4" />
+                    </button>
                 </div>
                 <button
                     onClick={() => setIsEditProjectModalOpen(true)}
@@ -99,33 +142,32 @@ const ProjectDetails = () => {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {project.tasks && project.tasks.length > 0 ? (
-                    project.tasks.map((task: Task) => (
-                        <TaskCard
-                            key={task.id}
-                            task={task}
-                            onEdit={handleEditTask}
-                            onDelete={async (id: string) => {
-                                if (window.confirm(t('tasks.deleteConfirm'))) {
-                                    await deleteTask(id);
-                                    queryClient.invalidateQueries({ queryKey: ['project', project.id] });
-                                }
-                            }}
-                            onToggleStatus={(task: Task) => {
-                                const newStatus = task.status === 'COMPLETED' ? 'PENDING' : 'COMPLETED';
-                                updateTask(task.id, { status: newStatus }).then(() => {
-                                    queryClient.invalidateQueries({ queryKey: ['project', project.id] });
-                                });
-                            }}
-                        />
-                    ))
-                ) : (
-                    <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
-                        {t('projects.noTasksInProject')}
-                    </div>
-                )}
-            </div>
+            {viewMode === 'list' ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {project.tasks && project.tasks.length > 0 ? (
+                        project.tasks.map((task: Task) => (
+                            <TaskCard
+                                key={task.id}
+                                task={task}
+                                onEdit={handleEditTask}
+                                onDelete={onDeleteTask}
+                                onToggleStatus={onToggleTaskStatus}
+                            />
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+                            {t('projects.noTasksInProject')}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <KanbanBoard
+                    tasks={project.tasks || []}
+                    onEdit={handleEditTask}
+                    onDelete={onDeleteTask}
+                    onToggleStatus={onToggleTaskStatus}
+                />
+            )}
 
             <CreateTaskModal
                 isOpen={isCreateTaskModalOpen}
