@@ -3,11 +3,13 @@ import { verifyToken } from '../utils/jwt';
 import prisma from '../config/db';
 import { AppError } from '../utils/AppError';
 
-export interface AuthRequest extends Request {
+export interface AuthRequest<T = any> extends Request<any, any, T> {
     user?: {
         id: string;
         email: string;
         name: string;
+        nickname: string;
+        avatarUrl?: string | null;
     };
 }
 
@@ -46,6 +48,8 @@ export const protect = async (
             id: currentUser.id,
             email: currentUser.email,
             name: currentUser.name,
+            nickname: currentUser.nickname,
+            avatarUrl: currentUser.avatarUrl,
         };
         next();
     } catch (error) {

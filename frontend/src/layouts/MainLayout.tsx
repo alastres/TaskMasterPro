@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/auth.store';
 import { LogOut, CheckSquare } from 'lucide-react';
 
@@ -21,13 +21,29 @@ const MainLayout = () => {
                             <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">TaskMaster Pro</span>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <span className="text-sm text-gray-700 dark:text-gray-300">Welcome, {user?.name}</span>
+                            <div className="flex items-center space-x-2">
+                                {user?.avatarUrl ? (
+                                    <img src={user.avatarUrl} alt={user.nickname} className="h-8 w-8 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+                                ) : (
+                                    <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                                        {(user?.nickname || user?.name || '?').substring(0, 2).toUpperCase()}
+                                    </div>
+                                )}
+                                <div className="hidden sm:flex flex-col">
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                        {user?.nickname || user?.name}
+                                    </span>
+                                    <Link to="/profile" className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                        View Profile
+                                    </Link>
+                                </div>
+                            </div>
                             <button
                                 onClick={handleLogout}
                                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                             >
                                 <LogOut className="h-4 w-4 mr-2" />
-                                Logout
+                                <span className="hidden sm:inline">Logout</span>
                             </button>
                         </div>
                     </div>
