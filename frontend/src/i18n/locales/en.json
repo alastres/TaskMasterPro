@@ -62,7 +62,10 @@
         "priorityHigh": "High",
         "allStatus": "All Status",
         "allPriorities": "All Priorities",
-        "searchPlaceholder": "Search tasks..."
+        "searchPlaceholder": "Search tasks...",
+        "dueDate": "Due Date",
+        "noDueDate": "No due date",
+        "overdue": "Overdue"
     },
     "projects": {
         "project": "Project",
@@ -95,7 +98,11 @@
         "updateProfile": "Update Profile",
         "updatePassword": "Update Password",
         "passwordUpdated": "Password updated successfully",
-        "profileUpdated": "Profile updated successfully"
+        "profileUpdated": "Profile updated successfully",
+        "thresholds": "Priority Thresholds",
+        "thresholdMedium": "Hours for Medium Priority",
+        "thresholdHigh": "Hours for High Priority",
+        "thresholdsDescription": "Tasks will automatically upgrade to Medium/High priority as they near their due date based on these hours."
     },
     "breadcrumbs": {
         "home": "Home"

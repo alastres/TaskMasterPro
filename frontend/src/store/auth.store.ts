@@ -7,6 +7,8 @@ interface User {
     email: string;
     nickname: string;
     avatarUrl?: string;
+    thresholdMedium: number;
+    thresholdHigh: number;
 }
 
 interface AuthState {

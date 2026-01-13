@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth.store';
 import api from '../api/axios';
-import { User, Lock, Save, Loader2, Camera } from 'lucide-react';
+import { User, Lock, Save, Loader2, Camera, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Profile = () => {
@@ -18,6 +18,8 @@ const Profile = () => {
     const profileSchema = z.object({
         name: z.string().min(2, t('validation.required')),
         nickname: z.string().min(1, t('validation.required')).max(20, 'Nickname maximum 20 characters'),
+        thresholdMedium: z.number().int().min(1, 'Must be at least 1 hour'),
+        thresholdHigh: z.number().int().min(1, 'Must be at least 1 hour'),
     });
 
     const passwordSchema = z.object({
@@ -38,13 +40,26 @@ const Profile = () => {
         }
     }, [user?.avatarUrl, selectedFile]);
 
-    const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: profileErrors } } = useForm<ProfileForm>({
+    const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: profileErrors }, reset: resetProfile } = useForm<ProfileForm>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
             name: user?.name || '',
             nickname: user?.nickname || '',
+            thresholdMedium: user?.thresholdMedium || 72,
+            thresholdHigh: user?.thresholdHigh || 24,
         },
     });
+
+    useEffect(() => {
+        if (user) {
+            resetProfile({
+                name: user.name,
+                nickname: user.nickname,
+                thresholdMedium: user.thresholdMedium,
+                thresholdHigh: user.thresholdHigh,
+            });
+        }
+    }, [user, resetProfile]);
 
     const { register: registerPassword, handleSubmit: handleSubmitPassword, reset: resetPassword, formState: { errors: passwordErrors } } = useForm<PasswordForm>({
         resolver: zodResolver(passwordSchema),
@@ -67,6 +82,8 @@ const Profile = () => {
             const formData = new FormData();
             formData.append('name', data.name);
             formData.append('nickname', data.nickname);
+            formData.append('thresholdMedium', data.thresholdMedium.toString());
+            formData.append('thresholdHigh', data.thresholdHigh.toString());
             if (selectedFile) {
                 formData.append('avatar', selectedFile);
             }
@@ -182,9 +199,48 @@ const Profile = () => {
                                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.nickname.message}</p>
                                 )}
                             </div>
+
+                            {/* Priority Thresholds */}
+                            <div className="sm:col-span-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center space-x-2 mb-4">
+                                    <Clock className="h-5 w-5 text-indigo-500" />
+                                    <h3 className="text-md font-medium text-gray-900 dark:text-white">{t('profile.thresholds')}</h3>
+                                </div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                    {t('profile.thresholdsDescription')}
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {t('profile.thresholdMedium')}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 transition-colors"
+                                            {...registerProfile('thresholdMedium', { valueAsNumber: true })}
+                                        />
+                                        {profileErrors.thresholdMedium && (
+                                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.thresholdMedium.message}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {t('profile.thresholdHigh')}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 transition-colors"
+                                            {...registerProfile('thresholdHigh', { valueAsNumber: true })}
+                                        />
+                                        {profileErrors.thresholdHigh && (
+                                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.thresholdHigh.message}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex justify-end">
+                        <div className="flex justify-end pt-4">
                             <button
                                 type="submit"
                                 disabled={updateProfileMutation.isPending}

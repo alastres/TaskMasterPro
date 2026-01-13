@@ -23,6 +23,8 @@ export interface AuthResponse {
             email: string;
             nickname: string;
             avatarUrl?: string;
+            thresholdMedium: number;
+            thresholdHigh: number;
         }
     }
 }

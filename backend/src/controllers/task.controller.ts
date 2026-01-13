@@ -29,6 +29,7 @@ export const createTaskSchema = z.object({
         priority: z.nativeEnum(Priority).optional(), // Changed to nativeEnum
         tags: z.array(z.string()).optional(),
         projectId: z.string().uuid().optional().nullable(), // Added projectId
+        dueDate: z.string().datetime().optional().nullable(),
     }),
 });
 
@@ -40,6 +41,7 @@ export const updateTaskSchema = z.object({
         priority: z.nativeEnum(Priority).optional(), // Changed to nativeEnum
         tags: z.array(z.string()).optional(),
         projectId: z.string().uuid().optional().nullable(), // Added projectId
+        dueDate: z.string().datetime().optional().nullable(),
     }),
     params: z.object({
         id: z.string().uuid(),
@@ -63,7 +65,7 @@ export const createTask = async (
     next: NextFunction
 ) => {
     try {
-        const { title, description, status, priority, tags, projectId } = req.body;
+        const { title, description, status, priority, tags, projectId, dueDate } = req.body;
         const userId = req.user!.id;
 
         // Verify project ownership if projectId is provided
@@ -82,7 +84,8 @@ export const createTask = async (
                 priority,
                 tags,
                 userId,
-                projectId
+                projectId,
+                dueDate: dueDate ? new Date(dueDate) : null
             },
         });
         res.status(201).json({

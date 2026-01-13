@@ -7,6 +7,7 @@ export interface Task {
     status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
     priority: 'LOW' | 'MEDIUM' | 'HIGH';
     tags: string[];
+    dueDate?: string | null;
     createdAt: string;
 }
 
@@ -17,6 +18,7 @@ export interface CreateTaskPayload {
     priority?: 'LOW' | 'MEDIUM' | 'HIGH';
     tags?: string[];
     projectId?: string;
+    dueDate?: string | null;
 }
 
 export interface UpdateTaskPayload extends Partial<CreateTaskPayload> { }

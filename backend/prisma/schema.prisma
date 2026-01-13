@@ -8,16 +8,18 @@ generator client {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  nickname  String   @default("User") @db.VarChar(20)
-  avatarUrl String?
-  tasks     Task[]
-  projects  Project[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(uuid())
+  email           String   @unique
+  password        String
+  name            String
+  nickname        String   @default("User") @db.VarChar(20)
+  avatarUrl       String?
+  thresholdMedium Int      @default(72)
+  thresholdHigh   Int      @default(24)
+  tasks           Task[]
+  projects        Project[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Project {
@@ -37,6 +39,7 @@ model Task {
   description String?
   status      TaskStatus @default(PENDING)
   priority    Priority   @default(MEDIUM)
+  dueDate     DateTime?
   tags        String[]
   userId      String
   user        User       @relation(fields: [userId], references: [id])

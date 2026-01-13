@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { CheckCircle2, Circle, Clock, Tag, Trash2, Edit2, AlertCircle } from 'lucide-react';
+import React from 'react';
+import { CheckCircle2, Circle, Clock, Tag, Trash2, Edit2, AlertCircle, Calendar } from 'lucide-react';
 import { Task } from '../api/tasks';
-import { format } from 'date-fns';
+import { format, isBefore } from 'date-fns';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface TaskCardProps {
     task: Task;
@@ -19,7 +20,18 @@ const priorityColors = {
 };
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleStatus }) => {
+    const { t } = useTranslation();
     const isCompleted = task.status === 'COMPLETED';
+    const isOverdue = task.dueDate && !isCompleted && isBefore(new Date(task.dueDate), new Date());
+
+    const getPriorityLabel = (priority: string) => {
+        switch (priority) {
+            case 'LOW': return t('tasks.priorityLow');
+            case 'MEDIUM': return t('tasks.priorityMedium');
+            case 'HIGH': return t('tasks.priorityHigh');
+            default: return priority;
+        }
+    };
 
     return (
         <motion.div
@@ -32,7 +44,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                 "bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-5 transition-all duration-200 group relative overflow-hidden",
                 isCompleted
                     ? "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
-                    : "border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800"
+                    : clsx(
+                        "border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800",
+                        isOverdue && "border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/20"
+                    )
             )}
         >
             {isCompleted && (
@@ -69,13 +84,20 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                             )}
                         </AnimatePresence>
                     </button>
-                    <div>
-                        <h3 className={clsx(
-                            "text-lg font-semibold text-gray-900 dark:text-white transition-all",
-                            isCompleted && "line-through text-gray-500 dark:text-gray-400"
-                        )}>
-                            {task.title}
-                        </h3>
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className={clsx(
+                                "text-lg font-semibold text-gray-900 dark:text-white transition-all",
+                                isCompleted && "line-through text-gray-500 dark:text-gray-400"
+                            )}>
+                                {task.title}
+                            </h3>
+                            {isOverdue && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400">
+                                    {t('tasks.overdue')}
+                                </span>
+                            )}
+                        </div>
                         <p className={clsx(
                             "text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2",
                             isCompleted && "line-through text-gray-400 dark:text-gray-500"
@@ -104,18 +126,33 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
             </div>
 
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/50 relative z-10">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 flex-wrap">
                     <span className={clsx(
                         "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
                         priorityColors[task.priority]
                     )}>
                         {task.priority === 'HIGH' && <AlertCircle className="w-3 h-3 mr-1" />}
-                        {task.priority}
+                        {getPriorityLabel(task.priority)}
                     </span>
-                    <span className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {format(new Date(task.createdAt), 'MMM d')}
-                    </span>
+
+                    {task.dueDate && (
+                        <span className={clsx(
+                            "flex items-center text-xs font-medium",
+                            isOverdue
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-gray-500 dark:text-gray-400"
+                        )}>
+                            <Calendar className="w-3 h-3 mr-1" />
+                            {format(new Date(task.dueDate), 'MMM d, p')}
+                        </span>
+                    )}
+
+                    {!task.dueDate && (
+                        <span className="flex items-center text-xs text-gray-400 italic">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {format(new Date(task.createdAt), 'MMM d')}
+                        </span>
+                    )}
                 </div>
 
                 {task.tags && task.tags.length > 0 && (

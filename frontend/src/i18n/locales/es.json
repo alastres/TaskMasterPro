@@ -62,7 +62,10 @@
         "priorityHigh": "Alta",
         "allStatus": "Todos los estados",
         "allPriorities": "Todas las prioridades",
-        "searchPlaceholder": "Buscar tareas..."
+        "searchPlaceholder": "Buscar tareas...",
+        "dueDate": "Fecha de cumplimiento",
+        "noDueDate": "Sin fecha de cumplimiento",
+        "overdue": "Atrasada"
     },
     "projects": {
         "project": "Proyecto",
@@ -95,7 +98,11 @@
         "updateProfile": "Actualizar perfil",
         "updatePassword": "Actualizar contraseña",
         "passwordUpdated": "Contraseña actualizada exitosamente",
-        "profileUpdated": "Perfil actualizado exitosamente"
+        "profileUpdated": "Perfil actualizado exitosamente",
+        "thresholds": "Umbrales de Prioridad",
+        "thresholdMedium": "Horas para Prioridad Media",
+        "thresholdHigh": "Horas para Prioridad Alta",
+        "thresholdsDescription": "Las tareas subirán automáticamente a Prioridad Media/Alta cuando se acerquen a su fecha de vencimiento según estas horas."
     },
     "breadcrumbs": {
         "home": "Inicio"

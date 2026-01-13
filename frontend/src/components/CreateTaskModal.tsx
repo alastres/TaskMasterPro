@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { createTask, updateTask, Task } from '../api/tasks';
 import { getProjects } from '../api/projects';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Calendar } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,6 +28,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
         priority: z.enum(['LOW', 'MEDIUM', 'HIGH']),
         tags: z.string().optional(),
         projectId: z.string().optional(),
+        dueDate: z.string().optional().nullable(),
     });
 
     type TaskForm = z.infer<typeof taskSchema>;
@@ -38,10 +39,10 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
             status: 'PENDING',
             priority: 'MEDIUM',
             projectId: defaultProjectId || '',
+            dueDate: '',
         },
     });
 
-    // Fetch projects for the dropdown
     const { data: projects } = useQuery({
         queryKey: ['projects'],
         queryFn: getProjects,
@@ -55,6 +56,17 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
             setValue('status', taskToEdit.status);
             setValue('priority', taskToEdit.priority);
             setValue('tags', taskToEdit.tags.join(', '));
+            setValue('projectId', taskToEdit.projectId || '');
+
+            if (taskToEdit.dueDate) {
+                // Format for datetime-local: YYYY-MM-DDThh:mm
+                const date = new Date(taskToEdit.dueDate);
+                const offset = date.getTimezoneOffset() * 60000;
+                const localISOTime = new Date(date.getTime() - offset).toISOString().slice(0, 16);
+                setValue('dueDate', localISOTime);
+            } else {
+                setValue('dueDate', '');
+            }
         } else {
             reset({
                 title: '',
@@ -63,6 +75,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
                 priority: 'MEDIUM',
                 tags: '',
                 projectId: defaultProjectId || '',
+                dueDate: '',
             });
         }
     }, [taskToEdit, isOpen, setValue, reset, defaultProjectId]);
@@ -98,6 +111,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
             ...data,
             tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
             projectId: data.projectId || undefined,
+            dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : null,
         };
 
         if (taskToEdit) {
@@ -161,22 +175,38 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
                                                     />
                                                 </div>
 
-                                                {!defaultProjectId && (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    {!defaultProjectId && (
+                                                        <div className="space-y-1">
+                                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('tasks.projectOptional')}</label>
+                                                            <select
+                                                                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+                                                                {...register('projectId')}
+                                                            >
+                                                                <option value="">{t('tasks.noProject')}</option>
+                                                                {projects?.map((project) => (
+                                                                    <option key={project.id} value={project.id}>
+                                                                        {project.name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    )}
+
                                                     <div className="space-y-1">
-                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('tasks.projectOptional')}</label>
-                                                        <select
-                                                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
-                                                            {...register('projectId')}
-                                                        >
-                                                            <option value="">{t('tasks.noProject')}</option>
-                                                            {projects?.map((project) => (
-                                                                <option key={project.id} value={project.id}>
-                                                                    {project.name}
-                                                                </option>
-                                                            ))}
-                                                        </select>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('tasks.dueDate')}</label>
+                                                        <div className="relative">
+                                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                                <Calendar className="h-4 w-4 text-gray-400" />
+                                                            </div>
+                                                            <input
+                                                                type="datetime-local"
+                                                                className="block w-full pl-10 rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+                                                                {...register('dueDate')}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                )}
+                                                </div>
 
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-1">
