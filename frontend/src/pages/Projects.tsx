@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getProjects, createProject, Project } from '../api/projects';
+import { getProjects, createProject } from '../api/projects';
 import { Folder, Plus, Loader2, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
@@ -39,14 +39,14 @@ const Projects = () => {
             reset();
             toast({
                 title: t('common.success'),
-                description: t('projects.createSuccess') || 'Project created successfully',
+                description: t('projects.createSuccess'),
                 type: 'success'
             });
         },
         onError: (error: any) => {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Failed to create project',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
         },

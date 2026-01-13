@@ -10,8 +10,8 @@ import KanbanBoard from '../components/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
 import ProjectMembersModal from '../components/ProjectMembersModal';
+import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
-import clsx from 'clsx';
 import { useToast } from '../components/ui/Toast';
 import { AlertDialog } from '../components/ui/AlertDialog';
 
@@ -49,7 +49,7 @@ const ProjectDetails = () => {
             queryClient.invalidateQueries({ queryKey: ['projects'] });
             toast({
                 title: t('common.success'),
-                description: t('projects.deleteSuccess') || 'Project deleted successfully',
+                description: t('projects.deleteSuccess'),
                 type: 'success'
             });
             navigate('/projects');
@@ -57,7 +57,7 @@ const ProjectDetails = () => {
         onError: (error: any) => {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Failed to delete project',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
             setConfirmDeleteProject(false);
@@ -123,7 +123,14 @@ const ProjectDetails = () => {
             queryClient.invalidateQueries({ queryKey: ['project', project.id] });
             toast({
                 title: t('common.success'),
+                description: t('tasks.updateSuccess'),
                 type: 'success'
+            });
+        }).catch((error: any) => {
+            toast({
+                title: t('common.error'),
+                description: error.response?.data?.message || t('common.error'),
+                type: 'error'
             });
         });
     };
@@ -139,13 +146,13 @@ const ProjectDetails = () => {
                 queryClient.invalidateQueries({ queryKey: ['project', project.id] });
                 toast({
                     title: t('common.success'),
-                    description: t('tasks.deleteSuccess') || 'Task deleted successfully',
+                    description: t('tasks.deleteSuccess'),
                     type: 'success'
                 });
             } catch (error: any) {
                 toast({
                     title: t('common.error'),
-                    description: error.response?.data?.message || 'Failed to delete task',
+                    description: error.response?.data?.message || t('common.error'),
                     type: 'error'
                 });
             } finally {

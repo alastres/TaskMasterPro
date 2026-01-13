@@ -37,7 +37,7 @@ const Register = () => {
             console.error('Registration failed', error);
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Registration failed',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
         },

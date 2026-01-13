@@ -29,6 +29,14 @@ const TeamManagement: React.FC = () => {
         queryFn: getMyTeam
     });
 
+    const mapError = (message: string) => {
+        if (message.includes('No tienes permiso')) return t('errors.noPermission');
+        if (message.includes('no está registrado')) return t('errors.userNotRegistered');
+        if (message.includes('ya es miembro')) return t('errors.alreadyMember');
+        if (message.includes('no encontrado')) return t('errors.projectNotFound');
+        return message || t('common.error');
+    };
+
     const handleRemoveMember = async (projectId: string, userId: string) => {
         try {
             await removeMemberFromProject(projectId, userId);
@@ -40,7 +48,7 @@ const TeamManagement: React.FC = () => {
         } catch (error: any) {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message,
+                description: mapError(error.response?.data?.message),
                 type: 'error'
             });
         }
@@ -57,7 +65,7 @@ const TeamManagement: React.FC = () => {
         } catch (error: any) {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message,
+                description: mapError(error.response?.data?.message),
                 type: 'error'
             });
         }
@@ -181,7 +189,7 @@ const TeamManagement: React.FC = () => {
                 isOpen={confirmDeleteMember.isOpen}
                 onOpenChange={(isOpen) => setConfirmDeleteMember(prev => ({ ...prev, isOpen }))}
                 title={t('teams.removeMemberConfirm', { name: confirmDeleteMember.name })}
-                description={t('teams.removeMemberTooltip')}
+                description={t('teams.removeMemberDescription')}
                 onConfirm={() => handleRemoveMember(confirmDeleteMember.projectId, confirmDeleteMember.userId)}
                 variant="danger"
             />
@@ -190,7 +198,7 @@ const TeamManagement: React.FC = () => {
                 isOpen={confirmCancelInvite.isOpen}
                 onOpenChange={(isOpen) => setConfirmCancelInvite(prev => ({ ...prev, isOpen }))}
                 title={t('teams.cancelInviteConfirm', { email: confirmCancelInvite.email })}
-                description={t('teams.cancelInviteTooltip')}
+                description={t('teams.cancelInviteDescription')}
                 onConfirm={() => handleCancelInvite(confirmCancelInvite.inviteId)}
                 variant="danger"
             />

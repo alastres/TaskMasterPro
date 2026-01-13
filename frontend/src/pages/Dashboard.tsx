@@ -36,7 +36,7 @@ const Dashboard = () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
             toast({
                 title: t('common.success'),
-                description: t('tasks.deleteSuccess') || 'Task deleted successfully',
+                description: t('tasks.deleteSuccess'),
                 type: 'success'
             });
             setTaskToDelete(null);
@@ -44,7 +44,7 @@ const Dashboard = () => {
         onError: (error: any) => {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Failed to delete task',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
             setTaskToDelete(null);
@@ -58,6 +58,7 @@ const Dashboard = () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
             toast({
                 title: t('common.success'),
+                description: t('tasks.updateSuccess'),
                 type: 'success'
             });
         },

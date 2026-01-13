@@ -44,6 +44,7 @@ const NotificationCenter: React.FC = () => {
             if (variables.accept) {
                 toast({
                     title: t('common.success'),
+                    description: t('teams.acceptSuccess'),
                     type: 'success'
                 });
             }

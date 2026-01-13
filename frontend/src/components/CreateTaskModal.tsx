@@ -94,14 +94,14 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
             onClose();
             toast({
                 title: t('common.success'),
-                description: t('tasks.createSuccess') || 'Task created successfully',
+                description: t('tasks.createSuccess'),
                 type: 'success'
             });
         },
         onError: (error: any) => {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Failed to create task',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
         },
@@ -119,14 +119,14 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
             onClose();
             toast({
                 title: t('common.success'),
-                description: t('tasks.updateSuccess') || 'Task updated successfully',
+                description: t('tasks.updateSuccess'),
                 type: 'success'
             });
         },
         onError: (error: any) => {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Failed to update task',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
         },

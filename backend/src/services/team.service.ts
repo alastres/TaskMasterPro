@@ -2,6 +2,7 @@ import prisma from '../config/db';
 import { InvitationStatus, NotificationType } from '@prisma/client';
 import { createNotification } from './notification.service';
 import { v4 as uuidv4 } from 'uuid';
+import { AppError } from '../utils/AppError';
 
 export const getOrCreateUserTeam = async (userId: string) => {
     let team = await prisma.team.findUnique({
@@ -60,30 +61,33 @@ export const getOrCreateUserTeam = async (userId: string) => {
 
 export const inviteMember = async (teamId: string, email: string, inviterId: string, projectId?: string) => {
     const team = await prisma.team.findUnique({ where: { id: teamId } });
-    if (!team) throw new Error('Equipo no encontrado');
-    if (team.ownerId !== inviterId) throw new Error('No tienes permiso para invitar a este equipo');
+    if (!team) throw new AppError('Equipo no encontrado', 404);
+    if (team.ownerId !== inviterId) throw new AppError('No tienes permiso para invitar a este equipo', 403);
 
     const inviter = await prisma.user.findUnique({ where: { id: inviterId } });
 
     let projectName = '';
     if (projectId) {
         const project = await prisma.project.findUnique({ where: { id: projectId } });
-        if (project) projectName = project.name;
+        if (!project) throw new AppError('Proyecto no encontrado', 404);
+        projectName = project.name;
     }
 
     // Check if user is already a member
     const targetUser = await prisma.user.findUnique({ where: { email } });
+    if (!targetUser) throw new AppError('El usuario no está registrado en el sistema', 404);
+
     if (targetUser) {
         if (projectId) {
             const isProjectMember = await prisma.projectMember.findUnique({
                 where: { projectId_userId: { projectId, userId: targetUser.id } }
             });
-            if (isProjectMember) throw new Error('El usuario ya es miembro de este proyecto');
+            if (isProjectMember) throw new AppError('El usuario ya es miembro de este proyecto', 400);
         } else {
             const isTeamMember = await prisma.teamMember.findUnique({
                 where: { teamId_userId: { teamId, userId: targetUser.id } }
             });
-            if (isTeamMember) throw new Error('El usuario ya es miembro de este equipo');
+            if (isTeamMember) throw new AppError('El usuario ya es miembro de este equipo', 400);
         }
     }
 
@@ -141,12 +145,12 @@ export const respondToInvitation = async (invitationId: string, userId: string, 
     });
 
     if (!invitation || invitation.status !== InvitationStatus.PENDING) {
-        throw new Error('Invitación no válida o expirada');
+        throw new AppError('Invitación no válida o expirada', 400);
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user || user.email.toLowerCase() !== invitation.email.toLowerCase()) {
-        throw new Error('Correo electrónico no coincide con la invitación');
+        throw new AppError('Correo electrónico no coincide con la invitación', 400);
     }
 
     if (accept) {
@@ -208,8 +212,8 @@ export const getUserMemberships = async (userId: string) => {
 
 export const removeMemberFromProject = async (projectId: string, userId: string, ownerId: string) => {
     const project = await prisma.project.findUnique({ where: { id: projectId } });
-    if (!project) throw new Error('Proyecto no encontrado');
-    if (project.userId !== ownerId) throw new Error('No tienes permiso para eliminar miembros de este proyecto');
+    if (!project) throw new AppError('Proyecto no encontrado', 404);
+    if (project.userId !== ownerId) throw new AppError('No tienes permiso para eliminar miembros de este proyecto', 403);
 
     return await prisma.projectMember.delete({
         where: { projectId_userId: { projectId, userId } }
@@ -222,8 +226,8 @@ export const cancelInvitation = async (invitationId: string, ownerId: string) =>
         include: { team: true }
     });
 
-    if (!invitation) throw new Error('Invitación no encontrada');
-    if (invitation.team.ownerId !== ownerId) throw new Error('No tienes permiso para cancelar esta invitación');
+    if (!invitation) throw new AppError('Invitación no encontrada', 404);
+    if (invitation.team.ownerId !== ownerId) throw new AppError('No tienes permiso para cancelar esta invitación', 403);
 
     return await prisma.invitation.delete({
         where: { id: invitationId }

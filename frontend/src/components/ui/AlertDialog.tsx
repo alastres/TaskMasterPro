@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useTranslation } from 'react-i18next';
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -26,12 +27,16 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
     onOpenChange,
     title,
     description,
-    cancelText = 'Cancelar',
-    confirmText = 'Confirmar',
+    cancelText,
+    confirmText,
     onConfirm,
     variant = 'danger',
     isLoading = false
 }) => {
+    const { t } = useTranslation();
+    const finalCancelText = cancelText || t('common.cancel');
+    const finalConfirmText = confirmText || t('common.confirm');
+
     return (
         <AlertDialogPrimitive.Root open={isOpen} onOpenChange={onOpenChange}>
             <AnimatePresence>
@@ -75,7 +80,7 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
                                         <div className="flex gap-3">
                                             <AlertDialogPrimitive.Cancel asChild>
                                                 <button className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-all">
-                                                    {cancelText}
+                                                    {finalCancelText}
                                                 </button>
                                             </AlertDialogPrimitive.Cancel>
                                             <AlertDialogPrimitive.Action asChild>
@@ -90,7 +95,7 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
                                                     )}
                                                 >
                                                     {isLoading && <Loader2 size={18} className="animate-spin" />}
-                                                    {confirmText}
+                                                    {finalConfirmText}
                                                 </button>
                                             </AlertDialogPrimitive.Action>
                                         </div>

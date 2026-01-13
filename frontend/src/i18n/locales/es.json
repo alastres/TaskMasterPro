@@ -59,13 +59,16 @@
         "statusCompleted": "Completada",
         "priorityLow": "Baja",
         "priorityMedium": "Media",
-        "priorityHigh": "Alta",
-        "allStatus": "Todos los estados",
-        "allPriorities": "Todas las prioridades",
-        "searchPlaceholder": "Buscar tareas...",
-        "dueDate": "Fecha de cumplimiento",
-        "noDueDate": "Sin fecha de cumplimiento",
-        "overdue": "Atrasada"
+        "priorityHigh": "High",
+        "allStatus": "All Status",
+        "allPriorities": "All Priorities",
+        "searchPlaceholder": "Search tasks...",
+        "dueDate": "Due Date",
+        "noDueDate": "No due date",
+        "overdue": "Overdue",
+        "createSuccess": "Tarea creada exitosamente",
+        "updateSuccess": "Tarea actualizada exitosamente",
+        "deleteSuccess": "Tarea eliminada exitosamente"
     },
     "projects": {
         "project": "Proyecto",
@@ -79,6 +82,9 @@
         "tasksCount": "{{count}} tarea",
         "tasksCount_plural": "{{count}} tareas",
         "deleteConfirm": "¿Estás seguro de que quieres eliminar este proyecto? Todas las tareas en este proyecto se eliminarán permanentemente.",
+        "createSuccess": "Proyecto creado exitosamente",
+        "updateSuccess": "Proyecto actualizado exitosamente",
+        "deleteSuccess": "Proyecto eliminado exitosamente",
         "addTask": "Agregar tarea",
         "noTasksInProject": "No hay tareas en este proyecto aún.",
         "viewList": "Vista de lista",
@@ -148,7 +154,12 @@
         "manageMembers": "Administrar Miembros",
         "inviteToProject": "Invitar al Proyecto",
         "pendingInvitations": "Invitaciones Pendientes",
-        "sentOn": "Enviada el {{date}}"
+        "sentOn": "Enviada el {{date}}",
+        "removeMemberDescription": "Este miembro perderá el acceso a las tareas e información del proyecto.",
+        "cancelInviteDescription": "La invitación será revocada y el usuario no podrá unirse usándola.",
+        "removeMemberSuccess": "Miembro eliminado del proyecto",
+        "cancelInviteSuccess": "Invitación cancelada exitosamente",
+        "acceptSuccess": "Te has unido al equipo"
     },
     "breadcrumbs": {
         "home": "Inicio"
@@ -159,5 +170,14 @@
         "passwordMin": "La contraseña debe tener al menos 6 caracteres",
         "passwordsDontMatch": "Las contraseñas no coinciden",
         "titleRequired": "El título es obligatorio"
+    },
+    "errors": {
+        "teamNotFound": "Equipo no encontrado",
+        "projectNotFound": "Proyecto no encontrado",
+        "userNotRegistered": "El usuario no está registrado en el sistema",
+        "alreadyMember": "El usuario ya es miembro",
+        "noPermission": "No tienes permiso para realizar esta acción",
+        "invitationInvalid": "Invitación no válida o expirada",
+        "emailMismatch": "El correo electrónico no coincide con la invitación"
     }
 }

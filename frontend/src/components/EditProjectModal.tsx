@@ -28,7 +28,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
 
     type ProjectForm = z.infer<typeof projectSchema>;
 
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<ProjectForm>({
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<ProjectForm>({
         resolver: zodResolver(projectSchema),
         defaultValues: {
             name: project.name,
@@ -51,14 +51,14 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
             onClose();
             toast({
                 title: t('common.success'),
-                description: t('projects.updateSuccess') || 'Project updated successfully',
+                description: t('projects.updateSuccess'),
                 type: 'success'
             });
         },
         onError: (error: any) => {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Failed to update project',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
         },

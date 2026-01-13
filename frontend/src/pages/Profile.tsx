@@ -110,7 +110,7 @@ const Profile = () => {
         onError: (error: any) => {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Failed to update profile',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
         },
@@ -133,7 +133,7 @@ const Profile = () => {
         onError: (error: any) => {
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Failed to change password',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
         },

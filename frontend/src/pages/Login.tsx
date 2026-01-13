@@ -36,7 +36,7 @@ const Login = () => {
             console.error('Login failed', error);
             toast({
                 title: t('common.error'),
-                description: error.response?.data?.message || 'Login failed',
+                description: error.response?.data?.message || t('common.error'),
                 type: 'error'
             });
         },
