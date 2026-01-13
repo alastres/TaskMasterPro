@@ -9,8 +9,8 @@ interface KanbanColumnProps {
     id: string;
     title: string;
     tasks: Task[];
-    onEdit: (task: Task) => void;
-    onDelete: (id: string) => void;
+    onEdit?: (task: Task) => void;
+    onDelete?: (id: string) => void;
     onToggleStatus: (task: Task) => void;
 }
 

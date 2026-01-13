@@ -112,6 +112,30 @@
         "thresholdHigh": "Horas para Prioridad Alta",
         "thresholdsDescription": "Las tareas subirán automáticamente a Prioridad Media/Alta cuando se acerquen a su fecha de vencimiento según estas horas."
     },
+    "notifications": {
+        "title": "Notificaciones",
+        "empty": "No tienes notificaciones",
+        "markAllAsRead": "Marcar todas como leídas",
+        "markAsRead": "Marcar como leída",
+        "accept": "Aceptar",
+        "reject": "Rechazar",
+        "invitationTitle": "Invitación a equipo",
+        "invitationMessage": "{{name}} te ha invitado a unirte a su equipo."
+    },
+    "teams": {
+        "title": "Gestión de Equipo",
+        "myTeam": "Mi Equipo",
+        "members": "Miembros",
+        "inviteMember": "Invitar Miembro",
+        "inviteMemberInstructions": "Introduce el correo electrónico para invitar a colaborar en este proyecto.",
+        "emailPlaceholder": "correo@ejemplo.com",
+        "invite": "Enviar Invitación",
+        "memberships": "Equipos de los que soy miembro",
+        "roleOwner": "Dueño",
+        "roleMember": "Miembro",
+        "noMembers": "No hay miembros en este equipo aún.",
+        "inviteSuccess": "Invitación enviada exitosamente"
+    },
     "breadcrumbs": {
         "home": "Inicio"
     },

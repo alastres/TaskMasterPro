@@ -5,6 +5,7 @@ import { LogOut, CheckSquare, Menu } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import LanguageToggle from './LanguageToggle';
 import { useTranslation } from 'react-i18next';
+import NotificationCenter from './NotificationCenter';
 
 interface HeaderProps {
     toggleSidebar: () => void;
@@ -40,6 +41,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     <div className="flex items-center space-x-4">
                         <LanguageToggle />
                         <ThemeToggle />
+                        <NotificationCenter />
 
                         <div className="flex items-center space-x-3 pl-4 border-l border-gray-200 dark:border-gray-700">
                             <Link to="/profile" className="flex items-center space-x-2 group">

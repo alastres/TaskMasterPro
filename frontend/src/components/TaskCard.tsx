@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 
 interface TaskCardProps {
     task: Task;
-    onEdit: (task: Task) => void;
-    onDelete: (id: string) => void;
+    onEdit?: (task: Task) => void;
+    onDelete?: (id: string) => void;
     onToggleStatus: (task: Task) => void;
 }
 
@@ -108,20 +108,24 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                 </div>
 
                 <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                        onClick={() => onEdit(task)}
-                        className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        aria-label="Edit task"
-                    >
-                        <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button
-                        onClick={() => onDelete(task.id)}
-                        className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-                        aria-label="Delete task"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </button>
+                    {onEdit && (
+                        <button
+                            onClick={() => onEdit(task)}
+                            className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            aria-label="Edit task"
+                        >
+                            <Edit2 className="h-4 w-4" />
+                        </button>
+                    )}
+                    {onDelete && (
+                        <button
+                            onClick={() => onDelete(task.id)}
+                            className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            aria-label="Delete task"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </button>
+                    )}
                 </div>
             </div>
 

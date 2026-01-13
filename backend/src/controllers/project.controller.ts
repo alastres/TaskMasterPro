@@ -13,11 +13,15 @@ export const createProject = async (
         const { name, description } = req.body;
         const userId = req.user!.id;
 
+        // Automatically link to user's owned team if it exists
+        const ownedTeam = await prisma.team.findUnique({ where: { ownerId: userId } });
+
         const project = await prisma.project.create({
             data: {
                 name,
                 description,
                 userId,
+                teamId: ownedTeam?.id || null
             },
         });
 
@@ -30,7 +34,7 @@ export const createProject = async (
     }
 };
 
-// Obtener Proyectos del Usuario
+// Obtener Proyectos (Propios y de Equipos a los que pertenezco)
 export const getProjects = async (
     req: AuthRequest,
     res: Response,
@@ -40,9 +44,21 @@ export const getProjects = async (
         const userId = req.user!.id;
 
         const projects = await prisma.project.findMany({
-            where: { userId },
+            where: {
+                OR: [
+                    { userId }, // Proyectos que el usuario creó (Dueño)
+                    {
+                        members: {
+                            some: { userId }
+                        }
+                    } // Proyectos donde el usuario es colaborador explícito
+                ]
+            },
             orderBy: { createdAt: 'desc' },
             include: {
+                user: {
+                    select: { name: true, avatarUrl: true }
+                },
                 _count: {
                     select: { tasks: true }
                 }
@@ -72,6 +88,16 @@ export const getProjectById = async (
         const project = await prisma.project.findUnique({
             where: { id },
             include: {
+                user: {
+                    select: { id: true, name: true, avatarUrl: true }
+                },
+                members: {
+                    include: {
+                        user: {
+                            select: { id: true, name: true, email: true, avatarUrl: true }
+                        }
+                    }
+                },
                 tasks: {
                     orderBy: {
                         createdAt: 'desc'
@@ -84,20 +110,29 @@ export const getProjectById = async (
             return next(new AppError('Project not found', 404));
         }
 
-        if (project.userId !== userId) {
+        // Check if user is owner or explicit member
+        const isOwner = project.userId === userId;
+        const isMember = project.members.some((m: any) => m.userId === userId);
+
+        if (!isOwner && !isMember) {
             return next(new AppError('Not authorized to view this project', 403));
         }
 
         res.status(200).json({
             status: 'success',
-            data: { project },
+            data: {
+                project: {
+                    ...project,
+                    isOwner // Add flag for frontend
+                }
+            },
         });
     } catch (error) {
         next(error);
     }
 };
 
-// Actualizar Proyecto
+// Actualizar Proyecto (Solo Dueño)
 export const updateProject = async (
     req: AuthRequest,
     res: Response,
@@ -115,7 +150,7 @@ export const updateProject = async (
         }
 
         if (project.userId !== userId) {
-            return next(new AppError('Not authorized to update this project', 403));
+            return next(new AppError('Only the project owner can update it', 403));
         }
 
         const updatedProject = await prisma.project.update({
@@ -132,7 +167,7 @@ export const updateProject = async (
     }
 };
 
-// Eliminar Proyecto
+// Eliminar Proyecto (Solo Dueño)
 export const deleteProject = async (
     req: AuthRequest,
     res: Response,
@@ -149,10 +184,10 @@ export const deleteProject = async (
         }
 
         if (project.userId !== userId) {
-            return next(new AppError('Not authorized to delete this project', 403));
+            return next(new AppError('Only the project owner can delete it', 403));
         }
 
-        // Cascade delete tasks associated with the project
+        // Cascade delete tasks
         await prisma.task.deleteMany({
             where: { projectId: id },
         });

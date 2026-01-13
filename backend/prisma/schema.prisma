@@ -8,29 +8,102 @@ generator client {
 }
 
 model User {
-  id              String   @id @default(uuid())
-  email           String   @unique
+  id              String         @id @default(uuid())
+  email           String         @unique
   password        String
   name            String
-  nickname        String   @default("User") @db.VarChar(20)
+  nickname        String         @default("User") @db.VarChar(20)
   avatarUrl       String?
-  thresholdMedium Int      @default(72)
-  thresholdHigh   Int      @default(24)
+  thresholdMedium Int            @default(72)
+  thresholdHigh   Int            @default(24)
   tasks           Task[]
   projects        Project[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  ownedTeam       Team?          @relation("OwnedTeam")
+  memberships        TeamMember[]
+  projectMemberships ProjectMember[]
+  notifications      Notification[]
+  sentInvitations    Invitation[]   @relation("SentInvitations")
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model Team {
+  id          String       @id @default(uuid())
+  name        String
+  ownerId     String       @unique
+  owner       User         @relation("OwnedTeam", fields: [ownerId], references: [id])
+  members     TeamMember[]
+  projects    Project[]
+  invitations Invitation[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  joinedAt  DateTime @default(now())
+
+  @@unique([teamId, userId])
+}
+
+model Invitation {
+  id         String           @id @default(uuid())
+  email      String
+  teamId     String
+  team       Team             @relation(fields: [teamId], references: [id])
+  projectId  String?
+  project    Project?         @relation(fields: [projectId], references: [id])
+  inviterId  String
+  inviter    User             @relation("SentInvitations", fields: [inviterId], references: [id])
+  status     InvitationStatus @default(PENDING)
+  token      String           @unique
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([teamId, email])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  link      String?          // e.g. /projects/:id or /teams
+  data      Json?            // e.g. { invitationId: "..." }
+  createdAt DateTime         @default(now())
 }
 
 model Project {
-  id          String   @id @default(uuid())
+  id          String          @id @default(uuid())
   name        String
   description String?
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User            @relation(fields: [userId], references: [id])
+  teamId      String?
+  team        Team?           @relation(fields: [teamId], references: [id])
   tasks       Task[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  invitations Invitation[]
+  members     ProjectMember[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  joinedAt  DateTime @default(now())
+
+  @@unique([projectId, userId])
 }
 
 model Task {
@@ -59,4 +132,17 @@ enum Priority {
   LOW
   MEDIUM
   HIGH
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum NotificationType {
+  INVITATION
+  TEAM_JOINED
+  TEAM_LEFT
+  PROJECT_SHARED
 }

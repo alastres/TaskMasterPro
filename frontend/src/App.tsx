@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Projects from './pages/Projects';
 import ProjectDetails from './pages/ProjectDetails';
+import TeamManagement from './pages/TeamManagement';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import { useAuthStore } from './store/auth.store';
@@ -48,6 +49,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:id" element={<ProjectDetails />} />
+          <Route path="/team" element={<TeamManagement />} />
         </Route>
       </Route>
 

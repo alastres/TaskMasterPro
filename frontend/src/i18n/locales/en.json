@@ -112,6 +112,30 @@
         "thresholdHigh": "Hours for High Priority",
         "thresholdsDescription": "Tasks will automatically upgrade to Medium/High priority as they near their due date based on these hours."
     },
+    "notifications": {
+        "title": "Notifications",
+        "empty": "You have no notifications",
+        "markAllAsRead": "Mark all as read",
+        "markAsRead": "Mark as read",
+        "accept": "Accept",
+        "reject": "Reject",
+        "invitationTitle": "Team Invitation",
+        "invitationMessage": "{{name}} has invited you to join their team."
+    },
+    "teams": {
+        "title": "Team Management",
+        "myTeam": "My Team",
+        "members": "Members",
+        "inviteMember": "Invite Member",
+        "inviteMemberInstructions": "Enter the email address to invite someone to collaborate on this project.",
+        "emailPlaceholder": "email@example.com",
+        "invite": "Send Invitation",
+        "memberships": "Teams I belong to",
+        "roleOwner": "Owner",
+        "roleMember": "Member",
+        "noMembers": "No members in this team yet.",
+        "inviteSuccess": "Invitation sent successfully"
+    },
     "breadcrumbs": {
         "home": "Home"
     },

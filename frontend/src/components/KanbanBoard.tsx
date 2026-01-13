@@ -7,8 +7,8 @@ import { priorityWeight } from '../pages/ProjectDetails';
 
 interface KanbanBoardProps {
     tasks: Task[];
-    onEdit: (task: Task) => void;
-    onDelete: (id: string) => void;
+    onEdit?: (task: Task) => void;
+    onDelete?: (id: string) => void;
     onToggleStatus: (task: Task) => void;
     prioritySort?: 'asc' | 'desc' | null;
 }

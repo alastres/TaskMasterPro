@@ -5,6 +5,21 @@ export interface Project {
     name: string;
     description?: string;
     createdAt: string;
+    isOwner?: boolean;
+    user?: {
+        name: string;
+        avatarUrl?: string;
+    };
+    members?: Array<{
+        id: string;
+        userId: string;
+        user: {
+            id: string;
+            name: string;
+            email: string;
+            avatarUrl?: string;
+        };
+    }>;
     _count?: {
         tasks: number;
     };

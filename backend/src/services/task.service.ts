@@ -30,12 +30,23 @@ const calculateEffectivePriority = (task: Task & { user?: { thresholdMedium: num
 };
 
 export const createTask = async (userId: string, input: CreateTaskInput) => {
-    const { dueDate, ...rest } = input;
+    const { dueDate, projectId, ...rest } = input;
+
+    // Verify project ownership if project is specified
+    if (projectId) {
+        const project = await prisma.project.findUnique({ where: { id: projectId } });
+        if (!project) throw new AppError('Proyecto no encontrado', 404);
+        if (project.userId !== userId) {
+            throw new AppError('Solo el dueño del proyecto puede añadir tareas', 403);
+        }
+    }
+
     return await prisma.task.create({
         data: {
             ...rest,
             dueDate: dueDate ? new Date(dueDate) : null,
             userId,
+            projectId: projectId || null,
         },
     });
 };
@@ -43,8 +54,20 @@ export const createTask = async (userId: string, input: CreateTaskInput) => {
 export const getTasks = async (userId: string, query: TaskQuery) => {
     const { status, priority, search, sort, projectId } = query;
 
+    // Inclusion criteria: User owns the task OR user is member of the team the task belongs to
     const where: any = {
-        userId,
+        OR: [
+            { userId }, // Owner of task
+            {
+                project: {
+                    team: {
+                        members: {
+                            some: { userId }
+                        }
+                    }
+                }
+            } // Member of team
+        ]
     };
 
     if (status) {
@@ -56,9 +79,13 @@ export const getTasks = async (userId: string, query: TaskQuery) => {
     }
 
     if (search) {
-        where.OR = [
-            { title: { contains: search, mode: 'insensitive' } },
-            { description: { contains: search, mode: 'insensitive' } },
+        where.AND = [
+            {
+                OR: [
+                    { title: { contains: search, mode: 'insensitive' } },
+                    { description: { contains: search, mode: 'insensitive' } },
+                ]
+            }
         ];
     }
 
@@ -78,14 +105,14 @@ export const getTasks = async (userId: string, query: TaskQuery) => {
                     thresholdMedium: true,
                     thresholdHigh: true,
                 }
-            }
+            },
+            project: true
         },
         orderBy: {
             createdAt: sort === 'oldest' ? 'asc' : 'desc',
         },
     });
 
-    // Map tasks to include dynamic priority
     return tasks.map(task => ({
         ...task,
         priority: calculateEffectivePriority(task)
@@ -101,12 +128,31 @@ export const getTask = async (userId: string, taskId: string) => {
                     thresholdMedium: true,
                     thresholdHigh: true,
                 }
+            },
+            project: {
+                include: {
+                    team: {
+                        include: {
+                            members: {
+                                where: { userId }
+                            }
+                        }
+                    }
+                }
             }
         }
     });
 
-    if (!task || task.userId !== userId) {
-        throw new AppError('Task not found', 404);
+    if (!task) {
+        throw new AppError('Tarea no encontrada', 404);
+    }
+
+    const isOwner = task.userId === userId;
+    const isProjectOwner = task.project?.userId === userId;
+    const isMember = task.project?.team?.members.length! > 0;
+
+    if (!isOwner && !isProjectOwner && !isMember) {
+        throw new AppError('No tienes permiso para ver esta tarea', 403);
     }
 
     return {
@@ -120,10 +166,47 @@ export const updateTask = async (
     taskId: string,
     input: UpdateTaskInput
 ) => {
-    await getTask(userId, taskId); // verifies ownership
+    const task = await prisma.task.findUnique({
+        where: { id: taskId },
+        include: {
+            project: {
+                include: {
+                    team: {
+                        include: {
+                            members: { where: { userId } }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    if (!task) throw new AppError('Tarea no encontrada', 404);
+
+    const isOwner = task.userId === userId;
+    const isMember = task.project?.team?.members.length! > 0;
+
+    if (!isOwner && !isMember) {
+        throw new AppError('No tienes permiso para editar esta tarea', 403);
+    }
 
     const { dueDate, ...rest } = input;
 
+    // If member but NOT owner, only 'status' can be updated
+    if (!isOwner && isMember) {
+        const allowedKeys = ['status'];
+        const requestedKeys = Object.keys(rest).filter(k => rest[k as keyof typeof rest] !== undefined);
+        if (requestedKeys.some(k => !allowedKeys.includes(k)) || dueDate !== undefined) {
+            throw new AppError('Los miembros del equipo solo pueden actualizar el estado de la tarea', 403);
+        }
+
+        return await prisma.task.update({
+            where: { id: taskId },
+            data: { status: rest.status as TaskStatus },
+        });
+    }
+
+    // Owner flow
     return await prisma.task.update({
         where: { id: taskId },
         data: {
@@ -134,7 +217,15 @@ export const updateTask = async (
 };
 
 export const deleteTask = async (userId: string, taskId: string) => {
-    await getTask(userId, taskId); // verifies ownership
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) throw new AppError('Tarea no encontrada', 404);
+
+    // Only task owner or project owner can delete
+    const project = task.projectId ? await prisma.project.findUnique({ where: { id: task.projectId } }) : null;
+
+    if (task.userId !== userId && project?.userId !== userId) {
+        throw new AppError('Solo el dueño puede eliminar la tarea', 403);
+    }
 
     await prisma.task.delete({
         where: { id: taskId },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Folder } from 'lucide-react';
+import { Home, User, Folder, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
@@ -18,6 +18,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isMobileOpen, setIsMobileOpen
     const navItems = [
         { name: t('nav.dashboard'), path: '/', icon: Home },
         { name: t('nav.projects'), path: '/projects', icon: Folder },
+        { name: t('teams.title'), path: '/team', icon: Users },
         { name: t('nav.profile'), path: '/profile', icon: User },
     ];
 
