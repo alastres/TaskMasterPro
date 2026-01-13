@@ -25,6 +25,7 @@
 
 # Logs
 /backend/logs
+/backend/uploads
 /backend/*.log
 /backend/npm-debug.log*
 /backend/yarn-debug.log*

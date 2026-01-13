@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/auth.store';
-import { LogOut, CheckSquare, User, Menu } from 'lucide-react';
+import { LogOut, CheckSquare, Menu } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
-import { motion } from 'framer-motion';
+import LanguageToggle from './LanguageToggle';
+import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
     toggleSidebar: () => void;
@@ -12,6 +13,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const handleLogout = () => {
         logout();
@@ -36,6 +38,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     </div>
 
                     <div className="flex items-center space-x-4">
+                        <LanguageToggle />
                         <ThemeToggle />
 
                         <div className="flex items-center space-x-3 pl-4 border-l border-gray-200 dark:border-gray-700">
@@ -63,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                             <button
                                 onClick={handleLogout}
                                 className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/50"
-                                title="Logout"
+                                title={t('nav.logout')}
                             >
                                 <LogOut size={20} />
                             </button>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getProjects, createProject, Project } from '../api/projects';
 import { Folder, Plus, Loader2, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -9,19 +10,19 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Dialog from '@radix-ui/react-dialog';
-import clsx from 'clsx';
 import { X } from 'lucide-react';
 
-const createProjectSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().optional(),
-});
-
-type CreateProjectForm = z.infer<typeof createProjectSchema>;
-
 const Projects = () => {
+    const { t } = useTranslation();
     const queryClient = useQueryClient();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    const createProjectSchema = z.object({
+        name: z.string().min(1, t('validation.required')),
+        description: z.string().optional(),
+    });
+
+    type CreateProjectForm = z.infer<typeof createProjectSchema>;
 
     const { data: projects, isLoading, isError } = useQuery({
         queryKey: ['projects'],
@@ -54,39 +55,35 @@ const Projects = () => {
     }
 
     if (isError) {
-        return <div className="text-center text-red-500 dark:text-red-400">Error loading projects</div>;
+        return <div className="text-center text-red-500 dark:text-red-400">{t('common.error')}</div>;
     }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Projects</h1>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Manage your work with projects.
-                    </p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('nav.projects')}</h1>
                 </div>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
                     className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                 >
                     <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                    New Project
+                    {t('projects.newProject')}
                 </button>
             </div>
 
             {projects?.length === 0 ? (
                 <div className="text-center py-12">
                     <Folder className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No projects</h3>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new project.</p>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">{t('projects.noProjects')}</h3>
                     <div className="mt-6">
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
                             className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                         >
                             <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                            New Project
+                            {t('projects.newProject')}
                         </button>
                     </div>
                 </div>
@@ -111,7 +108,7 @@ const Projects = () => {
                                                 </dt>
                                                 <dd>
                                                     <div className="text-lg font-medium text-gray-900 dark:text-white">
-                                                        {project._count?.tasks} Tasks
+                                                        {t('projects.tasksCount', { count: project._count?.tasks || 0 })}
                                                     </div>
                                                 </dd>
                                             </dl>
@@ -122,7 +119,7 @@ const Projects = () => {
                                     <div className="text-sm">
                                         <div className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 flex items-center">
                                             <Calendar className="h-4 w-4 mr-1" />
-                                            Created {format(new Date(project.createdAt), 'MMM d, yyyy')}
+                                            {format(new Date(project.createdAt), 'MMM d, yyyy')}
                                         </div>
                                     </div>
                                 </div>
@@ -139,7 +136,7 @@ const Projects = () => {
                     <Dialog.Content className="fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-xl bg-white dark:bg-gray-800 p-6 shadow-2xl focus:outline-none z-50 border border-gray-200 dark:border-gray-700">
                         <div className="flex items-center justify-between mb-4">
                             <Dialog.Title className="text-lg font-medium text-gray-900 dark:text-white">
-                                Create New Project
+                                {t('projects.createProject')}
                             </Dialog.Title>
                             <Dialog.Close asChild>
                                 <button className="rounded-full p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400">
@@ -150,7 +147,7 @@ const Projects = () => {
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <div>
                                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Name
+                                    {t('projects.projectName')}
                                 </label>
                                 <input
                                     type="text"
@@ -164,7 +161,7 @@ const Projects = () => {
                             </div>
                             <div>
                                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Description
+                                    {t('tasks.description')}
                                 </label>
                                 <textarea
                                     id="description"
@@ -179,7 +176,7 @@ const Projects = () => {
                                     onClick={() => setIsCreateModalOpen(false)}
                                     className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                                 >
-                                    Cancel
+                                    {t('common.cancel')}
                                 </button>
                                 <button
                                     type="submit"
@@ -187,7 +184,7 @@ const Projects = () => {
                                     className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors flex items-center"
                                 >
                                     {createMutation.isPending && <Loader2 className="animate-spin h-4 w-4 mr-2" />}
-                                    Create Project
+                                    {t('projects.createProject')}
                                 </button>
                             </div>
                         </form>

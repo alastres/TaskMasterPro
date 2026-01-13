@@ -1,23 +1,24 @@
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { login, LoginPayload } from '../api/auth';
 import { useAuthStore } from '../store/auth.store';
 import { CheckSquare, Loader2 } from 'lucide-react';
 
-const loginSchema = z.object({
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(1, 'Password is required'),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
-
 const Login = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const setAuth = useAuthStore((state) => state.setAuth);
+
+    const loginSchema = z.object({
+        email: z.string().email(t('validation.emailInvalid')),
+        password: z.string().min(1, t('validation.required')),
+    });
+
+    type LoginForm = z.infer<typeof loginSchema>;
 
     const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
         resolver: zodResolver(loginSchema),
@@ -31,7 +32,6 @@ const Login = () => {
         },
         onError: (error: any) => {
             console.error('Login failed', error);
-            // Idealmente mostrar notificación/alerta
             alert(error.response?.data?.message || 'Login failed');
         },
     });
@@ -47,8 +47,11 @@ const Login = () => {
                     <CheckSquare className="h-10 w-10 text-indigo-600 dark:text-indigo-500" />
                 </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-                    Sign in to TaskMaster Pro
+                    {t('auth.welcome')}
                 </h2>
+                <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                    {t('auth.getStarted')}
+                </p>
             </div>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -56,37 +59,33 @@ const Login = () => {
                     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Email address
+                                {t('auth.email')}
                             </label>
                             <div className="mt-1">
                                 <input
                                     id="email"
                                     type="email"
                                     autoComplete="email"
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                     {...register('email')}
                                 />
-                                {errors.email && (
-                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-                                )}
+                                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
                             </div>
                         </div>
 
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Password
+                                {t('auth.password')}
                             </label>
                             <div className="mt-1">
                                 <input
                                     id="password"
                                     type="password"
                                     autoComplete="current-password"
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                     {...register('password')}
                                 />
-                                {errors.password && (
-                                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
-                                )}
+                                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
                             </div>
                         </div>
 
@@ -94,33 +93,20 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={mutation.isPending}
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+                                className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {mutation.isPending ? (
-                                    <Loader2 className="animate-spin h-5 w-5" />
-                                ) : (
-                                    'Sign in'
-                                )}
+                                {mutation.isPending && <Loader2 className="animate-spin h-4 w-4 mr-2" />}
+                                {t('auth.signIn')}
                             </button>
                         </div>
-                    </form>
 
-                    <div className="mt-6">
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or</span>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 text-center">
-                            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                Create a new account
+                        <div className="text-sm text-center">
+                            <span className="text-gray-600 dark:text-gray-400">{t('auth.dontHaveAccount')} </span>
+                            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+                                {t('auth.register')}
                             </Link>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>

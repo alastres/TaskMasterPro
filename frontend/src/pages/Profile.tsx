@@ -1,39 +1,38 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth.store';
 import api from '../api/axios';
 import { User, Lock, Save, Loader2, Camera } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// Modify schema to exclude avatarUrl validation since we handle it manually via FormData
-const profileSchema = z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    nickname: z.string().min(1, 'Nickname is required').max(20, 'Nickname maximum 20 characters'),
-});
-
-const passwordSchema = z.object({
-    currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(6, 'New password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Confirm password must be at least 6 characters'),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-});
-
-type ProfileForm = z.infer<typeof profileSchema>;
-type PasswordForm = z.infer<typeof passwordSchema>;
-
 const Profile = () => {
+    const { t } = useTranslation();
     const { user, setAuth, token } = useAuthStore();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(user?.avatarUrl || null);
 
-    // Update preview when user data changes (e.g. initial load or after update)
-    // Only update if we don't have a locally selected file pending upload
-    React.useEffect(() => {
+    const profileSchema = z.object({
+        name: z.string().min(2, t('validation.required')),
+        nickname: z.string().min(1, t('validation.required')).max(20, 'Nickname maximum 20 characters'),
+    });
+
+    const passwordSchema = z.object({
+        currentPassword: z.string().min(1, t('validation.required')),
+        newPassword: z.string().min(6, t('validation.passwordMin')),
+        confirmPassword: z.string().min(6, t('validation.passwordMin')),
+    }).refine((data) => data.newPassword === data.confirmPassword, {
+        message: t('validation.passwordsDontMatch'),
+        path: ["confirmPassword"],
+    });
+
+    type ProfileForm = z.infer<typeof profileSchema>;
+    type PasswordForm = z.infer<typeof passwordSchema>;
+
+    useEffect(() => {
         if (!selectedFile && user?.avatarUrl) {
             setPreviewUrl(user.avatarUrl);
         }
@@ -83,8 +82,8 @@ const Profile = () => {
             if (token) {
                 setAuth(updatedUser, token);
             }
-            alert('Profile updated successfully');
-            setSelectedFile(null); // Clear selected file after successful upload
+            alert(t('profile.profileUpdated'));
+            setSelectedFile(null);
         },
         onError: (error: any) => {
             alert(error.response?.data?.message || 'Failed to update profile');
@@ -100,7 +99,7 @@ const Profile = () => {
         },
         onSuccess: () => {
             resetPassword();
-            alert('Password changed successfully');
+            alert(t('profile.passwordUpdated'));
         },
         onError: (error: any) => {
             alert(error.response?.data?.message || 'Failed to change password');
@@ -115,9 +114,9 @@ const Profile = () => {
                 className="space-y-6"
             >
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('profile.profile')}</h1>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Manage your account settings and preferences.
+                        {t('profile.profileInformation')}
                     </p>
                 </div>
 
@@ -128,7 +127,7 @@ const Profile = () => {
                             <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                                 <User className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                             </div>
-                            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h2>
+                            <h2 className="text-lg font-medium text-gray-900 dark:text-white">{t('profile.profileInformation')}</h2>
                         </div>
                     </div>
                     <form onSubmit={handleSubmitProfile((data) => updateProfileMutation.mutate(data))} className="p-6 space-y-6">
@@ -153,12 +152,12 @@ const Profile = () => {
                                         />
                                     </label>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Click camera icon to change avatar</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.uploadImage')}</p>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Full Name
+                                    {t('auth.name')}
                                 </label>
                                 <input
                                     type="text"
@@ -172,7 +171,7 @@ const Profile = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Nickname
+                                    {t('profile.nickname')}
                                 </label>
                                 <input
                                     type="text"
@@ -196,7 +195,7 @@ const Profile = () => {
                                 ) : (
                                     <Save className="h-4 w-4 mr-2" />
                                 )}
-                                Save Changes
+                                {t('profile.updateProfile')}
                             </button>
                         </div>
                     </form>
@@ -209,14 +208,14 @@ const Profile = () => {
                             <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
                                 <Lock className="h-6 w-6 text-red-600 dark:text-red-400" />
                             </div>
-                            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Change Password</h2>
+                            <h2 className="text-lg font-medium text-gray-900 dark:text-white">{t('profile.changePassword')}</h2>
                         </div>
                     </div>
                     <form onSubmit={handleSubmitPassword((data) => changePasswordMutation.mutate(data))} className="p-6 space-y-6">
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Current Password
+                                    {t('profile.currentPassword')}
                                 </label>
                                 <input
                                     type="password"
@@ -230,7 +229,7 @@ const Profile = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    New Password
+                                    {t('profile.newPassword')}
                                 </label>
                                 <input
                                     type="password"
@@ -244,7 +243,7 @@ const Profile = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Confirm New Password
+                                    {t('auth.confirmPassword')}
                                 </label>
                                 <input
                                     type="password"
@@ -268,7 +267,7 @@ const Profile = () => {
                                 ) : (
                                     <Save className="h-4 w-4 mr-2" />
                                 )}
-                                Update Password
+                                {t('profile.updatePassword')}
                             </button>
                         </div>
                     </form>

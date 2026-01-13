@@ -1,19 +1,13 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { updateProject, Project } from '../api/projects';
 import { X, Loader2 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const projectSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().optional(),
-});
-
-type ProjectForm = z.infer<typeof projectSchema>;
 
 interface EditProjectModalProps {
     isOpen: boolean;
@@ -22,7 +16,16 @@ interface EditProjectModalProps {
 }
 
 const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, project }) => {
+    const { t } = useTranslation();
     const queryClient = useQueryClient();
+
+    const projectSchema = z.object({
+        name: z.string().min(1, t('validation.required')),
+        description: z.string().optional(),
+    });
+
+    type ProjectForm = z.infer<typeof projectSchema>;
+
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<ProjectForm>({
         resolver: zodResolver(projectSchema),
         defaultValues: {
@@ -74,7 +77,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
                                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden w-full">
                                             <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-700">
                                                 <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                                                    Edit Project
+                                                    {t('projects.editProject')}
                                                 </Dialog.Title>
                                                 <Dialog.Close asChild>
                                                     <button className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full p-1 transition-colors">
@@ -85,7 +88,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
 
                                             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
                                                 <div className="space-y-1">
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Name</label>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('projects.projectName')}</label>
                                                     <input
                                                         type="text"
                                                         className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
@@ -95,7 +98,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
                                                 </div>
 
                                                 <div className="space-y-1">
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('tasks.description')}</label>
                                                     <textarea
                                                         rows={3}
                                                         className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
@@ -109,7 +112,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
                                                         onClick={onClose}
                                                         className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                                                     >
-                                                        Cancel
+                                                        {t('common.cancel')}
                                                     </button>
                                                     <button
                                                         type="submit"
@@ -117,7 +120,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
                                                         className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                                     >
                                                         {mutation.isPending && <Loader2 className="animate-spin h-4 w-4 mr-2" />}
-                                                        Save Changes
+                                                        {t('common.save')}
                                                     </button>
                                                 </div>
                                             </form>

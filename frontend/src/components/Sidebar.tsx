@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, User, Folder } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 interface SidebarProps {
@@ -12,11 +13,12 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, isMobileOpen, setIsMobileOpen }) => {
     const location = useLocation();
+    const { t } = useTranslation();
 
     const navItems = [
-        { name: 'Dashboard', path: '/', icon: Home },
-        { name: 'Projects', path: '/projects', icon: Folder },
-        { name: 'Profile', path: '/profile', icon: User },
+        { name: t('nav.dashboard'), path: '/', icon: Home },
+        { name: t('nav.projects'), path: '/projects', icon: Folder },
+        { name: t('nav.profile'), path: '/profile', icon: User },
     ];
 
     const SidebarContent = () => (
