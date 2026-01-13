@@ -14,13 +14,15 @@ i18n
             es: { translation: es },
         },
         fallbackLng: 'es',
-        lng: 'es', // Default language
+        // Remove lng to allow LanguageDetector to work properly
+        // It will check localStorage first, then navigator, then fallback to 'es'
         interpolation: {
             escapeValue: false,
         },
         detection: {
             order: ['localStorage', 'navigator'],
             caches: ['localStorage'],
+            lookupLocalStorage: 'i18nextLng',
         },
     });
 

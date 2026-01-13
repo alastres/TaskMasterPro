@@ -25,7 +25,9 @@ export const registerUser = async (input: RegisterInput) => {
 
     const token = signToken(user.id);
 
-    return { user: { id: user.id, name: user.name, email: user.email }, token };
+    // Return all user fields except password
+    const { password: _, ...userWithoutPassword } = user;
+    return { user: userWithoutPassword, token };
 };
 
 export const loginUser = async (input: LoginInput) => {
@@ -39,5 +41,7 @@ export const loginUser = async (input: LoginInput) => {
 
     const token = signToken(user.id);
 
-    return { user: { id: user.id, name: user.name, email: user.email }, token };
+    // Return all user fields except password
+    const { password: _, ...userWithoutPassword } = user;
+    return { user: userWithoutPassword, token };
 };

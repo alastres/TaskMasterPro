@@ -1,6 +1,7 @@
 import prisma from '../config/db';
 import bcrypt from 'bcryptjs';
 import { AppError } from '../utils/AppError';
+import { deleteOldAvatar } from '../utils/cleanupFiles';
 
 export const updateProfile = async (
     userId: string,
@@ -22,18 +23,26 @@ export const updateProfile = async (
         }
     }
 
-    const { nickname, ...rest } = data;
-    // Ensure nickname constraint is respected just in case logic slips through valiation
-    if (nickname && nickname.length > 20) {
-        throw new AppError('Nickname cannot exceed 20 characters', 400);
+    // Get current user to check if they have an old avatar
+    const currentUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { avatarUrl: true },
+    });
+
+    // If updating avatarUrl and user has an old one, delete the old file
+    if (data.avatarUrl && currentUser?.avatarUrl && currentUser.avatarUrl !== data.avatarUrl) {
+        await deleteOldAvatar(currentUser.avatarUrl);
     }
+
+    // Filter out undefined values to avoid overwriting with undefined
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.nickname !== undefined) updateData.nickname = data.nickname;
+    if (data.avatarUrl !== undefined) updateData.avatarUrl = data.avatarUrl;
 
     const updatedUser = await prisma.user.update({
         where: { id: userId },
-        data: {
-            ...rest,
-            nickname: nickname,
-        },
+        data: updateData,
     });
 
     const { password: _, ...userWithoutPassword } = updatedUser;
