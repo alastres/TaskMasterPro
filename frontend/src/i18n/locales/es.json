@@ -65,12 +65,17 @@
         "allStatus": "All Status",
         "allPriorities": "All Priorities",
         "searchPlaceholder": "Search tasks...",
-        "dueDate": "Due Date",
-        "noDueDate": "No due date",
-        "overdue": "Overdue",
+        "dueDate": "Fecha de cumplimiento",
+        "noDueDate": "Sin fecha de cumplimiento",
+        "overdue": "Vencido",
         "createSuccess": "Tarea creada exitosamente",
         "updateSuccess": "Tarea actualizada exitosamente",
-        "deleteSuccess": "Tarea eliminada exitosamente"
+        "deleteSuccess": "Tarea eliminada exitosamente",
+        "dateFormat": "d 'de' MMM, p",
+        "markCompleted": "Marcar como completada",
+        "markIncomplete": "Marcar como incompleta",
+        "editTaskAria": "Editar tarea",
+        "deleteTaskAria": "Eliminar tarea"
     },
     "projects": {
         "project": "Proyecto",

@@ -70,7 +70,12 @@
         "overdue": "Overdue",
         "createSuccess": "Task created successfully",
         "updateSuccess": "Task updated successfully",
-        "deleteSuccess": "Task deleted successfully"
+        "deleteSuccess": "Task deleted successfully",
+        "dateFormat": "MMM d, p",
+        "markCompleted": "Mark as completed",
+        "markIncomplete": "Mark as incomplete",
+        "editTaskAria": "Edit task",
+        "deleteTaskAria": "Delete task"
     },
     "projects": {
         "project": "Project",

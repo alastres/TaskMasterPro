@@ -59,7 +59,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                     <button
                         onClick={() => onToggleStatus(task)}
                         className="mt-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full dark:focus:ring-offset-gray-800 text-gray-400 hover:text-indigo-600 dark:text-gray-500 dark:hover:text-indigo-400 transition-colors"
-                        aria-label={isCompleted ? "Mark as incomplete" : "Mark as completed"}
+                        aria-label={isCompleted ? t('tasks.markIncomplete') : t('tasks.markCompleted')}
                     >
                         <AnimatePresence mode="wait" initial={false}>
                             {isCompleted ? (
@@ -112,7 +112,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                         <button
                             onClick={() => onEdit(task)}
                             className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            aria-label="Edit task"
+                            aria-label={t('tasks.editTaskAria')}
                         >
                             <Edit2 className="h-4 w-4" />
                         </button>
@@ -121,7 +121,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                         <button
                             onClick={() => onDelete(task.id)}
                             className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-                            aria-label="Delete task"
+                            aria-label={t('tasks.deleteTaskAria')}
                         >
                             <Trash2 className="h-4 w-4" />
                         </button>
@@ -147,7 +147,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                     )}>
                         <Calendar className="w-3 h-3 mr-1" />
                         {task.dueDate
-                            ? format(new Date(task.dueDate), 'MMM d, p')
+                            ? format(new Date(task.dueDate), t('tasks.dateFormat'))
                             : t('tasks.noDueDate')
                         }
                     </span>
