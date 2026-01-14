@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">56.25% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/16</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">56.25% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/16</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -99,54 +99,54 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { AppError } from '../utils/AppError';
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import multer from 'multer';</span>
+<span class="cstat-no" title="statement not covered" >import path from 'path';</span>
+<span class="cstat-no" title="statement not covered" >import fs from 'fs';</span>
+<span class="cstat-no" title="statement not covered" >import { AppError } from '../utils/AppError';</span>
 &nbsp;
 // Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../../uploads/avatars');
-<span class="missing-if-branch" title="if path not taken" >I</span>if (!fs.existsSync(uploadDir)) {
+const uploadDir = <span class="cstat-no" title="statement not covered" >path.join(__dirname, '../../uploads/avatars');</span>
+<span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (!fs.existsSync(uploadDir)) {</span>
 <span class="cstat-no" title="statement not covered" >    fs.mkdirSync(uploadDir, { recursive: true });</span>
 }
 &nbsp;
-const storage = multer.diskStorage({
+const storage = <span class="cstat-no" title="statement not covered" >multer.diskStorage({</span>
     destination: <span class="fstat-no" title="function not covered" >(r</span>eq, file, cb) =&gt; {
 <span class="cstat-no" title="statement not covered" >        cb(null, uploadDir);</span>
     },
@@ -156,7 +156,7 @@ const storage = multer.diskStorage({
     },
 });
 &nbsp;
-const fileFilter = <span class="fstat-no" title="function not covered" >(r</span>eq: any, file: Express.Multer.File, cb: multer.FileFilterCallback) =&gt; {
+const fileFilter = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>eq: any, file: Express.Multer.File, cb: multer.FileFilterCallback) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (file.mimetype.startsWith('image/')) {</span>
 <span class="cstat-no" title="statement not covered" >        cb(null, true);</span>
     } else {
@@ -164,7 +164,7 @@ const fileFilter = <span class="fstat-no" title="function not covered" >(r</span
     }
 };
 &nbsp;
-export const upload = multer({
+export const <span class="cstat-no" title="statement not covered" >upload = multer({</span>
     storage: storage,
     fileFilter: fileFilter,
     limits: {
@@ -178,7 +178,7 @@ export const upload = multer({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-14T21:19:59.116Z
+                at 2026-01-14T22:44:08.059Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

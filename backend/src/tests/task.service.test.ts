@@ -79,19 +79,58 @@ describe('Task Service', () => {
             expect(updated.status).toBe('IN_PROGRESS');
         });
 
-        it('should throw error if user does not have permission', async () => {
-            const task = await createTask(userA.id, { title: 'To Fail Update' });
-            const otherUserId = 'some-other-uuid'; // Assuming this UUID doesn't exist or is different
-            // We need to mock a real UUID format usually, but let's rely on service check
-            // AppError checks owner.
-            // Wait, if user doesn't exist, service might throw earlier?
-            // Actually service.updateTask checks task.userId === userId.
+    });
 
-            // We need to pass a valid UUID format if we want to avoid db errors before service logic
-            // But 'some-other-uuid' is not valid UUID. let's use a fake valid one.
-            const fakeId = '00000000-0000-0000-0000-000000000000';
+    it('should throw error if user does not have permission', async () => {
+        const task = await createTask(userA.id, { title: 'To Fail Update' });
+        const fakeId = '00000000-0000-0000-0000-000000000000';
+        await expect(updateTask(fakeId, task.id, { title: 'Hacked' })).rejects.toThrow(AppError);
+    });
 
-            await expect(updateTask(fakeId, task.id, { title: 'Hacked' })).rejects.toThrow(AppError);
+    it('should allow project member to update status', async () => {
+        // Create another user
+        const userB = await prisma.user.create({
+            data: { email: 'member@test.com', password: 'pw', name: 'Member', nickname: 'mem' }
         });
+
+        // Add userB to projectA
+        await prisma.projectMember.create({
+            data: { projectId: projectA.id, userId: userB.id }
+        });
+
+        // Create task in project
+        const task = await createTask(userA.id, { title: 'Project Task', projectId: projectA.id });
+
+        // UserB updates status
+        const updated = await updateTask(userB.id, task.id, { status: 'COMPLETED' as any });
+        expect(updated.status).toBe('COMPLETED');
+
+        // Cleanup
+        await prisma.projectMember.deleteMany({ where: { userId: userB.id } });
+        await prisma.user.delete({ where: { id: userB.id } });
+    });
+
+    it('should prevent project member from updating title', async () => {
+        // Create another user
+        const userC = await prisma.user.create({
+            data: { email: 'memberC@test.com', password: 'pw', name: 'MemberC', nickname: 'memC' }
+        });
+
+        // Add userC to projectA
+        await prisma.projectMember.create({
+            data: { projectId: projectA.id, userId: userC.id }
+        });
+
+        // Create task in project
+        const task = await createTask(userA.id, { title: 'Project Task 2', projectId: projectA.id });
+
+        // UserC tries to update title
+        await expect(updateTask(userC.id, task.id, { title: 'New Title' }))
+            .rejects.toThrow('Los miembros del equipo solo pueden actualizar el estado de la tarea');
+
+        // Cleanup
+        await prisma.projectMember.deleteMany({ where: { userId: userC.id } });
+        await prisma.user.delete({ where: { id: userC.id } });
     });
 });
+

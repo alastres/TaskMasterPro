@@ -54,7 +54,7 @@ export const createTask = async (userId: string, input: CreateTaskInput) => {
 export const getTasks = async (userId: string, query: TaskQuery) => {
     const { status, priority, search, sort, projectId } = query;
 
-    // Inclusion criteria: User owns the task OR user is member of the team the task belongs to
+    // Inclusion criteria: User owns the task OR user is member of the team the task belongs to OR user is a project member
     const where: any = {
         OR: [
             { userId }, // Owner of task
@@ -66,7 +66,14 @@ export const getTasks = async (userId: string, query: TaskQuery) => {
                         }
                     }
                 }
-            } // Member of team
+            }, // Member of team
+            {
+                project: {
+                    members: {
+                        some: { userId }
+                    }
+                }
+            } // Member of project
         ]
     };
 
@@ -137,6 +144,9 @@ export const getTask = async (userId: string, taskId: string) => {
                                 where: { userId }
                             }
                         }
+                    },
+                    members: {
+                        where: { userId }
                     }
                 }
             }
@@ -149,7 +159,9 @@ export const getTask = async (userId: string, taskId: string) => {
 
     const isOwner = task.userId === userId;
     const isProjectOwner = task.project?.userId === userId;
-    const isMember = task.project?.team?.members.length! > 0;
+    const isTeamMember = task.project?.team?.members?.length! > 0;
+    const isProjectMember = task.project?.members?.length! > 0;
+    const isMember = isTeamMember || isProjectMember;
 
     if (!isOwner && !isProjectOwner && !isMember) {
         throw new AppError('No tienes permiso para ver esta tarea', 403);
@@ -175,7 +187,8 @@ export const updateTask = async (
                         include: {
                             members: { where: { userId } }
                         }
-                    }
+                    },
+                    members: { where: { userId } }
                 }
             }
         }
@@ -184,7 +197,9 @@ export const updateTask = async (
     if (!task) throw new AppError('Tarea no encontrada', 404);
 
     const isOwner = task.userId === userId;
-    const isMember = task.project?.team?.members.length! > 0;
+    const isTeamMember = task.project?.team?.members?.length! > 0;
+    const isProjectMember = task.project?.members?.length! > 0;
+    const isMember = isTeamMember || isProjectMember;
 
     if (!isOwner && !isMember) {
         throw new AppError('No tienes permiso para editar esta tarea', 403);
@@ -196,7 +211,12 @@ export const updateTask = async (
     if (!isOwner && isMember) {
         const allowedKeys = ['status'];
         const requestedKeys = Object.keys(rest).filter(k => rest[k as keyof typeof rest] !== undefined);
-        if (requestedKeys.some(k => !allowedKeys.includes(k)) || dueDate !== undefined) {
+
+        // Check if any restricted keys are being updated (even if values are same, we block intent to be safe, 
+        // or strictly checking if keys exist in input is better for partials)
+        const hasRestrictedUpdates = requestedKeys.some(k => !allowedKeys.includes(k)) || dueDate !== undefined;
+
+        if (hasRestrictedUpdates) {
             throw new AppError('Los miembros del equipo solo pueden actualizar el estado de la tarea', 403);
         }
 

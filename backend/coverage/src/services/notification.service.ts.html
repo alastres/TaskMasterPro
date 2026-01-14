@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">68.75% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/16</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">54.54% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/11</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -105,33 +105,25 @@
 <a name='L40'></a><a href='#L40'>40</a>
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a>
-<a name='L43'></a><a href='#L43'>43</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">7x</span>
+<a name='L43'></a><a href='#L43'>43</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -142,36 +134,44 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import prisma from '../config/db';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import prisma from '../config/db';</span>
 import { NotificationType } from '@prisma/client';
 &nbsp;
-export const getNotifications = <span class="fstat-no" title="function not covered" >async </span>(userId: string) =&gt; {
+export const <span class="cstat-no" title="statement not covered" >getNotifications = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(userId: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return await prisma.notification.findMany({</span>
         where: { userId },
         orderBy: { createdAt: 'desc' },
     });
 };
 &nbsp;
-export const markAsRead = <span class="fstat-no" title="function not covered" >async </span>(notificationId: string, userId: string) =&gt; {
+export const <span class="cstat-no" title="statement not covered" >markAsRead = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(notificationId: string, userId: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return await prisma.notification.update({</span>
         where: { id: notificationId, userId },
         data: { isRead: true },
     });
 };
 &nbsp;
-export const markAllAsRead = <span class="fstat-no" title="function not covered" >async </span>(userId: string) =&gt; {
+export const <span class="cstat-no" title="statement not covered" >markAllAsRead = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(userId: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return await prisma.notification.updateMany({</span>
         where: { userId, isRead: false },
         data: { isRead: true },
     });
 };
 &nbsp;
-export const createNotification = <span class="fstat-no" title="function not covered" >async </span>(data: {
+export const <span class="cstat-no" title="statement not covered" >createNotification = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(data: {</span>
     userId: string;
     type: NotificationType;
     title: string;
@@ -184,7 +184,7 @@ export const createNotification = <span class="fstat-no" title="function not cov
     });
 };
 &nbsp;
-export const deleteNotification = <span class="fstat-no" title="function not covered" >async </span>(notificationId: string, userId: string) =&gt; {
+export const <span class="cstat-no" title="statement not covered" >deleteNotification = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(notificationId: string, userId: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return await prisma.notification.delete({</span>
         where: { id: notificationId, userId },
     });
@@ -196,7 +196,7 @@ export const deleteNotification = <span class="fstat-no" title="function not cov
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-14T21:19:59.155Z
+                at 2026-01-14T22:44:08.106Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
