@@ -1,4 +1,5 @@
 # Logs
+/frontend/.env
 /frontend/logs
 /frontend/*.log
 /frontend/npm-debug.log*
@@ -24,6 +25,7 @@
 /frontend/*.sw?
 
 # Logs
+/backend/.env
 /backend/logs
 /backend/uploads
 /backend/*.log
