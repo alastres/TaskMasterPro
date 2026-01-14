@@ -7,7 +7,6 @@ import { AppError } from '../utils/AppError';
 export const getOrCreateUserTeam = async (userId: string) => {
     let team = await prisma.team.findUnique({
         where: { ownerId: userId },
-        include: { members: { include: { user: true } } }
     });
 
     if (!team) {
@@ -15,48 +14,36 @@ export const getOrCreateUserTeam = async (userId: string) => {
             data: {
                 name: `Equipo de ${userId.substring(0, 5)}`,
                 ownerId: userId
-            },
-            include: {
-                members: { include: { user: true } },
-                projects: {
-                    include: {
-                        members: { include: { user: true } },
-                        invitations: {
-                            where: { status: InvitationStatus.PENDING },
-                            include: { inviter: { select: { name: true } } }
-                        }
-                    }
-                },
-                invitations: {
-                    where: { status: InvitationStatus.PENDING, projectId: null },
-                    include: { inviter: { select: { name: true } } }
-                }
             }
         });
-    } else {
-        // Refresh team data with projects and invitations
-        team = await prisma.team.findUnique({
-            where: { ownerId: userId },
-            include: {
-                members: { include: { user: true } },
-                projects: {
-                    include: {
-                        members: { include: { user: true } },
-                        invitations: {
-                            where: { status: InvitationStatus.PENDING },
-                            include: { inviter: { select: { name: true } } }
-                        }
-                    }
-                },
-                invitations: {
-                    where: { status: InvitationStatus.PENDING, projectId: null },
-                    include: { inviter: { select: { name: true } } }
-                }
-            }
-        }) as any;
     }
 
-    return team;
+    // Link any orphaned projects (created before team existed) to this team
+    await prisma.project.updateMany({
+        where: { userId: userId, teamId: null },
+        data: { teamId: team.id }
+    });
+
+    // Return full team data
+    return await prisma.team.findUnique({
+        where: { id: team.id },
+        include: {
+            members: { include: { user: true } },
+            projects: {
+                include: {
+                    members: { include: { user: true } },
+                    invitations: {
+                        where: { status: InvitationStatus.PENDING },
+                        include: { inviter: { select: { name: true } } }
+                    }
+                }
+            },
+            invitations: {
+                where: { status: InvitationStatus.PENDING, projectId: null },
+                include: { inviter: { select: { name: true } } }
+            }
+        }
+    });
 };
 
 export const inviteMember = async (teamId: string, email: string, inviterId: string, projectId?: string) => {
