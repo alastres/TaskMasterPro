@@ -4,124 +4,108 @@ Una aplicación profesional de gestión de tareas full-stack construida para dem
 
 ## 🚀 Características
 
-- **Autenticación**: Inicio de sesión y registro seguros basados en JWT.
-- **Gestión de Tareas**: Crear, Leer, Actualizar, Eliminar (CRUD) tareas.
-- **Filtrado y Búsqueda**: Búsqueda y filtrado en tiempo real por estado y prioridad.
-- **Panel de Control**: Panel de usuario interactivo con vistas resumidas.
-- **Diseño Responsivo**: Interfaz de usuario moderna construida con TailwindCSS, compatible con dispositivos móviles.
-- **Seguridad**: Rutas protegidas, validación de entradas (Zod), hash de contraseñas (Bcrypt).
+- **Tablero Kanban**: Visualización intuitiva de tareas con funcionalidad de arrastrar y soltar (Drag & Drop).
+- **Internacionalización (i18n)**: Soporte completo para español e inglés, con detección automática de idioma.
+- **Gestión de Proyectos**: Organiza tus tareas en diferentes proyectos para un mejor seguimiento.
+- **Gestión de Equipos**: Colabora con otros usuarios dentro de proyectos específicos.
+- **Sistema de Notificaciones**: Mantente al día con las actualizaciones de tus tareas y menciones.
+- **Autenticación Segura**: Inicio de sesión y registro basados en JWT con protección de rutas.
+- **Búsqueda y Filtrado**: Localiza tareas rápidamente por título, estado o prioridad.
+- **Gestión de Archivos**: Sube y adjunta archivos relevantes a tus tareas.
+- **Diseño Premium**: Interfaz moderna, responsiva y con animaciones fluidas (Framer Motion).
 
 ## 🛠 Pila Tecnológica
 
 ### Frontend
-- **Framework**: React 18 + Vite
-- **Lenguaje**: TypeScript
-- **Gestión de Estado**: Zustand
-- **Obtención de Datos**: React Query (TanStack Query)
-- **Estilos**: TailwindCSS
-- **Enrutamiento**: React Router DOM 6
-- **Formularios**: React Hook Form + Zod
+- **Core**: React 18 + Vite + TypeScript
+- **Estado**: Zustand (gestión ligera y eficiente)
+- **Datos**: TanStack Query (React Query) para sincronización con el servidor
+- **UI/UX**: TailwindCSS + Radix UI (componentes accesibles)
+- **Animaciones**: Framer Motion
+- **Internacionalización**: i18next
+- **Drag & Drop**: @hello-pangea/dnd
 
 ### Backend
-- **Entorno de Ejecución**: Node.js
-- **Framework**: Express.js
-- **Lenguaje**: TypeScript
-- **Base de Datos**: PostgreSQL
-- **ORM**: Prisma
-- **Validación**: Zod
-- **Autenticación**: JSON Web Tokens (JWT)
+- **Core**: Node.js + Express + TypeScript
+- **Base de Datos**: PostgreSQL + Prisma ORM
+- **Seguridad**: JWT (Autenticación), Bcryptjs (Hash de contraseñas), Helmet & Cors
+- **Validación**: Zod (esquemas de validación en tiempo real)
+- **Logs**: Morgan
 
-## 📂 Arquitectura
+## 📂 Arquitectura del Proyecto
 
 ```
 TaskMasterPro/
 ├── backend/            # Servidor Express + Prisma
 │   ├── src/
-│   │   ├── config/     # Conexión a BD
-│   │   ├── controllers/# Manejadores de Rutas
-│   │   ├── middlewares/# Autenticación y Manejo de Errores
-│   │   ├── routes/     # Rutas de la API
-│   │   ├── services/   # Lógica de Negocio
-│   │   └── utils/      # Ayudantes (JWT)
-│   └── prisma/         # Esquema de Base de Datos
+│   │   ├── config/     # Configuraciones (BD, etc.)
+│   │   ├── controllers/# Lógica de manejo de peticiones
+│   │   ├── routes/     # Definición de puntos finales
+│   │   ├── services/   # Lógica de negocio reusable
+│   │   ├── middlewares/# Seguridad y manejo de errores
+│   │   └── utils/      # Funciones de utilidad (JWT, Helpers)
+│   └── prisma/         # Esquema y migraciones de la base de datos
 │
 └── frontend/           # Cliente React + Vite
     ├── src/
-    │   ├── api/        # Axios y puntos finales de la API
-    │   ├── components/ # Componentes de UI reutilizables
-    │   ├── hooks/      # Hooks personalizados
-    │   ├── layouts/    # Diseños de Página
-    │   ├── pages/      # Componentes de Ruta
-    │   └── store/      # Estado Global (Zustand)
+    │   ├── api/        # Configuración de Axios y hooks de TanStack Query
+    │   ├── components/ # Componentes de UI y lógica visual
+    │   ├── i18n/       # Configuración y traducciones (es/en)
+    │   ├── store/      # Estado global con Zustand
+    │   └── pages/      # Vistas principales de la aplicación
 ```
 
-## ⚙️ Instalación y Configuración
+## ⚙️ Instalación y Configuración Local
 
 ### Prerrequisitos
-- Node.js (v18+)
-- Base de Datos PostgreSQL
+- **Node.js**: v18 o superior
+- **PostgreSQL**: Instancia local o remota corriendo
 
-### 1. Configuración del Backend
+### 1. Clonar y Preparar el Backend
 
 ```bash
 cd backend
 npm install
 
-# Configurar Variables de Entorno
+# Configurar variables de entorno
 cp .env.example .env
-# Editar .env con tu DATABASE_URL y JWT_SECRET
+# IMPORTANTE: Configura tu DATABASE_URL (ej: postgresql://user:password@localhost:5432/taskmaster) 
+# y genera un JWT_SECRET robusto.
 
-# Inicializar Base de Datos
+# Sincronizar la base de datos con Prisma
 npx prisma migrate dev --name init
-
-# Iniciar Servidor
-npm run dev
+npx prisma generate
 ```
 
-### 2. Configuración del Frontend
+### 2. Preparar el Frontend
 
 ```bash
-cd frontend
+cd ../frontend
 npm install
 
-# Configurar Variables de Entorno
+# Configurar variables de entorno
 cp .env.example .env
-# Verificar que VITE_API_URL coincida con el backend (por defecto: http://localhost:3000/api)
-
-# Iniciar Cliente
-npm run dev
+# Verifica que VITE_API_URL apunte correctamente al backend (ej: http://localhost:3000/api)
 ```
+
+### 3. Ejecutar la Aplicación
+
+Debes iniciar ambos servicios:
+
+- **Backend**: `npm run dev` (corre usualmente en el puerto 3000)
+- **Frontend**: `npm run dev` (corre usualmente en el puerto 5173)
+
+## 📝 Referencia de la API (Endpoints principales)
+
+- **Autenticación**: `POST /api/auth/register`, `POST /api/auth/login`
+- **Usuarios**: `GET /api/users/profile`, `PATCH /api/users/profile`
+- **Tareas**: CRUD completo en `/api/tasks` (soporta filtros por query params)
+- **Proyectos**: Gestión en `/api/projects`
+- **Equipos**: Colaboración en `/api/teams`
+- **Notificaciones**: `/api/notifications`
 
 ## 🚀 Despliegue
 
-### Backend (Railway)
-1. **Push a GitHub**: Sube todo el repositorio `TaskMasterPro`.
-2. **Crear Proyecto en Railway**: Selecciona "Deploy from GitHub repo".
-3. **Configurar Directorio Raíz**: Establece `Root Directory` a `/backend`.
-4. **Variables de Entorno**:
-   - `DATABASE_URL`: (Railway proporciona un plugin de PostgreSQL, usa esa variable)
-   - `JWT_SECRET`: Genera un secreto fuerte.
-   - `JWT_EXPIRES_IN`: `1d`
-   - `NPM_FLAGS`: `--legacy-peer-deps` (si es necesario)
-5. **Comando de Construcción**: `npm run build`
-6. **Comando de Inicio**: `npm start`
-
-### Frontend (Vercel)
-1. **Importar Proyecto**: Selecciona el mismo repositorio de GitHub en Vercel.
-2. **Configurar Directorio Raíz**: Establece `Root Directory` a `frontend`.
-3. **Ajustes de Construcción**:
-   - Preset de Framework: Vite
-   - Comando de Construcción: `npm run build`
-   - Directorio de Salida: `dist`
-4. **Variables de Entorno**:
-   - `VITE_API_URL`: La URL de tu backend desplegado en Railway (ej., `https://backend-production.railway.app/api`)
-5. **Desplegar**: Haz clic en Deploy.
-
-## 📝 Puntos Finales de la API
-
-- **POST /api/auth/register**: Crear cuenta
-- **POST /api/auth/login**: Obtener token JWT
-- **GET /api/tasks**: Obtener todas las tareas (soporta ?search, ?status, ?priority)
-- **POST /api/tasks**: Crear tarea
-- **PATCH /api/tasks/:id**: Actualizar tarea
-- **DELETE /api/tasks/:id**: Eliminar tarea
+El proyecto está preparado para ser desplegado en:
+- **Backend**: Railway (soporta Docker y Nixpacks)
+- **Frontend**: Vercel o Netlify (optimizado para frameworks de Vite)
