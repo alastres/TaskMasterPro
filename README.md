@@ -95,6 +95,19 @@ Debes iniciar ambos servicios:
 - **Backend**: `npm run dev` (corre usualmente en el puerto 3000)
 - **Frontend**: `npm run dev` (corre usualmente en el puerto 5173)
 
+### 4. Ejecutar Pruebas (Backend)
+
+Para verificar el correcto funcionamiento del backend y la seguridad de la API:
+
+```bash
+cd backend
+# Ejecutar todas las pruebas (unitarias e integración)
+npm test
+
+# Ejecutar pruebas en modo secuencial (recomendado para evitar conflictos de BD)
+npx jest --runInBand
+```
+
 ## 📝 Referencia de la API (Endpoints principales)
 
 - **Autenticación**: `POST /api/auth/register`, `POST /api/auth/login`

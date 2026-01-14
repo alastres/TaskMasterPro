@@ -25,6 +25,7 @@
 /frontend/*.sw?
 
 # Logs
+/backend/test_*.txt
 /backend/.env
 /backend/logs
 /backend/uploads
