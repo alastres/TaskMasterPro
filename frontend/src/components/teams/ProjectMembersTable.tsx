@@ -131,7 +131,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = ({ projects }) =
                                                     {project.name}
                                                 </div>
                                                 <div className="text-xs text-gray-500">
-                                                    {t('teams.usersCount', { count: project.members.length + project.invitations.length })}
+                                                    {t(project.members.length + project.invitations.length > 1 ? 'teams.usersCount_other' : 'teams.usersCount_one', { count: project.members.length + project.invitations.length })}
                                                 </div>
                                             </Link>
                                         </td>
