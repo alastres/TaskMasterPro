@@ -4,6 +4,7 @@ import { getAllUsers, updateUserRole, deleteUser } from '../../api/admin';
 import { Users, Trash2, Shield, User as UserIcon, Loader2, Search } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { useToast } from '../../components/ui/Toast';
+import { useTranslation } from 'react-i18next';
 
 interface User {
     id: string;
@@ -19,6 +20,7 @@ const UserManagement: React.FC = () => {
     const queryClient = useQueryClient();
     const currentUser = useAuthStore((state) => state.user);
     const { toast } = useToast();
+    const { t } = useTranslation();
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,15 +37,15 @@ const UserManagement: React.FC = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
             toast({
-                title: 'Rol actualizado',
-                description: 'El rol del usuario se ha cambiado correctamente',
+                title: t('admin.roleUpdated'),
+                description: t('admin.roleUpdatedDesc'),
                 type: 'success'
             });
         },
         onError: (error: any) => {
             toast({
-                title: 'Error',
-                description: error.response?.data?.message || 'No se pudo actualizar el rol',
+                title: t('common.error'),
+                description: error.response?.data?.message || t('admin.roleUpdateError'),
                 type: 'error'
             });
         }
@@ -55,15 +57,15 @@ const UserManagement: React.FC = () => {
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
             setDeleteConfirm(null);
             toast({
-                title: 'Usuario eliminado',
-                description: 'El usuario se ha eliminado correctamente',
+                title: t('admin.userDeleted'),
+                description: t('admin.userDeletedDesc'),
                 type: 'success'
             });
         },
         onError: (error: any) => {
             toast({
-                title: 'Error',
-                description: error.response?.data?.message || 'No se pudo eliminar el usuario',
+                title: t('common.error'),
+                description: error.response?.data?.message || t('admin.userDeleteError'),
                 type: 'error'
             });
         }
@@ -105,11 +107,11 @@ const UserManagement: React.FC = () => {
                 <div className="flex items-center gap-3">
                     <Users className="h-6 w-6 text-indigo-600" />
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                        Gestión de Usuarios
+                        {t('admin.userManagement')}
                     </h2>
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {filteredUsers.length} usuario{filteredUsers.length !== 1 ? 's' : ''}
+                    {t('admin.userCount', { count: filteredUsers.length })}
                 </div>
             </div>
 
@@ -118,7 +120,7 @@ const UserManagement: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                     type="text"
-                    placeholder="Buscar por nombre, email o nickname..."
+                    placeholder={t('admin.searchPlaceholder')}
                     value={searchTerm}
                     onChange={(e) => {
                         setSearchTerm(e.target.value);
@@ -133,16 +135,16 @@ const UserManagement: React.FC = () => {
                     <thead className="bg-gray-50 dark:bg-gray-900">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Usuario
+                                {t('admin.user')}
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Email
+                                {t('admin.email')}
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Rol
+                                {t('admin.role')}
                             </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Acciones
+                                {t('admin.actions')}
                             </th>
                         </tr>
                     </thead>
@@ -182,8 +184,8 @@ const UserManagement: React.FC = () => {
                                         onClick={() => handleToggleRole(user)}
                                         disabled={user.id === currentUser?.id || updateRoleMutation.isPending}
                                         className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${user.role === 'ADMIN'
-                                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                                             } ${user.id === currentUser?.id
                                                 ? 'opacity-50 cursor-not-allowed'
                                                 : 'hover:opacity-80 cursor-pointer'
@@ -206,13 +208,13 @@ const UserManagement: React.FC = () => {
                                                     disabled={deleteMutation.isPending}
                                                     className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                                 >
-                                                    Confirmar
+                                                    {t('admin.confirmDelete')}
                                                 </button>
                                                 <button
                                                     onClick={() => setDeleteConfirm(null)}
                                                     className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
                                                 >
-                                                    Cancelar
+                                                    {t('common.cancel')}
                                                 </button>
                                             </div>
                                         ) : (
@@ -232,7 +234,7 @@ const UserManagement: React.FC = () => {
 
                 {filteredUsers.length === 0 && (
                     <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                        {searchTerm ? 'No se encontraron usuarios' : 'No hay usuarios registrados'}
+                        {searchTerm ? t('admin.noUsersFound') : t('admin.noUsers')}
                     </div>
                 )}
             </div>
@@ -241,9 +243,9 @@ const UserManagement: React.FC = () => {
             {filteredUsers.length > 0 && (
                 <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-xl">
                     <div className="text-sm text-gray-700 dark:text-gray-300">
-                        Mostrando <span className="font-medium">{startIndex + 1}</span> a{' '}
-                        <span className="font-medium">{Math.min(endIndex, filteredUsers.length)}</span> de{' '}
-                        <span className="font-medium">{filteredUsers.length}</span> usuario{filteredUsers.length !== 1 ? 's' : ''}
+                        {t('admin.showing')} <span className="font-medium">{startIndex + 1}</span> {t('admin.to')}{' '}
+                        <span className="font-medium">{Math.min(endIndex, filteredUsers.length)}</span> {t('admin.of')}{' '}
+                        <span className="font-medium">{filteredUsers.length}</span> {t('admin.userCount', { count: filteredUsers.length })}
                     </div>
                     {totalPages > 1 && (
                         <div className="flex gap-2">
@@ -252,17 +254,17 @@ const UserManagement: React.FC = () => {
                                 disabled={currentPage === 1}
                                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Anterior
+                                {t('admin.previous')}
                             </button>
                             <span className="px-3 py-1 text-sm text-gray-700 dark:text-gray-300">
-                                Página {currentPage} de {totalPages}
+                                {t('admin.page')} {currentPage} {t('admin.of')} {totalPages}
                             </span>
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
                                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Siguiente
+                                {t('admin.next')}
                             </button>
                         </div>
                     )}

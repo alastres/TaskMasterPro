@@ -4,10 +4,12 @@ import { getCronConfig, updateCronConfig, triggerCronJob } from '../../api/admin
 import { Settings, Play, Loader2, Save, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../components/ui/Toast';
+import { useTranslation } from 'react-i18next';
 
 const AdminDashboard: React.FC = () => {
     const queryClient = useQueryClient();
     const { toast } = useToast();
+    const { t } = useTranslation();
 
     const [schedule, setSchedule] = useState('0 0 * * *');
     const [enabled, setEnabled] = useState(true);
@@ -29,15 +31,15 @@ const AdminDashboard: React.FC = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['cron-config'] });
             toast({
-                title: 'Configuración guardada',
-                description: 'La configuración de tareas programadas se ha actualizado correctamente',
+                title: t('admin.configSaved'),
+                description: t('admin.configSavedDesc'),
                 type: 'success'
             });
         },
         onError: (error: any) => {
             toast({
-                title: 'Error',
-                description: error.response?.data?.message || 'No se pudo guardar la configuración',
+                title: t('common.error'),
+                description: error.response?.data?.message || t('admin.configError'),
                 type: 'error'
             });
         }
@@ -47,15 +49,15 @@ const AdminDashboard: React.FC = () => {
         mutationFn: triggerCronJob,
         onSuccess: () => {
             toast({
-                title: 'Tareas ejecutadas',
-                description: 'Las tareas de limpieza se han ejecutado correctamente',
+                title: t('admin.tasksExecuted'),
+                description: t('admin.tasksExecutedDesc'),
                 type: 'success'
             });
         },
         onError: (error: any) => {
             toast({
-                title: 'Error',
-                description: error.response?.data?.message || 'No se pudieron ejecutar las tareas',
+                title: t('common.error'),
+                description: error.response?.data?.message || t('admin.tasksError'),
                 type: 'error'
             });
         }
@@ -82,10 +84,10 @@ const AdminDashboard: React.FC = () => {
             <div>
                 <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
                     <Settings className="h-8 w-8 text-indigo-600" />
-                    Panel de Administración
+                    {t('admin.title')}
                 </h1>
                 <p className="mt-2 text-gray-500 dark:text-gray-400">
-                    Configura las tareas programadas del sistema
+                    {t('admin.subtitle')}
                 </p>
             </div>
 
@@ -98,10 +100,10 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                Gestión de Usuarios
+                                {t('admin.userManagement')}
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Administrar roles y usuarios del sistema
+                                {t('admin.userManagementDesc')}
                             </p>
                         </div>
                     </div>
@@ -114,7 +116,7 @@ const AdminDashboard: React.FC = () => {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
                 <div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                        Configuración de Tareas Programadas (Cron Jobs)
+                        {t('admin.cronConfig')}
                     </h2>
 
                     <div className="space-y-4">
@@ -126,23 +128,23 @@ const AdminDashboard: React.FC = () => {
                                     onChange={(e) => setEnabled(e.target.checked)}
                                     className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                 />
-                                Habilitar tareas programadas
+                                {t('admin.cronEnabled')}
                             </label>
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Expresión Cron
+                                {t('admin.cronExpression')}
                             </label>
                             <input
                                 type="text"
                                 value={schedule}
                                 onChange={(e) => setSchedule(e.target.value)}
                                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                                placeholder="0 0 * * *"
+                                placeholder={t('admin.cronExpressionPlaceholder')}
                             />
                             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                Formato: minuto hora día mes día-de-semana (ej: 0 0 * * * = medianoche)
+                                {t('admin.cronExpressionHelp')}
                             </p>
                         </div>
 
@@ -157,7 +159,7 @@ const AdminDashboard: React.FC = () => {
                                 ) : (
                                     <Save className="h-4 w-4" />
                                 )}
-                                Guardar Configuración
+                                {t('admin.saveConfig')}
                             </button>
 
                             <button
@@ -170,7 +172,7 @@ const AdminDashboard: React.FC = () => {
                                 ) : (
                                     <Play className="h-4 w-4" />
                                 )}
-                                Ejecutar Ahora
+                                {t('admin.runNow')}
                             </button>
                         </div>
                     </div>
@@ -178,12 +180,12 @@ const AdminDashboard: React.FC = () => {
 
                 <div className="border-t pt-4 dark:border-gray-700">
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                        Tareas Programadas:
+                        {t('admin.scheduledTasks')}
                     </h3>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li>• Eliminar invitaciones pendientes mayores a 7 días</li>
-                        <li>• Eliminar notificaciones leídas mayores a 30 días</li>
-                        <li>• Limpiar archivos huérfanos (avatars no referenciados)</li>
+                        <li>• {t('admin.task1')}</li>
+                        <li>• {t('admin.task2')}</li>
+                        <li>• {t('admin.task3')}</li>
                     </ul>
                 </div>
             </div>
