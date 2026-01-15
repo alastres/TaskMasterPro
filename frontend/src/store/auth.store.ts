@@ -7,6 +7,7 @@ export interface User {
     email: string;
     nickname: string;
     avatarUrl?: string;
+    role: string;
     thresholdMedium: number;
     thresholdHigh: number;
 }

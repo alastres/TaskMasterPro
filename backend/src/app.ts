@@ -9,6 +9,7 @@ import userRoutes from './routes/user.routes';
 import projectRoutes from './routes/project.routes';
 import teamRoutes from './routes/team.routes';
 import notificationRoutes from './routes/notification.routes';
+import adminRoutes from './routes/admin.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Servir archivos estáticos (uploads)
 // Serve uploads from root/uploads since we created uploads folder at project root level (../../uploads relative to src/middlewares)

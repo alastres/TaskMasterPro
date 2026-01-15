@@ -10,6 +10,7 @@ export interface AuthRequest<T = any> extends Request<any, any, T> {
         name: string;
         nickname: string;
         avatarUrl?: string | null;
+        role: string;
     };
     file?: Express.Multer.File;
 }
@@ -51,6 +52,7 @@ export const protect = async (
             name: currentUser.name,
             nickname: currentUser.nickname,
             avatarUrl: currentUser.avatarUrl,
+            role: currentUser.role,
         };
         next();
     } catch (error) {

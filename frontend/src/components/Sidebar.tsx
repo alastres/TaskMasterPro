@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Folder, Users } from 'lucide-react';
+import { Home, User, Folder, Users, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
+import { useAuthStore } from '../store/auth.store';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -14,6 +15,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, isMobileOpen, setIsMobileOpen }) => {
     const location = useLocation();
     const { t } = useTranslation();
+    const user = useAuthStore((state) => state.user);
 
     const navItems = [
         { name: t('nav.dashboard'), path: '/', icon: Home },
@@ -21,6 +23,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isMobileOpen, setIsMobileOpen
         { name: t('teams.title'), path: '/team', icon: Users },
         { name: t('nav.profile'), path: '/profile', icon: User },
     ];
+
+    // Add Admin link if user is admin
+    if (user?.role === 'ADMIN') {
+        navItems.push({ name: 'Admin', path: '/admin', icon: Settings });
+    }
 
     const SidebarContent = () => (
         <div className="flex flex-col h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-colors duration-300">

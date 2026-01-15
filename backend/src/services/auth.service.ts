@@ -4,31 +4,51 @@ import { signToken } from '../utils/jwt';
 import { AppError } from '../utils/AppError';
 import { LoginInput, RegisterInput } from '../controllers/auth.controller';
 
-export const registerUser = async (input: RegisterInput) => {
+export const registerUser = async (data: RegisterInput) => {
+    const { name, nickname, email, password } = data;
+
+    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-        where: { email: input.email },
+        where: { email },
     });
 
     if (existingUser) {
         throw new AppError('Email already in use', 400);
     }
 
-    const hashedPassword = await bcrypt.hash(input.password, 12);
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12); // Assuming hashPassword is bcrypt.hash
 
+    // Check if this is the first user (make them ADMIN)
+    const userCount = await prisma.user.count();
+    const role = userCount === 0 ? 'ADMIN' : 'USER';
+
+    // Create user
     const user = await prisma.user.create({
         data: {
-            name: input.name,
-            nickname: input.nickname || 'User',
-            email: input.email,
+            name,
+            nickname: nickname || 'User',
+            email,
             password: hashedPassword,
+            role,
         },
     });
 
-    const token = signToken(user.id);
+    const token = signToken(user.id); // Assuming generateToken is signToken
 
-    // Return all user fields except password
-    const { password: _, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword, token };
+    return {
+        user: {
+            id: user.id,
+            name: user.name,
+            nickname: user.nickname,
+            email: user.email,
+            avatarUrl: user.avatarUrl,
+            role: user.role,
+            thresholdMedium: user.thresholdMedium,
+            thresholdHigh: user.thresholdHigh,
+        },
+        token,
+    };
 };
 
 export const loginUser = async (input: LoginInput) => {

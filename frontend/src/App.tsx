@@ -8,7 +8,10 @@ import Profile from './pages/Profile';
 import Projects from './pages/Projects';
 import ProjectDetails from './pages/ProjectDetails';
 import TeamManagement from './pages/TeamManagement';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import MainLayout from './layouts/MainLayout';
 import { useAuthStore } from './store/auth.store';
 import { useThemeStore } from './store/theme.store';
@@ -67,6 +70,8 @@ function App() {
               <Route path="/projects" element={<Projects />} />
               <Route path="/projects/:id" element={<ProjectDetails />} />
               <Route path="/team" element={<TeamManagement />} />
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
             </Route>
           </Route>
 
