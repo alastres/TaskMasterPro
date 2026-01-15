@@ -83,6 +83,7 @@ model Notification {
 model Project {
   id          String          @id @default(uuid())
   name        String
+  slug        String?         @unique
   description String?
   userId      String
   user        User            @relation(fields: [userId], references: [id])

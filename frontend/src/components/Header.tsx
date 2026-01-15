@@ -40,7 +40,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
                     <div className="flex items-center space-x-4">
                         <LanguageToggle />
-                        <ThemeToggle />
+                        <div className="hidden md:block">
+                            <ThemeToggle />
+                        </div>
                         <NotificationCenter />
 
                         <div className="flex items-center space-x-3 pl-4 border-l border-gray-200 dark:border-gray-700">
@@ -76,7 +78,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     </div>
                 </div>
             </div>
-        </header>
+
+
+            {/* Mobile Theme Toggle */}
+            <div className="md:hidden fixed bottom-6 right-6 z-[60]">
+                <ThemeToggle />
+            </div>
+        </header >
     );
 };
 

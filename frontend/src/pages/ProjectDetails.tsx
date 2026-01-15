@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getProjectById, updateProject, deleteProject } from '../api/projects';
 import { getTasks, updateTask, deleteTask, Task } from '../api/tasks';
-import { ArrowLeft, Plus, Edit2, Trash2, UserPlus, List as ListIcon, LayoutGrid, SortAsc, SortDesc, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, UserPlus, List as ListIcon, LayoutGrid, SortAsc, SortDesc, Loader2, MoreVertical } from 'lucide-react';
 import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
 import ProjectMembersModal from '../components/ProjectMembersModal';
@@ -36,6 +36,7 @@ const ProjectDetails = () => {
     const [confirmDeleteProject, setConfirmDeleteProject] = useState(false);
     const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
     const [viewingTask, setViewingTask] = useState<Task | null>(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const { data: project, isLoading, isError } = useQuery({
         queryKey: ['project', id],
@@ -157,7 +158,10 @@ const ProjectDetails = () => {
                     <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div className="flex-1">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{project.name}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <span className="md:hidden">{project.name.length > 4 ? `${project.name.substring(0, 4)}...` : project.name}</span>
+                        <span className="hidden md:inline">{project.name}</span>
+                    </h1>
                     {project.description && (
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{project.description}</p>
                     )}
@@ -211,27 +215,67 @@ const ProjectDetails = () => {
 
                 {project.isOwner && (
                     <>
-                        <button
-                            onClick={() => setIsMembersModalOpen(true)}
-                            className="p-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
-                            title={t('teams.invite')}
-                        >
-                            <UserPlus className="h-5 w-5" />
-                        </button>
-                        <button
-                            onClick={() => setIsEditProjectModalOpen(true)}
-                            className="p-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
-                            title={t('projects.editProject')}
-                        >
-                            <Edit2 className="h-5 w-5" />
-                        </button>
-                        <button
-                            onClick={handleDelete}
-                            className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                            title={t('projects.deleteProject')}
-                        >
-                            <Trash2 className="h-5 w-5" />
-                        </button>
+                        <div className="hidden md:flex items-center gap-1">
+                            <button
+                                onClick={() => setIsMembersModalOpen(true)}
+                                className="p-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                                title={t('teams.invite')}
+                            >
+                                <UserPlus className="h-5 w-5" />
+                            </button>
+                            <button
+                                onClick={() => setIsEditProjectModalOpen(true)}
+                                className="p-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                                title={t('projects.editProject')}
+                            >
+                                <Edit2 className="h-5 w-5" />
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                                title={t('projects.deleteProject')}
+                            >
+                                <Trash2 className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        <div className="md:hidden relative">
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            >
+                                <MoreVertical className="h-6 w-6" />
+                            </button>
+
+                            {isMobileMenuOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-40" onClick={() => setIsMobileMenuOpen(false)}></div>
+                                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 border border-gray-100 dark:border-gray-700">
+                                        <button
+                                            onClick={() => { setIsMobileMenuOpen(false); setIsMembersModalOpen(true); }}
+                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                        >
+                                            <UserPlus className="h-4 w-4" />
+                                            {t('teams.invite')}
+                                        </button>
+                                        <button
+                                            onClick={() => { setIsMobileMenuOpen(false); setIsEditProjectModalOpen(true); }}
+                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                        >
+                                            <Edit2 className="h-4 w-4" />
+                                            {t('projects.editProject')}
+                                        </button>
+                                        <button
+                                            onClick={() => { setIsMobileMenuOpen(false); handleDelete(); }}
+                                            className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                            {t('projects.deleteProject')}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </>
                 )}
             </div>

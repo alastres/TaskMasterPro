@@ -70,7 +70,7 @@ const ProjectTasksView: React.FC<ProjectTasksViewProps> = ({
 
     return (
         <div className="h-full overflow-y-auto overflow-x-auto p-1 custom-scrollbar">
-            <div className="min-w-[800px] md:min-w-0">
+            <div className="w-full">
                 <KanbanBoard
                     tasks={tasks}
                     onEdit={isOwner ? onEditTask : undefined}
