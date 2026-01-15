@@ -104,7 +104,10 @@
             "inProgress": "In Progress",
             "done": "Done"
         },
-        "searchPlaceholder": "Search projects..."
+        "searchPlaceholder": "Search projects...",
+        "myProjects": "My Projects",
+        "sharedProjects": "Shared Projects",
+        "sharedBadge": "Shared"
     },
     "profile": {
         "profile": "Profile",
@@ -147,7 +150,8 @@
         "inviteMember": "Invite Member",
         "inviteMemberInstructions": "Enter the email address to invite someone to collaborate on this project.",
         "emailPlaceholder": "email@example.com",
-        "usersCount": "{{count}} users",
+        "usersCount_one": "{{count}} user",
+        "usersCount_other": "{{count}} users",
         "invite": "Send Invitation",
         "memberships": "Teams I belong to",
         "roleOwner": "Owner",

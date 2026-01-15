@@ -28,7 +28,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isMobileOpen, setIsMobileOpen
                 <nav className="px-2 space-y-1">
                     {navItems.map((item) => {
                         const Icon = item.icon;
-                        const isActive = location.pathname === item.path;
+                        const isActive = item.path === '/'
+                            ? location.pathname === '/'
+                            : location.pathname.startsWith(item.path);
                         return (
                             <Link
                                 key={item.name}

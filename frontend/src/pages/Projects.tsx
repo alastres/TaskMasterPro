@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getProjects, createProject } from '../api/projects';
-import { Folder, Plus, Loader2, Calendar, Search } from 'lucide-react';
+import { Folder, Plus, Loader2, Calendar, Search, User, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
@@ -123,44 +123,113 @@ const Projects = () => {
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {filteredProjects?.map((project) => (
-                        <Link key={project.id} to={`/projects/${project.id}`}>
-                            <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
-                            >
-                                <div className="p-5">
-                                    <div className="flex items-center">
-                                        <div className="flex-shrink-0">
-                                            <Folder className="h-6 w-6 text-gray-400 dark:text-gray-500" />
-                                        </div>
-                                        <div className="ml-5 w-0 flex-1">
-                                            <dl>
-                                                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                                                    {project.name}
-                                                </dt>
-                                                <dd>
-                                                    <div className="text-lg font-medium text-gray-900 dark:text-white">
-                                                        {t('projects.tasksCount', { count: project._count?.tasks || 0 })}
+                <div className="space-y-8">
+                    {/* My Projects */}
+                    {filteredProjects && filteredProjects.some(p => p.isOwner) && (
+                        <div className="space-y-4">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <User size={20} className="text-indigo-500" />
+                                {t('projects.myProjects')}
+                            </h2>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {filteredProjects
+                                    .filter(project => project.isOwner)
+                                    .map((project) => (
+                                        <Link key={project.id} to={`/projects/${project.id}`}>
+                                            <motion.div
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
+                                            >
+                                                <div className="p-5">
+                                                    <div className="flex items-center">
+                                                        <div className="flex-shrink-0">
+                                                            <Folder className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+                                                        </div>
+                                                        <div className="ml-5 w-0 flex-1">
+                                                            <dl>
+                                                                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                                    {project.name}
+                                                                </dt>
+                                                                <dd>
+                                                                    <div className="text-lg font-medium text-gray-900 dark:text-white">
+                                                                        {t('projects.tasksCount', { count: project._count?.tasks || 0 })}
+                                                                    </div>
+                                                                </dd>
+                                                            </dl>
+                                                        </div>
                                                     </div>
-                                                </dd>
-                                            </dl>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="bg-gray-50 dark:bg-gray-700/50 px-5 py-3">
-                                    <div className="text-sm">
-                                        <div className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 flex items-center">
-                                            <Calendar className="h-4 w-4 mr-1" />
-                                            {format(new Date(project.createdAt), 'MMM d, yyyy')}
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </Link>
-                    ))}
+                                                </div>
+                                                <div className="bg-gray-50 dark:bg-gray-700/50 px-5 py-3">
+                                                    <div className="text-sm">
+                                                        <div className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 flex items-center">
+                                                            <Calendar className="h-4 w-4 mr-1" />
+                                                            {format(new Date(project.createdAt), 'MMM d, yyyy')}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        </Link>
+                                    ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Shared Projects */}
+                    {filteredProjects && filteredProjects.some(p => !p.isOwner) && (
+                        <div className="space-y-4">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Users size={20} className="text-purple-500" />
+                                {t('projects.sharedProjects')}
+                            </h2>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {filteredProjects
+                                    .filter(project => !project.isOwner)
+                                    .map((project) => (
+                                        <Link key={project.id} to={`/projects/${project.id}`}>
+                                            <motion.div
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-purple-100 dark:border-purple-900/30 hover:shadow-md transition-shadow cursor-pointer relative"
+                                            >
+                                                <div className="absolute top-0 right-0 p-2">
+                                                    <div className="bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 text-xs px-2 py-1 rounded-full font-bold">
+                                                        {t('projects.sharedBadge')}
+                                                    </div>
+                                                </div>
+                                                <div className="p-5">
+                                                    <div className="flex items-center">
+                                                        <div className="flex-shrink-0">
+                                                            <Folder className="h-6 w-6 text-purple-400 dark:text-purple-500" />
+                                                        </div>
+                                                        <div className="ml-5 w-0 flex-1">
+                                                            <dl>
+                                                                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                                    {project.name}
+                                                                </dt>
+                                                                <dd>
+                                                                    <div className="text-lg font-medium text-gray-900 dark:text-white">
+                                                                        {t('projects.tasksCount', { count: project._count?.tasks || 0 })}
+                                                                    </div>
+                                                                </dd>
+                                                            </dl>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-gray-50 dark:bg-gray-700/50 px-5 py-3">
+                                                    <div className="text-sm">
+                                                        <div className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 flex items-center">
+                                                            <Calendar className="h-4 w-4 mr-1" />
+                                                            {format(new Date(project.createdAt), 'MMM d, yyyy')}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        </Link>
+                                    ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

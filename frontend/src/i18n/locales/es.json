@@ -100,6 +100,9 @@
         "viewBoard": "Tablero Kanban",
         "sortByPriority": "Ordenar por prioridad",
         "searchPlaceholder": "Buscar proyectos...",
+        "myProjects": "Mis Proyectos",
+        "sharedProjects": "Proyectos Compartidos",
+        "sharedBadge": "Compartido",
         "kanban": {
             "todo": "Por hacer",
             "inProgress": "En proceso",
@@ -148,6 +151,8 @@
         "inviteMember": "Invitar Miembro",
         "inviteMemberInstructions": "Introduce el correo electrónico para invitar a colaborar en este proyecto.",
         "emailPlaceholder": "correo@ejemplo.com",
+        "usersCount_one": "{{count}} usuario",
+        "usersCount_other": "{{count}} usuarios",
         "invite": "Enviar Invitación",
         "memberships": "Equipos de los que soy miembro",
         "roleOwner": "Dueño",

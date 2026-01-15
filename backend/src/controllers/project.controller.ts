@@ -65,10 +65,15 @@ export const getProjects = async (
             }
         });
 
+        const projectsWithOwnership = projects.map(project => ({
+            ...project,
+            isOwner: project.userId === userId
+        }));
+
         res.status(200).json({
             status: 'success',
             results: projects.length,
-            data: { projects },
+            data: { projects: projectsWithOwnership },
         });
     } catch (error) {
         next(error);
