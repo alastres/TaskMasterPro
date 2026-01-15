@@ -77,7 +77,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onEdit, onDelete, onTo
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full min-h-[500px]">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[500px]">
                 {columns.map(column => (
                     <KanbanColumn
                         key={column.id}

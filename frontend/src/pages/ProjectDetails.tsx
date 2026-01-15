@@ -2,18 +2,17 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { getProjectById, deleteProject } from '../api/projects';
-import { Loader2, Plus, Trash2, ArrowLeft, Edit2, LayoutGrid, List as ListIcon, SortAsc, SortDesc, UserPlus } from 'lucide-react';
-import { updateTask, deleteTask, Task } from '../api/tasks';
-import TaskCard from '../components/TaskCard';
-import KanbanBoard from '../components/KanbanBoard';
+import { getProjectById, updateProject, deleteProject } from '../api/projects';
+import { getTasks, updateTask, deleteTask, Task } from '../api/tasks';
+import { ArrowLeft, Plus, Edit2, Trash2, UserPlus, List as ListIcon, LayoutGrid, SortAsc, SortDesc, Loader2 } from 'lucide-react';
 import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
 import ProjectMembersModal from '../components/ProjectMembersModal';
-import { clsx } from 'clsx';
 import { useToast } from '../components/ui/Toast';
+import { clsx } from 'clsx';
 import { AlertDialog } from '../components/ui/AlertDialog';
 import TaskDetailModal from '../components/TaskDetailModal';
+import ProjectTasksView from '../components/ProjectTasksView';
 
 export const priorityWeight: Record<string, number> = {
     'LOW': 1,
@@ -66,21 +65,6 @@ const ProjectDetails = () => {
     });
 
 
-
-    const sortedTasks = useMemo(() => {
-        if (!project?.tasks) return [];
-        let tasks = [...project.tasks];
-
-        if (prioritySort) {
-            tasks.sort((a, b) => {
-                const weightA = priorityWeight[a.priority];
-                const weightB = priorityWeight[b.priority];
-                return prioritySort === 'desc' ? weightB - weightA : weightA - weightB;
-            });
-        }
-
-        return tasks;
-    }, [project?.tasks, prioritySort]);
 
     const handleDelete = () => {
         setConfirmDeleteProject(true);
@@ -291,35 +275,20 @@ const ProjectDetails = () => {
                 )}
             </div>
 
-            {viewMode === 'list' ? (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {sortedTasks.length > 0 ? (
-                        sortedTasks.map((task: Task) => (
-                            <TaskCard
-                                key={task.id}
-                                task={task}
-                                onEdit={project.isOwner ? handleEditTask : undefined}
-                                onDelete={project.isOwner ? onDeleteTask : undefined}
-                                onToggleStatus={onToggleTaskStatus}
-                                onView={handleViewTask}
-                            />
-                        ))
-                    ) : (
-                        <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
-                            {t('projects.noTasksInProject')}
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <KanbanBoard
+
+
+            <div style={{ height: 'calc(100vh - 340px)' }} className="min-h-[400px] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+                <ProjectTasksView
+                    viewMode={viewMode}
                     tasks={project.tasks || []}
-                    onEdit={project.isOwner ? handleEditTask : undefined}
-                    onDelete={project.isOwner ? onDeleteTask : undefined}
-                    onToggleStatus={onToggleTaskStatus}
-                    onView={handleViewTask}
+                    isOwner={!!project.isOwner}
+                    onEditTask={project.isOwner ? handleEditTask : undefined}
+                    onDeleteTask={project.isOwner ? onDeleteTask : undefined}
+                    onToggleTaskStatus={onToggleTaskStatus}
+                    onViewTask={handleViewTask}
                     prioritySort={prioritySort}
                 />
-            )}
+            </div>
 
 
             <CreateTaskModal
