@@ -33,10 +33,22 @@ function App() {
     }
   }, [theme]);
 
+  // Determine key to control AnimatePresence
+  // We want animations for:
+  // - Login <-> Register
+  // - Auth <-> App (Login/Logout)
+  // We do NOT want animations for internal App navigation (Dashboard <-> Projects)
+  const getPageKey = (pathname: string) => {
+    if (pathname === '/login') return 'login';
+    if (pathname === '/register') return 'register';
+    // Return a stable key for all authenticated routes to prevent re-mounting MainLayout
+    return 'app';
+  };
+
   return (
     <ToastProvider>
       <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
+        <Routes location={location} key={getPageKey(location.pathname)}>
           {/* Rutas Públicas */}
           <Route
             path="/login"
