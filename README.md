@@ -117,6 +117,24 @@ npx jest --runInBand
 - **Equipos**: Colaboración en `/api/teams`
 - **Notificaciones**: `/api/notifications`
 
+## 🧹 Mantenimiento y Optimización
+
+El proyecto incluye un sistema automatizado de limpieza y optimización:
+
+### Tareas Programadas (Cron Jobs)
+Se ejecutan diariamente a la medianoche (`00:00`) para limpiar:
+- Invitaciones pendientes con más de 7 días de antigüedad.
+- Notificaciones leídas con más de 30 días de antigüedad.
+- Archivos de avatar huérfanos (no referenciados en la base de datos).
+
+### Scripts Manuales
+Puedes ejecutar la limpieza de archivos huérfanos manualmente si es necesario:
+
+```bash
+cd backend
+npm run cleanup:orphaned
+```
+
 ## 🚀 Despliegue
 
 El proyecto está preparado para ser desplegado en:

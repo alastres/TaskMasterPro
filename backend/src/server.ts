@@ -3,6 +3,7 @@ dotenv.config();
 
 import app from './app';
 import prisma from './config/db';
+import { initCronJobs } from './services/cron.service';
 
 const PORT = process.env.PORT || 3000;
 
@@ -10,6 +11,8 @@ const startServer = async () => {
     try {
         await prisma.$connect();
         console.log('✅ Database connected successfully');
+
+        initCronJobs();
 
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
