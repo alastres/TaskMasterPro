@@ -97,7 +97,7 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-3">
                     <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                         <LayoutDashboard className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />

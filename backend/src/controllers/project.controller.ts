@@ -3,6 +3,14 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 import prisma from '../config/db';
 import { AppError } from '../utils/AppError';
 
+// Helper to generate slug
+const generateSlug = (name: string) => {
+    return name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+};
+
 // Crear Proyecto
 export const createProject = async (
     req: AuthRequest,
@@ -16,12 +24,28 @@ export const createProject = async (
         // Automatically link to user's owned team if it exists
         const ownedTeam = await prisma.team.findUnique({ where: { ownerId: userId } });
 
+        // Generate unique slug
+        let slug = generateSlug(name);
+        let suffix = 0;
+        let isUnique = false;
+
+        while (!isUnique) {
+            const existing = await prisma.project.findUnique({ where: { slug: suffix > 0 ? `${slug}-${suffix}` : slug } });
+            if (!existing) {
+                if (suffix > 0) slug = `${slug}-${suffix}`;
+                isUnique = true;
+            } else {
+                suffix++;
+            }
+        }
+
         const project = await prisma.project.create({
             data: {
                 name,
                 description,
                 userId,
-                teamId: ownedTeam?.id || null
+                teamId: ownedTeam?.id || null,
+                slug
             },
         });
 
@@ -80,7 +104,7 @@ export const getProjects = async (
     }
 };
 
-// Obtener Proyecto por ID
+// Obtener Proyecto por ID o Slug
 export const getProjectById = async (
     req: AuthRequest,
     res: Response,
@@ -90,8 +114,11 @@ export const getProjectById = async (
         const { id } = req.params;
         const userId = req.user!.id;
 
+        const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+        const where = isUuid ? { id } : { slug: id };
+
         const project = await prisma.project.findUnique({
-            where: { id },
+            where,
             include: {
                 user: {
                     select: { id: true, name: true, avatarUrl: true }

@@ -135,7 +135,7 @@ const Projects = () => {
                                 {filteredProjects
                                     .filter(project => project.isOwner)
                                     .map((project) => (
-                                        <Link key={project.id} to={`/projects/${project.id}`}>
+                                        <Link key={project.id} to={`/projects/${project.slug || project.id}`}>
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}
@@ -186,7 +186,7 @@ const Projects = () => {
                                 {filteredProjects
                                     .filter(project => !project.isOwner)
                                     .map((project) => (
-                                        <Link key={project.id} to={`/projects/${project.id}`}>
+                                        <Link key={project.id} to={`/projects/${project.slug || project.id}`}>
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}
@@ -229,9 +229,11 @@ const Projects = () => {
                                     ))}
                             </div>
                         </div>
-                    )}
-                </div>
-            )}
+                    )
+                    }
+                </div >
+            )
+            }
 
             {/* Create Project Modal */}
             <Dialog.Root open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
@@ -295,7 +297,7 @@ const Projects = () => {
                     </Dialog.Content>
                 </Dialog.Portal>
             </Dialog.Root>
-        </div>
+        </div >
 
     );
 };

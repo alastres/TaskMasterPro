@@ -3,6 +3,7 @@ import api from './axios';
 export interface Project {
     id: string;
     name: string;
+    slug?: string;
     description?: string;
     createdAt: string;
     isOwner?: boolean;
