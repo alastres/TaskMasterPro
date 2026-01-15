@@ -210,7 +210,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
                                                                 {...register('projectId')}
                                                             >
                                                                 <option value="">{t('tasks.noProject')}</option>
-                                                                {projects?.map((project) => (
+                                                                {projects?.filter(project => project.isOwner).map((project) => (
                                                                     <option key={project.id} value={project.id}>
                                                                         {project.name}
                                                                     </option>

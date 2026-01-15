@@ -10,6 +10,7 @@ import { CheckSquare, Loader2 } from 'lucide-react';
 import { useToast } from '../components/ui/Toast';
 import ThemeToggle from '../components/ThemeToggle';
 import LanguageToggle from '../components/LanguageToggle';
+import { motion } from 'framer-motion';
 
 const Login = () => {
     const { t } = useTranslation();
@@ -49,7 +50,13 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-300 relative">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-300 relative"
+        >
             <div className="fixed top-4 right-4 flex items-center space-x-2 z-50">
                 <LanguageToggle />
                 <ThemeToggle />
@@ -121,7 +128,7 @@ const Login = () => {
                     </form>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

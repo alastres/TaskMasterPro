@@ -50,41 +50,50 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     {toasts.map((t) => (
                         <ToastPrimitive.Root
                             key={t.id}
-                            className={cn(
-                                "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl border p-4 pr-8 shadow-lg transition-all",
-                                "bg-white dark:bg-gray-800",
-                                t.type === 'success' && "border-green-100 dark:border-green-900/30",
-                                t.type === 'error' && "border-red-100 dark:border-red-900/30",
-                                t.type === 'info' && "border-indigo-100 dark:border-indigo-900/30",
-                                t.type === 'loading' && "border-gray-100 dark:border-gray-700"
-                            )}
+                            forceMount
+                            asChild
                             onOpenChange={(open) => !open && removeToast(t.id)}
                         >
-                            <div className="flex items-center gap-3">
-                                <div className={cn(
-                                    "p-2 rounded-xl",
-                                    t.type === 'success' && "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400",
-                                    t.type === 'error' && "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400",
-                                    t.type === 'info' && "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400",
-                                    t.type === 'loading' && "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                                )}>
-                                    {t.type === 'success' && <CheckCircle2 size={18} />}
-                                    {t.type === 'error' && <AlertCircle size={18} />}
-                                    {t.type === 'info' && <Info size={18} />}
-                                    {t.type === 'loading' && <Loader2 size={18} className="animate-spin" />}
+                            <motion.li
+                                layout
+                                initial={{ opacity: 0, y: 50, scale: 0.3 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+                                className={cn(
+                                    "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl border p-4 pr-8 shadow-lg transition-all",
+                                    "bg-white dark:bg-gray-800",
+                                    t.type === 'success' && "border-green-100 dark:border-green-900/30",
+                                    t.type === 'error' && "border-red-100 dark:border-red-900/30",
+                                    t.type === 'info' && "border-indigo-100 dark:border-indigo-900/30",
+                                    t.type === 'loading' && "border-gray-100 dark:border-gray-700"
+                                )}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={cn(
+                                        "p-2 rounded-xl",
+                                        t.type === 'success' && "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400",
+                                        t.type === 'error' && "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400",
+                                        t.type === 'info' && "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400",
+                                        t.type === 'loading' && "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                                    )}>
+                                        {t.type === 'success' && <CheckCircle2 size={18} />}
+                                        {t.type === 'error' && <AlertCircle size={18} />}
+                                        {t.type === 'info' && <Info size={18} />}
+                                        {t.type === 'loading' && <Loader2 size={18} className="animate-spin" />}
+                                    </div>
+                                    <div className="grid gap-1">
+                                        {t.title && <ToastPrimitive.Title className="text-sm font-bold text-gray-900 dark:text-white">{t.title}</ToastPrimitive.Title>}
+                                        {t.description && (
+                                            <ToastPrimitive.Description className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                                {t.description}
+                                            </ToastPrimitive.Description>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="grid gap-1">
-                                    {t.title && <ToastPrimitive.Title className="text-sm font-bold text-gray-900 dark:text-white">{t.title}</ToastPrimitive.Title>}
-                                    {t.description && (
-                                        <ToastPrimitive.Description className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                                            {t.description}
-                                        </ToastPrimitive.Description>
-                                    )}
-                                </div>
-                            </div>
-                            <ToastPrimitive.Close className="absolute right-2 top-2 rounded-md p-1 text-gray-400 opacity-0 transition-opacity hover:text-gray-900 group-hover:opacity-100 dark:hover:text-white">
-                                <X size={14} />
-                            </ToastPrimitive.Close>
+                                <ToastPrimitive.Close className="absolute right-2 top-2 rounded-md p-1 text-gray-400 opacity-0 transition-opacity hover:text-gray-900 group-hover:opacity-100 dark:hover:text-white">
+                                    <X size={14} />
+                                </ToastPrimitive.Close>
+                            </motion.li>
                         </ToastPrimitive.Root>
                     ))}
                 </AnimatePresence>
