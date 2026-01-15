@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import prisma from '../config/db';
@@ -115,7 +116,7 @@ export const getProjectById = async (
         const userId = req.user!.id;
 
         const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
-        const where = isUuid ? { id } : { slug: id };
+        const where: Prisma.ProjectWhereUniqueInput = isUuid ? { id } : { slug: id };
 
         const project = await prisma.project.findUnique({
             where,
@@ -181,7 +182,10 @@ export const updateProject = async (
         const userId = req.user!.id;
         const { name, description } = req.body;
 
-        const project = await prisma.project.findUnique({ where: { id } });
+        const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+        const where: Prisma.ProjectWhereUniqueInput = isUuid ? { id } : { slug: id };
+
+        const project = await prisma.project.findUnique({ where });
 
         if (!project) {
             return next(new AppError('Project not found', 404));
@@ -192,7 +196,7 @@ export const updateProject = async (
         }
 
         const updatedProject = await prisma.project.update({
-            where: { id },
+            where: { id: project.id }, // Use the resolved project.id
             data: { name, description },
         });
 
@@ -215,7 +219,10 @@ export const deleteProject = async (
         const { id } = req.params;
         const userId = req.user!.id;
 
-        const project = await prisma.project.findUnique({ where: { id } });
+        const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+        const where: Prisma.ProjectWhereUniqueInput = isUuid ? { id } : { slug: id };
+
+        const project = await prisma.project.findUnique({ where });
 
         if (!project) {
             return next(new AppError('Project not found', 404));
@@ -227,25 +234,12 @@ export const deleteProject = async (
 
         // Find Pending Invitations for this project
         const invitations = await prisma.invitation.findMany({
-            where: { projectId: id }
+            where: { projectId: project.id }
         });
 
         const invitationIds = invitations.map(inv => inv.id);
 
         // Delete Notifications associated with these invitations
-        // Prisma JSON filtering is DB specific, typically strict string matching or path selectors
-        // For simplicity and safety, we might need raw query or just rely on a simpler 'contains' if supported,
-        // but robust JSON searching varies. However, our Notification.data is Jason?.
-        // A simpler approach for now: Find notifications for the relevant users and filter in memory or minimal filter.
-        // BETTER: Use deleteMany with filtering if PG supports it well via Prisma.
-        // Prisma: data: { path: ['invitationId'], equals: ... }
-
-        // Since we can't easily do "give me all notifications where data.invitationId IN [...ids]",
-        // we will iterate and delete. Or if list is small.
-        // Actually, let's try to be efficient. 
-        // We really want to delete notifications where `data->>'invitationId'` matches any of our IDs.
-
-        // Let's implement a loop for now as it's safer than complex raw SQL in this context without testing env specifics.
         for (const invId of invitationIds) {
             await prisma.notification.deleteMany({
                 where: {
@@ -259,16 +253,16 @@ export const deleteProject = async (
 
         // Delete the Invitations
         await prisma.invitation.deleteMany({
-            where: { projectId: id }
+            where: { projectId: project.id }
         });
 
         // Cascade delete tasks
         await prisma.task.deleteMany({
-            where: { projectId: id },
+            where: { projectId: project.id },
         });
 
         await prisma.project.delete({
-            where: { id },
+            where: { id: project.id },
         });
 
         res.status(204).json({

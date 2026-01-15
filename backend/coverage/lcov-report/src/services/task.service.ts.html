@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">15.9% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/88</span>
+                <span class='fraction'>14/88</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">11.84% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/76</span>
+                <span class='fraction'>9/76</span>
             </div>
         
             
@@ -316,17 +316,17 @@
 <a name='L251'></a><a href='#L251'>251</a>
 <a name='L252'></a><a href='#L252'>252</a>
 <a name='L253'></a><a href='#L253'>253</a>
-<a name='L254'></a><a href='#L254'>254</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L254'></a><a href='#L254'>254</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -347,7 +347,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -369,8 +369,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -444,7 +444,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -491,7 +491,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -554,7 +554,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -569,15 +569,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import prisma from '../config/db';</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import prisma from '../config/db';
 import { CreateTaskInput, UpdateTaskInput, TaskQuery } from '../controllers/task.controller';
-<span class="cstat-no" title="statement not covered" >import { AppError } from '../utils/AppError';</span>
-<span class="cstat-no" title="statement not covered" >import { Task, TaskStatus, Priority } from '@prisma/client';</span>
+import { AppError } from '../utils/AppError';
+import { Task, TaskStatus, Priority } from '@prisma/client';
 &nbsp;
 /**
  * Calculates the dynamic priority of a task based on its due date and user thresholds.
  */
-const calculateEffectivePriority = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>ask: Task &amp; { user?: { thresholdMedium: number; thresholdHigh: number } }, userThresholds?: { thresholdMedium: number; thresholdHigh: number }): Priority =&gt; {</span>
+const calculateEffectivePriority = <span class="fstat-no" title="function not covered" >(t</span>ask: Task &amp; { user?: { thresholdMedium: number; thresholdHigh: number } }, userThresholds?: { thresholdMedium: number; thresholdHigh: number }): Priority =&gt; {
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!task.dueDate || task.status === TaskStatus.COMPLETED) {</span>
 <span class="cstat-no" title="statement not covered" >        return task.priority;</span>
     }
@@ -600,7 +600,7 @@ const calculateEffectivePriority = <span class="cstat-no" title="statement not c
 <span class="cstat-no" title="statement not covered" >    return task.priority;</span>
 };
 &nbsp;
-export const <span class="cstat-no" title="statement not covered" >createTask = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(userId: string, input: CreateTaskInput) =&gt; {</span>
+export const createTask = <span class="fstat-no" title="function not covered" >async </span>(userId: string, input: CreateTaskInput) =&gt; {
     const { dueDate, projectId, ...rest } = <span class="cstat-no" title="statement not covered" >input;</span>
 &nbsp;
     // Verify project ownership if project is specified
@@ -622,7 +622,7 @@ export const <span class="cstat-no" title="statement not covered" >createTask = 
     });
 };
 &nbsp;
-export const <span class="cstat-no" title="statement not covered" >getTasks = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(userId: string, query: TaskQuery) =&gt; {</span>
+export const getTasks = <span class="fstat-no" title="function not covered" >async </span>(userId: string, query: TaskQuery) =&gt; {
     const { status, priority, search, sort, projectId } = <span class="cstat-no" title="statement not covered" >query;</span>
 &nbsp;
     // Inclusion criteria: User owns the task OR user is member of the team the task belongs to OR user is a project member
@@ -697,7 +697,7 @@ export const <span class="cstat-no" title="statement not covered" >getTasks = <s
     }));
 };
 &nbsp;
-export const <span class="cstat-no" title="statement not covered" >getTask = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(userId: string, taskId: string) =&gt; {</span>
+export const getTask = <span class="fstat-no" title="function not covered" >async </span>(userId: string, taskId: string) =&gt; {
     const task = <span class="cstat-no" title="statement not covered" >await prisma.task.findUnique({</span>
         where: { id: taskId },
         include: {
@@ -744,7 +744,7 @@ export const <span class="cstat-no" title="statement not covered" >getTask = <sp
     };
 };
 &nbsp;
-export const <span class="cstat-no" title="statement not covered" >updateTask = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(</span>
+export const updateTask = <span class="fstat-no" title="function not covered" >async </span>(
     userId: string,
     taskId: string,
     input: UpdateTaskInput
@@ -807,7 +807,7 @@ export const <span class="cstat-no" title="statement not covered" >updateTask = 
     });
 };
 &nbsp;
-export const <span class="cstat-no" title="statement not covered" >deleteTask = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >a</span>sync </span>(userId: string, taskId: string) =&gt; {</span>
+export const deleteTask = <span class="fstat-no" title="function not covered" >async </span>(userId: string, taskId: string) =&gt; {
     const task = <span class="cstat-no" title="statement not covered" >await prisma.task.findUnique({ where: { id: taskId } });</span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!task) <span class="cstat-no" title="statement not covered" >throw new AppError('Tarea no encontrada', 404);</span></span>
 &nbsp;
@@ -829,7 +829,7 @@ export const <span class="cstat-no" title="statement not covered" >deleteTask = 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-14T23:34:38.368Z
+                at 2026-01-15T10:28:17.959Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

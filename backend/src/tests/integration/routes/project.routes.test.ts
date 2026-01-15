@@ -131,6 +131,7 @@ describe('Project Routes Integration Tests', () => {
             await prisma.project.create({
                 data: {
                     name: 'Project 1',
+                    slug: 'project-1-' + Date.now(),
                     userId,
                 },
             });
@@ -138,6 +139,7 @@ describe('Project Routes Integration Tests', () => {
             await prisma.project.create({
                 data: {
                     name: 'Project 2',
+                    slug: 'project-2-' + Date.now(),
                     userId,
                 },
             });
@@ -177,6 +179,7 @@ describe('Project Routes Integration Tests', () => {
             const project = await prisma.project.create({
                 data: {
                     name: 'Test Project',
+                    slug: 'test-project-' + Date.now(),
                     description: 'Test description',
                     userId,
                 },
@@ -207,6 +210,7 @@ describe('Project Routes Integration Tests', () => {
             const project = await prisma.project.create({
                 data: {
                     name: 'Other Project',
+                    slug: 'other-project-' + Date.now(),
                     userId: otherUserId,
                 },
             });
@@ -225,6 +229,7 @@ describe('Project Routes Integration Tests', () => {
             const project = await prisma.project.create({
                 data: {
                     name: 'Original Project',
+                    slug: 'original-project-' + Date.now(),
                     userId,
                 },
             });
@@ -263,6 +268,7 @@ describe('Project Routes Integration Tests', () => {
             const project = await prisma.project.create({
                 data: {
                     name: 'Other Project',
+                    slug: 'other-project-update-' + Date.now(),
                     userId: otherUserId,
                 },
             });
@@ -287,6 +293,7 @@ describe('Project Routes Integration Tests', () => {
             const project = await prisma.project.create({
                 data: {
                     name: 'Project to Delete',
+                    slug: 'delete-project-' + Date.now(),
                     userId,
                 },
             });
@@ -331,6 +338,7 @@ describe('Project Routes Integration Tests', () => {
             const project = await prisma.project.create({
                 data: {
                     name: 'Other Project',
+                    slug: 'other-project-delete-' + Date.now(),
                     userId: otherUserId,
                 },
             });

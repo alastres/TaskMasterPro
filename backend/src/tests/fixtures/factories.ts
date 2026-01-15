@@ -19,10 +19,13 @@ export async function createTestUser(overrides: Partial<{ email: string; passwor
 
 export async function createTestProject(userId: string, overrides: Partial<{ name: string }> = {}) {
     const count = await prisma.project.count();
+    const name = overrides.name ?? `Project ${count + 1}`;
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
 
     const project = await prisma.project.create({
         data: {
-            name: overrides.name ?? `Project ${count + 1}`,
+            name,
+            slug,
             userId,
         },
     });
@@ -61,12 +64,18 @@ export const createUserData = (overrides?: Partial<User>) => ({
     ...overrides,
 });
 
-export const createProjectData = (userId: string, overrides?: Partial<Project>) => ({
-    name: `Test Project ${Date.now()}`,
-    description: 'Test project description',
-    userId,
-    ...overrides,
-});
+export const createProjectData = (userId: string, overrides?: Partial<Project>) => {
+    const name = overrides?.name ?? `Test Project ${Date.now()}`;
+    const slug = overrides?.slug ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+
+    return {
+        name,
+        description: 'Test project description',
+        userId,
+        slug,
+        ...overrides,
+    };
+};
 
 export const createTaskData = (userId: string, overrides?: Partial<Task>) => ({
     title: `Test Task ${Date.now()}`,

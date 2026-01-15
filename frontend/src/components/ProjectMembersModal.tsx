@@ -49,7 +49,7 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
         },
         onSuccess: () => {
             setInviteEmail('');
-            queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+            queryClient.invalidateQueries({ queryKey: ['project'] });
             toast({
                 title: t('teams.inviteSuccess'),
                 type: 'success'
@@ -67,7 +67,7 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
     const removeMemberMutation = useMutation({
         mutationFn: (userId: string) => removeMemberFromProject(project.id, userId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+            queryClient.invalidateQueries({ queryKey: ['project'] });
             toast({
                 title: t('common.success'),
                 description: t('teams.removeMemberSuccess'),
@@ -88,7 +88,7 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
     const cancelInviteMutation = useMutation({
         mutationFn: (inviteId: string) => cancelInvitation(inviteId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+            queryClient.invalidateQueries({ queryKey: ['project'] });
             toast({
                 title: t('common.success'),
                 description: t('teams.cancelInviteSuccess'),

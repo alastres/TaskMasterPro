@@ -87,9 +87,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
             queryClient.invalidateQueries({ queryKey: ['projects'] });
-            if (defaultProjectId) {
-                queryClient.invalidateQueries({ queryKey: ['project', defaultProjectId] });
-            }
+            queryClient.invalidateQueries({ queryKey: ['project'] });
             reset();
             onClose();
             toast({
@@ -112,9 +110,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, task
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
             queryClient.invalidateQueries({ queryKey: ['projects'] });
-            if (defaultProjectId) {
-                queryClient.invalidateQueries({ queryKey: ['project', defaultProjectId] });
-            }
+            queryClient.invalidateQueries({ queryKey: ['project'] });
             reset();
             onClose();
             toast({

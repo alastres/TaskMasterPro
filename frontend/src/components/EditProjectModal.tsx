@@ -46,7 +46,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({ isOpen, onClose, pr
     const mutation = useMutation({
         mutationFn: (data: ProjectForm) => updateProject(project.id, data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+            queryClient.invalidateQueries({ queryKey: ['project'] });
             queryClient.invalidateQueries({ queryKey: ['projects'] });
             onClose();
             toast({

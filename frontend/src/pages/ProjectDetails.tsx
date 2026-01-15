@@ -110,7 +110,7 @@ const ProjectDetails = () => {
     const onToggleTaskStatus = (task: Task) => {
         const newStatus = task.status === 'COMPLETED' ? 'PENDING' : 'COMPLETED';
         updateTask(task.id, { status: newStatus }).then(() => {
-            queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+            queryClient.invalidateQueries({ queryKey: ['project', id] });
             toast({
                 title: t('common.success'),
                 description: t('tasks.updateSuccess'),
@@ -133,7 +133,7 @@ const ProjectDetails = () => {
         if (taskToDelete) {
             try {
                 await deleteTask(taskToDelete);
-                queryClient.invalidateQueries({ queryKey: ['project', project.id] });
+                queryClient.invalidateQueries({ queryKey: ['project', id] });
                 toast({
                     title: t('common.success'),
                     description: t('tasks.deleteSuccess'),
