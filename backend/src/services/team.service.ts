@@ -122,7 +122,13 @@ export const inviteMember = async (teamId: string, email: string, inviterId: str
             title,
             message,
             link: '/notifications',
-            data: { invitationId: invitation.id, teamId, projectId }
+            data: {
+                invitationId: invitation.id,
+                teamId,
+                projectId,
+                inviterName: inviter?.name,
+                projectName
+            }
         });
     }
 
@@ -175,7 +181,10 @@ export const respondToInvitation = async (invitationId: string, userId: string, 
             type: NotificationType.TEAM_JOINED,
             title: 'Invitación aceptada',
             message: `${user.name} se ha unido a tu equipo.`,
-            link: '/team'
+            link: '/team',
+            data: {
+                userName: user.name
+            }
         });
     } else {
         await prisma.invitation.update({

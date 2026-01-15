@@ -9,6 +9,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../components/ui/Toast';
 import { AlertDialog } from '../components/ui/AlertDialog';
+import TaskDetailModal from '../components/TaskDetailModal';
 
 const Dashboard = () => {
     const { t } = useTranslation();
@@ -16,6 +17,7 @@ const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
     const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+    const [viewingTask, setViewingTask] = useState<Task | null>(null);
 
     // Filters
     const [search, setSearch] = useState('');
@@ -67,6 +69,10 @@ const Dashboard = () => {
     const handleEdit = (task: Task) => {
         setTaskToEdit(task);
         setIsModalOpen(true);
+    };
+
+    const handleViewTask = (task: Task) => {
+        setViewingTask(task);
     };
 
     const handleDelete = (id: string) => {
@@ -175,6 +181,7 @@ const Dashboard = () => {
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
                                 onToggleStatus={handleToggleStatus}
+                                onView={handleViewTask}
                             />
                         ))}
                     </AnimatePresence>
@@ -187,6 +194,13 @@ const Dashboard = () => {
                 taskToEdit={taskToEdit}
             />
 
+            <TaskDetailModal
+                isOpen={!!viewingTask}
+                onClose={() => setViewingTask(null)}
+                task={viewingTask}
+                onEdit={handleEdit}
+            />
+
             <AlertDialog
                 isOpen={!!taskToDelete}
                 onOpenChange={(open) => !open && setTaskToDelete(null)}
@@ -197,6 +211,7 @@ const Dashboard = () => {
                 isLoading={deleteMutation.isPending}
             />
         </div>
+
     );
 };
 

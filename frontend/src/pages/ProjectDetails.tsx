@@ -11,9 +11,9 @@ import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
 import ProjectMembersModal from '../components/ProjectMembersModal';
 import { clsx } from 'clsx';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../components/ui/Toast';
 import { AlertDialog } from '../components/ui/AlertDialog';
+import TaskDetailModal from '../components/TaskDetailModal';
 
 export const priorityWeight: Record<string, number> = {
     'LOW': 1,
@@ -36,6 +36,7 @@ const ProjectDetails = () => {
     const [prioritySort, setPrioritySort] = useState<'asc' | 'desc' | null>(null);
     const [confirmDeleteProject, setConfirmDeleteProject] = useState(false);
     const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+    const [viewingTask, setViewingTask] = useState<Task | null>(null);
 
     const { data: project, isLoading, isError } = useQuery({
         queryKey: ['project', id],
@@ -92,6 +93,10 @@ const ProjectDetails = () => {
     const handleEditTask = (task: Task) => {
         setTaskToEdit(task);
         setIsCreateTaskModalOpen(true);
+    };
+
+    const handleViewTask = (task: Task) => {
+        setViewingTask(task);
     };
 
     const closeTaskModal = () => {
@@ -296,6 +301,7 @@ const ProjectDetails = () => {
                                 onEdit={project.isOwner ? handleEditTask : undefined}
                                 onDelete={project.isOwner ? onDeleteTask : undefined}
                                 onToggleStatus={onToggleTaskStatus}
+                                onView={handleViewTask}
                             />
                         ))
                     ) : (
@@ -310,9 +316,11 @@ const ProjectDetails = () => {
                     onEdit={project.isOwner ? handleEditTask : undefined}
                     onDelete={project.isOwner ? onDeleteTask : undefined}
                     onToggleStatus={onToggleTaskStatus}
+                    onView={handleViewTask}
                     prioritySort={prioritySort}
                 />
             )}
+
 
             <CreateTaskModal
                 isOpen={isCreateTaskModalOpen}
@@ -321,20 +329,29 @@ const ProjectDetails = () => {
                 defaultProjectId={project.id}
             />
 
+            <TaskDetailModal
+                isOpen={!!viewingTask}
+                onClose={() => setViewingTask(null)}
+                task={viewingTask}
+                onEdit={project.isOwner ? handleEditTask : undefined}
+            />
+
             <EditProjectModal
                 isOpen={isEditProjectModalOpen}
                 onClose={() => setIsEditProjectModalOpen(false)}
                 project={project}
             />
 
-            {project && (
-                <ProjectMembersModal
-                    isOpen={isMembersModalOpen}
-                    onClose={() => setIsMembersModalOpen(false)}
-                    project={project}
-                    isOwner={!!project.isOwner}
-                />
-            )}
+            {
+                project && (
+                    <ProjectMembersModal
+                        isOpen={isMembersModalOpen}
+                        onClose={() => setIsMembersModalOpen(false)}
+                        project={project}
+                        isOwner={!!project.isOwner}
+                    />
+                )
+            }
 
             <AlertDialog
                 isOpen={confirmDeleteProject}
@@ -354,7 +371,7 @@ const ProjectDetails = () => {
                 description={t('tasks.deleteConfirm')}
                 variant="danger"
             />
-        </div>
+        </div >
     );
 };
 

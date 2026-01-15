@@ -12,9 +12,10 @@ interface KanbanColumnProps {
     onEdit?: (task: Task) => void;
     onDelete?: (id: string) => void;
     onToggleStatus: (task: Task) => void;
+    onView?: (task: Task) => void;
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, tasks, onEdit, onDelete, onToggleStatus }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, tasks, onEdit, onDelete, onToggleStatus, onView }) => {
     const { t } = useTranslation();
 
     return (
@@ -55,6 +56,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ id, title, tasks, onEdit, o
                                             onEdit={onEdit}
                                             onDelete={onDelete}
                                             onToggleStatus={onToggleStatus}
+                                            onView={onView}
                                         />
                                     </div>
                                 )}

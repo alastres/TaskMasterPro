@@ -11,6 +11,7 @@ interface TaskCardProps {
     onEdit?: (task: Task) => void;
     onDelete?: (id: string) => void;
     onToggleStatus: (task: Task) => void;
+    onView?: (task: Task) => void;
 }
 
 const priorityColors = {
@@ -19,7 +20,7 @@ const priorityColors = {
     HIGH: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
 };
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleStatus }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleStatus, onView }) => {
     const { t } = useTranslation();
     const isCompleted = task.status === 'COMPLETED';
     const isOverdue = task.dueDate && !isCompleted && isBefore(new Date(task.dueDate), new Date());
@@ -40,8 +41,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            onClick={() => onView && onView(task)}
             className={clsx(
                 "bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-5 transition-all duration-200 group relative overflow-hidden",
+                onView && "cursor-pointer",
                 isCompleted
                     ? "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
                     : clsx(
@@ -57,7 +60,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
             <div className="flex justify-between items-start mb-3 relative z-10">
                 <div className="flex items-start space-x-3 flex-1">
                     <button
-                        onClick={() => onToggleStatus(task)}
+                        onClick={(e) => { e.stopPropagation(); onToggleStatus(task); }}
                         className="mt-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full dark:focus:ring-offset-gray-800 text-gray-400 hover:text-indigo-600 dark:text-gray-500 dark:hover:text-indigo-400 transition-colors"
                         aria-label={isCompleted ? t('tasks.markIncomplete') : t('tasks.markCompleted')}
                     >
@@ -110,7 +113,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                 <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     {onEdit && (
                         <button
-                            onClick={() => onEdit(task)}
+                            onClick={(e) => { e.stopPropagation(); onEdit(task); }}
                             className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             aria-label={t('tasks.editTaskAria')}
                         >
@@ -119,7 +122,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onToggleSta
                     )}
                     {onDelete && (
                         <button
-                            onClick={() => onDelete(task.id)}
+                            onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
                             className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500"
                             aria-label={t('tasks.deleteTaskAria')}
                         >

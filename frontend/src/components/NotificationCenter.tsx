@@ -83,6 +83,29 @@ const NotificationCenter: React.FC = () => {
 
     const fnLocale = i18n.language === 'es' ? es : enUS;
 
+    const getNotificationContent = (notification: any) => {
+        let title = notification.title;
+        let message = notification.message;
+
+        if (notification.type === 'INVITATION') {
+            if (notification.data?.projectId && notification.data?.projectName && notification.data?.inviterName) {
+                title = t('notifications.invitationProjectTitle');
+                message = t('notifications.invitationProjectMessage', {
+                    name: notification.data.inviterName,
+                    project: notification.data.projectName
+                });
+            } else if (notification.data?.inviterName) {
+                title = t('notifications.invitationTeamTitle');
+                message = t('notifications.invitationTeamMessage', { name: notification.data.inviterName });
+            }
+        } else if (notification.type === 'TEAM_JOINED' && notification.data?.userName) {
+            title = t('notifications.teamJoinedTitle');
+            message = t('notifications.teamJoinedMessage', { name: notification.data.userName });
+        }
+
+        return { title, message };
+    };
+
     return (
         <div className="relative" ref={dropdownRef}>
             <button
@@ -103,7 +126,7 @@ const NotificationCenter: React.FC = () => {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-80 sm:w-96 max-h-[500px] overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 flex flex-col"
+                        className="absolute right-0 mt-2 w-80 sm:w-96 max-h-[500px] overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-[999] flex flex-col"
                     >
                         <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                             <h3 className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-xs">{t('notifications.title')}</h3>
@@ -139,80 +162,83 @@ const NotificationCenter: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                                    {notifications.map((notification) => (
-                                        <div
-                                            key={notification.id}
-                                            className={clsx(
-                                                "p-4 transition-colors relative group",
-                                                !notification.isRead ? "bg-indigo-50/30 dark:bg-indigo-900/10" : "hover:bg-gray-50 dark:hover:bg-gray-700/30"
-                                            )}
-                                        >
-                                            <div className="flex gap-3">
-                                                <div className="flex-shrink-0 mt-1">
-                                                    {getIcon(notification.type)}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{notification.title}</p>
-                                                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{notification.message}</p>
-                                                    {notification.data?.projectId && (
-                                                        <div className="mt-1 flex items-center gap-1.5">
-                                                            <LayoutGrid className="h-3 w-3 text-indigo-400" />
-                                                            <span className="text-[10px] font-medium text-indigo-500 uppercase tracking-tight">{t('notifications.projectCollaboration')}</span>
-                                                        </div>
-                                                    )}
-                                                    <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2">
-                                                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: fnLocale })}
-                                                    </p>
+                                    {notifications.map((notification) => {
+                                        const { title, message } = getNotificationContent(notification);
+                                        return (
+                                            <div
+                                                key={notification.id}
+                                                className={clsx(
+                                                    "p-4 transition-colors relative group",
+                                                    !notification.isRead ? "bg-indigo-50/30 dark:bg-indigo-900/10" : "hover:bg-gray-50 dark:hover:bg-gray-700/30"
+                                                )}
+                                            >
+                                                <div className="flex gap-3">
+                                                    <div className="flex-shrink-0 mt-1">
+                                                        {getIcon(notification.type)}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
+                                                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{message}</p>
+                                                        {notification.data?.projectId && (
+                                                            <div className="mt-1 flex items-center gap-1.5">
+                                                                <LayoutGrid className="h-3 w-3 text-indigo-400" />
+                                                                <span className="text-[10px] font-medium text-indigo-500 uppercase tracking-tight">{t('notifications.projectCollaboration')}</span>
+                                                            </div>
+                                                        )}
+                                                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2">
+                                                            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: fnLocale })}
+                                                        </p>
 
-                                                    {notification.type === 'INVITATION' && !notification.isRead && notification.data?.invitationId && (
-                                                        <div className="mt-3 flex gap-2">
+                                                        {notification.type === 'INVITATION' && !notification.isRead && notification.data?.invitationId && (
+                                                            <div className="mt-3 flex gap-2">
+                                                                <button
+                                                                    onClick={() => responseMutation.mutate({
+                                                                        invitationId: notification.data.invitationId,
+                                                                        accept: true,
+                                                                        notificationId: notification.id
+                                                                    })}
+                                                                    disabled={responseMutation.isPending}
+                                                                    className="px-3 py-1 bg-indigo-600 text-white text-[11px] font-bold rounded hover:bg-indigo-700 flex items-center gap-1 transition-colors"
+                                                                >
+                                                                    {responseMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                                                                    {t('notifications.accept')}
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => responseMutation.mutate({
+                                                                        invitationId: notification.data.invitationId,
+                                                                        accept: false,
+                                                                        notificationId: notification.id
+                                                                    })}
+                                                                    disabled={responseMutation.isPending}
+                                                                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[11px] font-bold rounded hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-1 transition-colors"
+                                                                >
+                                                                    <X className="h-3 w-3" />
+                                                                    {t('notifications.reject')}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        {!notification.isRead && (
                                                             <button
-                                                                onClick={() => responseMutation.mutate({
-                                                                    invitationId: notification.data.invitationId,
-                                                                    accept: true,
-                                                                    notificationId: notification.id
-                                                                })}
-                                                                disabled={responseMutation.isPending}
-                                                                className="px-3 py-1 bg-indigo-600 text-white text-[11px] font-bold rounded hover:bg-indigo-700 flex items-center gap-1 transition-colors"
+                                                                onClick={() => markReadMutation.mutate(notification.id)}
+                                                                className="p-1 text-gray-300 hover:text-indigo-600 transition-colors"
+                                                                title={t('notifications.markAsRead')}
                                                             >
-                                                                {responseMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
-                                                                {t('notifications.accept')}
+                                                                <div className="h-2 w-2 rounded-full bg-indigo-600" />
                                                             </button>
-                                                            <button
-                                                                onClick={() => responseMutation.mutate({
-                                                                    invitationId: notification.data.invitationId,
-                                                                    accept: false,
-                                                                    notificationId: notification.id
-                                                                })}
-                                                                disabled={responseMutation.isPending}
-                                                                className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[11px] font-bold rounded hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-1 transition-colors"
-                                                            >
-                                                                <X className="h-3 w-3" />
-                                                                {t('notifications.reject')}
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col gap-2">
-                                                    {!notification.isRead && (
+                                                        )}
                                                         <button
-                                                            onClick={() => markReadMutation.mutate(notification.id)}
-                                                            className="p-1 text-gray-300 hover:text-indigo-600 transition-colors"
-                                                            title={t('notifications.markAsRead')}
+                                                            onClick={() => deleteMutation.mutate(notification.id)}
+                                                            className="p-1 text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                                                         >
-                                                            <div className="h-2 w-2 rounded-full bg-indigo-600" />
+                                                            <Trash2 size={14} />
                                                         </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => deleteMutation.mutate(notification.id)}
-                                                        className="p-1 text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                             )}
                         </div>

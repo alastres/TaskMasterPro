@@ -10,10 +10,11 @@ interface KanbanBoardProps {
     onEdit?: (task: Task) => void;
     onDelete?: (id: string) => void;
     onToggleStatus: (task: Task) => void;
+    onView?: (task: Task) => void;
     prioritySort?: 'asc' | 'desc' | null;
 }
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onEdit, onDelete, onToggleStatus, prioritySort }) => {
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onEdit, onDelete, onToggleStatus, onView, prioritySort }) => {
     const queryClient = useQueryClient();
 
     const updateStatusMutation = useMutation({
@@ -86,6 +87,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onEdit, onDelete, onTo
                         onEdit={onEdit}
                         onDelete={onDelete}
                         onToggleStatus={onToggleStatus}
+                        onView={onView}
                     />
                 ))}
             </div>

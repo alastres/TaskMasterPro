@@ -198,6 +198,43 @@ export const deleteProject = async (
             return next(new AppError('Only the project owner can delete it', 403));
         }
 
+        // Find Pending Invitations for this project
+        const invitations = await prisma.invitation.findMany({
+            where: { projectId: id }
+        });
+
+        const invitationIds = invitations.map(inv => inv.id);
+
+        // Delete Notifications associated with these invitations
+        // Prisma JSON filtering is DB specific, typically strict string matching or path selectors
+        // For simplicity and safety, we might need raw query or just rely on a simpler 'contains' if supported,
+        // but robust JSON searching varies. However, our Notification.data is Jason?.
+        // A simpler approach for now: Find notifications for the relevant users and filter in memory or minimal filter.
+        // BETTER: Use deleteMany with filtering if PG supports it well via Prisma.
+        // Prisma: data: { path: ['invitationId'], equals: ... }
+
+        // Since we can't easily do "give me all notifications where data.invitationId IN [...ids]",
+        // we will iterate and delete. Or if list is small.
+        // Actually, let's try to be efficient. 
+        // We really want to delete notifications where `data->>'invitationId'` matches any of our IDs.
+
+        // Let's implement a loop for now as it's safer than complex raw SQL in this context without testing env specifics.
+        for (const invId of invitationIds) {
+            await prisma.notification.deleteMany({
+                where: {
+                    data: {
+                        path: ['invitationId'],
+                        equals: invId
+                    }
+                }
+            });
+        }
+
+        // Delete the Invitations
+        await prisma.invitation.deleteMany({
+            where: { projectId: id }
+        });
+
         // Cascade delete tasks
         await prisma.task.deleteMany({
             where: { projectId: id },

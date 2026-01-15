@@ -296,6 +296,7 @@ const Projects = () => {
                 </Dialog.Portal>
             </Dialog.Root>
         </div>
+
     );
 };
 
