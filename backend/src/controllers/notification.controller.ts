@@ -75,3 +75,15 @@ export const deleteNotification = async (req: AuthRequest, res: Response, next: 
         next(error);
     }
 };
+
+export const deleteAllNotifications = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        await notificationService.deleteAllNotifications(req.user!.id);
+        res.status(204).json({
+            status: 'success',
+            data: null
+        });
+    } catch (error) {
+        next(error);
+    }
+};

@@ -37,3 +37,7 @@ export const respondToInvitation = async (invitationId: string, accept: boolean)
 export const deleteNotification = async (id: string) => {
     await api.delete(`/notifications/${id}`);
 };
+
+export const deleteAllNotifications = async (): Promise<void> => {
+    await api.delete('/notifications');
+};

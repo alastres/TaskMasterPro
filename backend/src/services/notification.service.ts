@@ -40,3 +40,9 @@ export const deleteNotification = async (notificationId: string, userId: string)
         where: { id: notificationId, userId },
     });
 };
+
+export const deleteAllNotifications = async (userId: string) => {
+    return await prisma.notification.deleteMany({
+        where: { userId }
+    });
+};

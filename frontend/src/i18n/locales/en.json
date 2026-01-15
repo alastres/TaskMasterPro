@@ -15,7 +15,9 @@
         "search": "Search",
         "filter": "Filter",
         "noResults": "No results found",
-        "optional": "Optional"
+        "optional": "Optional",
+        "rowsPerPage": "Rows per page:",
+        "pageOf": "Page {{current}} of {{total}}"
     },
     "nav": {
         "dashboard": "Dashboard",
@@ -101,7 +103,8 @@
             "todo": "To Do",
             "inProgress": "In Progress",
             "done": "Done"
-        }
+        },
+        "searchPlaceholder": "Search projects..."
     },
     "profile": {
         "profile": "Profile",
@@ -134,7 +137,8 @@
         "reject": "Reject",
         "invitationTitle": "Team Invitation",
         "invitationMessage": "{{name}} has invited you to join their team.",
-        "projectCollaboration": "Project Collaboration"
+        "projectCollaboration": "Project Collaboration",
+        "clearAll": "Clear All"
     },
     "teams": {
         "title": "Team Management",
@@ -143,6 +147,7 @@
         "inviteMember": "Invite Member",
         "inviteMemberInstructions": "Enter the email address to invite someone to collaborate on this project.",
         "emailPlaceholder": "email@example.com",
+        "usersCount": "{{count}} users",
         "invite": "Send Invitation",
         "memberships": "Teams I belong to",
         "roleOwner": "Owner",

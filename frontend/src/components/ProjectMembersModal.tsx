@@ -37,6 +37,7 @@ const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({ isOpen, onClo
         if (message.includes('No tienes permiso')) return t('errors.noPermission');
         if (message.includes('no está registrado')) return t('errors.userNotRegistered');
         if (message.includes('ya es miembro')) return t('errors.alreadyMember');
+        if (message.includes('ya existe una invitación pendiente')) return t('errors.duplicateInvitation');
         if (message.includes('no encontrado')) return t('errors.projectNotFound');
         return message || t('common.error');
     };

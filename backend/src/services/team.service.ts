@@ -85,6 +85,10 @@ export const inviteMember = async (teamId: string, email: string, inviterId: str
 
     const token = uuidv4();
     if (invitation) {
+        if (invitation.status === InvitationStatus.PENDING) {
+            throw new AppError('Ya existe una invitación pendiente para este usuario', 400);
+        }
+
         invitation = await prisma.invitation.update({
             where: { id: invitation.id },
             data: {

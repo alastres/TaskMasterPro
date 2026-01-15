@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Check, X, Trash2, Loader2, Info, Users, LayoutGrid } from 'lucide-react';
-import { getNotifications, markAsRead, markAllAsRead, respondToInvitation, deleteNotification } from '../api/notifications';
+import { getNotifications, markAsRead, markAllAsRead, respondToInvitation, deleteNotification, deleteAllNotifications } from '../api/notifications';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../components/ui/Toast';
@@ -53,6 +53,11 @@ const NotificationCenter: React.FC = () => {
 
     const deleteMutation = useMutation({
         mutationFn: deleteNotification,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    });
+
+    const deleteAllMutation = useMutation({
+        mutationFn: deleteAllNotifications,
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
     });
 
@@ -109,6 +114,16 @@ const NotificationCenter: React.FC = () => {
                                     className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline disabled:opacity-50"
                                 >
                                     {markAllReadMutation.isPending ? t('common.loading') : t('notifications.markAllAsRead')}
+                                </button>
+                            )}
+                            {notifications.length > 0 && (
+                                <button
+                                    onClick={() => deleteAllMutation.mutate()}
+                                    disabled={deleteAllMutation.isPending}
+                                    className="ml-3 text-[10px] text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 hover:underline disabled:opacity-50 flex items-center gap-1"
+                                >
+                                    {deleteAllMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 size={10} />}
+                                    {t('notifications.clearAll')}
                                 </button>
                             )}
                         </div>

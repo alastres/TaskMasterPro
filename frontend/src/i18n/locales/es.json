@@ -15,7 +15,9 @@
         "search": "Buscar",
         "filter": "Filtrar",
         "noResults": "No se encontraron resultados",
-        "optional": "Opcional"
+        "optional": "Opcional",
+        "rowsPerPage": "Filas por página:",
+        "pageOf": "Página {{current}} de {{total}}"
     },
     "nav": {
         "dashboard": "Panel",
@@ -97,11 +99,13 @@
         "viewList": "Vista de lista",
         "viewBoard": "Tablero Kanban",
         "sortByPriority": "Ordenar por prioridad",
+        "searchPlaceholder": "Buscar proyectos...",
         "kanban": {
             "todo": "Por hacer",
             "inProgress": "En proceso",
             "done": "Terminado"
-        }
+        },
+        "members": "Miembros:"
     },
     "profile": {
         "profile": "Perfil",
@@ -134,7 +138,8 @@
         "reject": "Rechazar",
         "invitationTitle": "Invitación a equipo",
         "invitationMessage": "{{name}} te ha invitado a unirte a su equipo.",
-        "projectCollaboration": "Colaboración en Proyecto"
+        "projectCollaboration": "Colaboración en Proyecto",
+        "clearAll": "Eliminar todas"
     },
     "teams": {
         "title": "Gestión de Equipo",
@@ -189,6 +194,17 @@
         "alreadyMember": "El usuario ya es miembro",
         "noPermission": "No tienes permiso para realizar esta acción",
         "invitationInvalid": "Invitación no válida o expirada",
-        "emailMismatch": "El correo electrónico no coincide con la invitación"
+        "emailMismatch": "El correo electrónico no coincide con la invitación",
+        "passwordsDoNotMatch": "Las contraseñas no coinciden",
+        "emailInUse": "El correo electrónico ya está en uso",
+        "loginFailed": "Error al iniciar sesión. Verifica tus credenciales.",
+        "sessionExpired": "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+        "networkError": "Error de conexión. Por favor, verifica tu internet.",
+        "unauthorized": "No tienes permiso para realizar esta acción.",
+        "serverError": "Error del servidor. Por favor, inténtalo más tarde.",
+        "requiredField": "Este campo es obligatorio",
+        "invalidEmail": "Correo electrónico inválido",
+        "weakPassword": "La contraseña debe tener al menos 6 caracteres",
+        "duplicateInvitation": "Ya existe una invitación pendiente para este usuario"
     }
 }

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getProjects, createProject } from '../api/projects';
-import { Folder, Plus, Loader2, Calendar } from 'lucide-react';
+import { Folder, Plus, Loader2, Calendar, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
@@ -18,6 +18,7 @@ const Projects = () => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const createProjectSchema = z.object({
         name: z.string().min(1, t('validation.required')),
@@ -30,6 +31,10 @@ const Projects = () => {
         queryKey: ['projects'],
         queryFn: getProjects,
     });
+
+    const filteredProjects = projects?.filter((project) =>
+        project.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const createMutation = useMutation({
         mutationFn: createProject,
@@ -87,23 +92,39 @@ const Projects = () => {
                 </button>
             </div>
 
-            {projects?.length === 0 ? (
+            {/* Search Bar */}
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                    type="text"
+                    placeholder={t('projects.searchPlaceholder')}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all"
+                />
+            </div>
+
+            {filteredProjects?.length === 0 ? (
                 <div className="text-center py-12">
                     <Folder className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">{t('projects.noProjects')}</h3>
-                    <div className="mt-6">
-                        <button
-                            onClick={() => setIsCreateModalOpen(true)}
-                            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                        >
-                            <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                            {t('projects.newProject')}
-                        </button>
-                    </div>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {searchQuery ? t('common.noResults') : t('projects.noProjects')}
+                    </h3>
+                    {!searchQuery && (
+                        <div className="mt-6">
+                            <button
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                            >
+                                <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                                {t('projects.newProject')}
+                            </button>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {projects?.map((project) => (
+                    {filteredProjects?.map((project) => (
                         <Link key={project.id} to={`/projects/${project.id}`}>
                             <motion.div
                                 whileHover={{ scale: 1.02 }}
