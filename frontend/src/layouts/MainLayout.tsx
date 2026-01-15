@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -9,8 +9,23 @@ const MainLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsMobileSidebarOpen(false);
+                setIsSidebarOpen(true);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Initial check
+        handleResize();
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
         setIsMobileSidebarOpen(!isMobileSidebarOpen);
     };
 
