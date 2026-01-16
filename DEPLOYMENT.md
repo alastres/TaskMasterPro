@@ -27,6 +27,7 @@ Render es una excelente alternativa gratuita a Railway para hosting de Node.js.
    - **Build Command**: `npm install && npx prisma generate && npm run build`
    - **Start Command**: `npm start`
 4. **Variables de Entorno (Advanced > Add Environment Variable)**:
+   - `SKIP_INSTALL_DEPS`: `false` (Para asegurar que instale devDependencies)
    - `DATABASE_URL`: (La URL que copiaste de Neon)
    - `JWT_SECRET`: Una cadena larga y aleatoria (ej: `mi_clave_secreta_super_segura_123`).
    - `NODE_ENV`: `production`
