@@ -12,6 +12,7 @@
 /frontend/dist
 /frontend/dist-ssr
 /frontend/*.local
+/frontend/coverage
 
 # Editor directories and files
 /frontend/.vscode/*
