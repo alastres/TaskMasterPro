@@ -40,6 +40,7 @@
 /backend/dist
 /backend/dist-ssr
 /backend/*.local
+/backend/coverage
 
 # Editor directories and files
 /backend/.vscode/*
