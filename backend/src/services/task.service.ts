@@ -6,7 +6,7 @@ import { Task, TaskStatus, Priority } from '@prisma/client';
 /**
  * Calculates the dynamic priority of a task based on its due date and user thresholds.
  */
-const calculateEffectivePriority = (task: Task & { user?: { thresholdMedium: number; thresholdHigh: number } }, userThresholds?: { thresholdMedium: number; thresholdHigh: number }): Priority => {
+export const calculateEffectivePriority = (task: Task & { user?: { thresholdMedium: number; thresholdHigh: number } }, userThresholds?: { thresholdMedium: number; thresholdHigh: number }): Priority => {
     if (!task.dueDate || task.status === TaskStatus.COMPLETED) {
         return task.priority;
     }

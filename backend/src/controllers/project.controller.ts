@@ -3,6 +3,7 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import prisma from '../config/db';
 import { AppError } from '../utils/AppError';
+import { calculateEffectivePriority } from '../services/task.service';
 
 // Helper to generate slug
 const generateSlug = (name: string) => {
@@ -140,6 +141,14 @@ export const getProjectById = async (
                 tasks: {
                     orderBy: {
                         createdAt: 'desc'
+                    },
+                    include: {
+                        user: {
+                            select: {
+                                thresholdMedium: true,
+                                thresholdHigh: true
+                            }
+                        }
                     }
                 }
             }
@@ -162,6 +171,10 @@ export const getProjectById = async (
             data: {
                 project: {
                     ...project,
+                    tasks: project.tasks.map((task: any) => ({
+                        ...task,
+                        priority: calculateEffectivePriority(task) // Use shared logic
+                    })),
                     isOwner // Add flag for frontend
                 }
             },
