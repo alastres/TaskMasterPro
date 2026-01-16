@@ -6,13 +6,18 @@ import { Task, TaskStatus, Priority } from '@prisma/client';
 /**
  * Calculates the dynamic priority of a task based on its due date and user thresholds.
  */
-export const calculateEffectivePriority = (task: Task & { user?: { thresholdMedium: number; thresholdHigh: number } }, userThresholds?: { thresholdMedium: number; thresholdHigh: number }): Priority => {
+export const calculateEffectivePriority = (task: Task & { user?: { thresholdMedium: number; thresholdHigh: number; autoPriorityEnabled?: boolean } }, userThresholds?: { thresholdMedium: number; thresholdHigh: number }): Priority => {
     if (!task.dueDate || task.status === TaskStatus.COMPLETED) {
         return task.priority;
     }
 
     const thresholds = userThresholds || task.user;
     if (!thresholds) return task.priority;
+
+    // If auto priority updates are disabled, return manual priority
+    if (task.user?.autoPriorityEnabled === false) {
+        return task.priority;
+    }
 
     const now = new Date();
     const due = new Date(task.dueDate);
@@ -22,11 +27,11 @@ export const calculateEffectivePriority = (task: Task & { user?: { thresholdMedi
         return Priority.HIGH;
     }
     if (diffInHours <= thresholds.thresholdMedium) {
-        // Only upgrade to MEDIUM if it's currently LOW
-        return task.priority === Priority.LOW ? Priority.MEDIUM : task.priority;
+        return Priority.MEDIUM;
     }
 
-    return task.priority;
+    // Explicitly return LOW if we are outside the medium threshold
+    return Priority.LOW;
 };
 
 export const createTask = async (userId: string, input: CreateTaskInput) => {
@@ -111,6 +116,7 @@ export const getTasks = async (userId: string, query: TaskQuery) => {
                 select: {
                     thresholdMedium: true,
                     thresholdHigh: true,
+                    autoPriorityEnabled: true,
                 }
             },
             project: true
@@ -134,6 +140,7 @@ export const getTask = async (userId: string, taskId: string) => {
                 select: {
                     thresholdMedium: true,
                     thresholdHigh: true,
+                    autoPriorityEnabled: true,
                 }
             },
             project: {
@@ -158,9 +165,9 @@ export const getTask = async (userId: string, taskId: string) => {
     }
 
     const isOwner = task.userId === userId;
-    const isProjectOwner = task.project?.userId === userId;
-    const isTeamMember = task.project?.team?.members?.length! > 0;
-    const isProjectMember = task.project?.members?.length! > 0;
+    const isProjectOwner = (task as any).project?.userId === userId;
+    const isTeamMember = (task as any).project?.team?.members?.length! > 0;
+    const isProjectMember = (task as any).project?.members?.length! > 0;
     const isMember = isTeamMember || isProjectMember;
 
     if (!isOwner && !isProjectOwner && !isMember) {
@@ -197,8 +204,8 @@ export const updateTask = async (
     if (!task) throw new AppError('Tarea no encontrada', 404);
 
     const isOwner = task.userId === userId;
-    const isTeamMember = task.project?.team?.members?.length! > 0;
-    const isProjectMember = task.project?.members?.length! > 0;
+    const isTeamMember = (task as any).project?.team?.members?.length! > 0;
+    const isProjectMember = (task as any).project?.members?.length! > 0;
     const isMember = isTeamMember || isProjectMember;
 
     if (!isOwner && !isMember) {

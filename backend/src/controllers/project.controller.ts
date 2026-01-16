@@ -146,7 +146,8 @@ export const getProjectById = async (
                         user: {
                             select: {
                                 thresholdMedium: true,
-                                thresholdHigh: true
+                                thresholdHigh: true,
+                                autoPriorityEnabled: true
                             }
                         }
                     }
@@ -160,7 +161,7 @@ export const getProjectById = async (
 
         // Check if user is owner or explicit member
         const isOwner = project.userId === userId;
-        const isMember = project.members.some((m: any) => m.userId === userId);
+        const isMember = (project as any).members.some((m: any) => m.userId === userId);
 
         if (!isOwner && !isMember) {
             return next(new AppError('Not authorized to view this project', 403));
@@ -171,7 +172,7 @@ export const getProjectById = async (
             data: {
                 project: {
                     ...project,
-                    tasks: project.tasks.map((task: any) => ({
+                    tasks: (project as any).tasks.map((task: any) => ({
                         ...task,
                         priority: calculateEffectivePriority(task) // Use shared logic
                     })),

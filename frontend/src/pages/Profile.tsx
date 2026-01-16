@@ -7,8 +7,9 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/auth.store';
 import api from '../api/axios';
 import { User, Lock, Save, Loader2, Camera, Clock } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../components/ui/Toast';
+import { Toggle } from '../components/ui/Toggle';
 
 const Profile = () => {
     const { t } = useTranslation();
@@ -22,6 +23,7 @@ const Profile = () => {
         nickname: z.string().min(1, t('validation.required')).max(20, 'Nickname maximum 20 characters'),
         thresholdMedium: z.number().int().min(1, 'Must be at least 1 hour'),
         thresholdHigh: z.number().int().min(1, 'Must be at least 1 hour'),
+        autoPriorityEnabled: z.boolean().default(true),
     });
 
     const passwordSchema = z.object({
@@ -42,15 +44,18 @@ const Profile = () => {
         }
     }, [user?.avatarUrl, selectedFile]);
 
-    const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: profileErrors }, reset: resetProfile } = useForm<ProfileForm>({
+    const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: profileErrors }, reset: resetProfile, watch, setValue } = useForm<ProfileForm>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
             name: user?.name || '',
             nickname: user?.nickname || '',
             thresholdMedium: user?.thresholdMedium || 72,
             thresholdHigh: user?.thresholdHigh || 24,
+            autoPriorityEnabled: user?.autoPriorityEnabled !== false, // Default true if undefined
         },
     });
+
+    const autoPriorityEnabled = watch('autoPriorityEnabled');
 
     useEffect(() => {
         if (user) {
@@ -59,6 +64,7 @@ const Profile = () => {
                 nickname: user.nickname,
                 thresholdMedium: user.thresholdMedium,
                 thresholdHigh: user.thresholdHigh,
+                autoPriorityEnabled: user.autoPriorityEnabled !== false,
             });
         }
     }, [user, resetProfile]);
@@ -86,6 +92,7 @@ const Profile = () => {
             formData.append('nickname', data.nickname);
             formData.append('thresholdMedium', data.thresholdMedium.toString());
             formData.append('thresholdHigh', data.thresholdHigh.toString());
+            formData.append('autoPriorityEnabled', data.autoPriorityEnabled.toString());
             if (selectedFile) {
                 formData.append('avatar', selectedFile);
             }
@@ -118,17 +125,15 @@ const Profile = () => {
 
     const changePasswordMutation = useMutation({
         mutationFn: async (data: PasswordForm) => {
-            await api.put('/users/password', {
-                currentPassword: data.currentPassword,
-                newPassword: data.newPassword,
-            });
+            const res = await api.put('/users/password', data);
+            return res.data;
         },
         onSuccess: () => {
-            resetPassword();
             toast({
                 title: t('profile.passwordUpdated'),
                 type: 'success'
             });
+            resetPassword();
         },
         onError: (error: any) => {
             toast({
@@ -146,6 +151,7 @@ const Profile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
             >
+                {/* Headers */}
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('profile.profile')}</h1>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -218,41 +224,67 @@ const Profile = () => {
 
                             {/* Priority Thresholds */}
                             <div className="sm:col-span-2 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                <div className="flex items-center space-x-2 mb-4">
-                                    <Clock className="h-5 w-5 text-indigo-500" />
-                                    <h3 className="text-md font-medium text-gray-900 dark:text-white">{t('profile.thresholds')}</h3>
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center space-x-2">
+                                        <Clock className="h-5 w-5 text-indigo-500" />
+                                        <h3 className="text-md font-medium text-gray-900 dark:text-white">{t('profile.thresholds')}</h3>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <label htmlFor="auto-priority" className="text-sm text-gray-700 dark:text-gray-300">
+                                            {t('profile.autoPriorityEnabled')}
+                                        </label>
+                                        <Toggle
+                                            id="auto-priority"
+                                            checked={autoPriorityEnabled}
+                                            onCheckedChange={(checked) => setValue('autoPriorityEnabled', checked, { shouldDirty: true })}
+                                        />
+                                    </div>
                                 </div>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                                     {t('profile.thresholdsDescription')}
                                 </p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            {t('profile.thresholdMedium')}
-                                        </label>
-                                        <input
-                                            type="number"
-                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 transition-colors"
-                                            {...registerProfile('thresholdMedium', { valueAsNumber: true })}
-                                        />
-                                        {profileErrors.thresholdMedium && (
-                                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.thresholdMedium.message}</p>
-                                        )}
+                                <AnimatePresence>
+                                    {autoPriorityEnabled && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-hidden"
+                                        >
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    {t('profile.thresholdMedium')}
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 transition-colors"
+                                                    {...registerProfile('thresholdMedium', { valueAsNumber: true })}
+                                                />
+                                                {profileErrors.thresholdMedium && (
+                                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.thresholdMedium.message}</p>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    {t('profile.thresholdHigh')}
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 transition-colors"
+                                                    {...registerProfile('thresholdHigh', { valueAsNumber: true })}
+                                                />
+                                                {profileErrors.thresholdHigh && (
+                                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.thresholdHigh.message}</p>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                {!autoPriorityEnabled && (
+                                    <div className="text-sm text-gray-400 italic">
+                                        {t('profile.autoPriorityDisabledHint')}
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            {t('profile.thresholdHigh')}
-                                        </label>
-                                        <input
-                                            type="number"
-                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 transition-colors"
-                                            {...registerProfile('thresholdHigh', { valueAsNumber: true })}
-                                        />
-                                        {profileErrors.thresholdHigh && (
-                                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{profileErrors.thresholdHigh.message}</p>
-                                        )}
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         </div>
 

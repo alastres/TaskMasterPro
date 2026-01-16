@@ -10,6 +10,7 @@ export interface User {
     role: string;
     thresholdMedium: number;
     thresholdHigh: number;
+    autoPriorityEnabled: boolean;
 }
 
 interface AuthState {

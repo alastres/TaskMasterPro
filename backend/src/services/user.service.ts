@@ -5,7 +5,7 @@ import { deleteOldAvatar } from '../utils/cleanupFiles';
 
 export const updateProfile = async (
     userId: string,
-    data: { name?: string; nickname?: string; avatarUrl?: string; thresholdMedium?: number; thresholdHigh?: number }
+    data: { name?: string; nickname?: string; avatarUrl?: string; thresholdMedium?: number; thresholdHigh?: number; autoPriorityEnabled?: boolean }
 ) => {
     // Check if nickname is taken by another user
     if (data.nickname) {
@@ -41,6 +41,7 @@ export const updateProfile = async (
     if (data.avatarUrl !== undefined) updateData.avatarUrl = data.avatarUrl;
     if (data.thresholdMedium !== undefined) updateData.thresholdMedium = data.thresholdMedium;
     if (data.thresholdHigh !== undefined) updateData.thresholdHigh = data.thresholdHigh;
+    if (data.autoPriorityEnabled !== undefined) updateData.autoPriorityEnabled = data.autoPriorityEnabled;
 
     const updatedUser = await prisma.user.update({
         where: { id: userId },

@@ -10,6 +10,7 @@ export const updateProfileSchema = z.object({
         avatarUrl: z.string().url().optional().or(z.literal('')),
         thresholdMedium: z.number().int().positive().optional(),
         thresholdHigh: z.number().int().positive().optional(),
+        autoPriorityEnabled: z.union([z.boolean(), z.string().transform(val => val === 'true')]).optional(),
     }),
 });
 
@@ -38,12 +39,13 @@ export const updateProfile = async (
     next: NextFunction
 ) => {
     // Parse body if it's sent as formdata (multer handles this generally, but we need to ensure types match)
-    const { name, nickname, thresholdMedium, thresholdHigh } = req.body;
+    const { name, nickname, thresholdMedium, thresholdHigh, autoPriorityEnabled } = req.body;
     let dataToUpdate: any = {
         name,
         nickname,
         thresholdMedium: thresholdMedium ? Number(thresholdMedium) : undefined,
-        thresholdHigh: thresholdHigh ? Number(thresholdHigh) : undefined
+        thresholdHigh: thresholdHigh ? Number(thresholdHigh) : undefined,
+        autoPriorityEnabled: autoPriorityEnabled === undefined ? undefined : (typeof autoPriorityEnabled === 'string' ? autoPriorityEnabled === 'true' : autoPriorityEnabled)
     };
 
     // If a file was uploaded, add the avatarUrl to the update data

@@ -52,6 +52,9 @@ export const inviteMember = async (teamId: string, email: string, inviterId: str
     if (team.ownerId !== inviterId) throw new AppError('No tienes permiso para invitar a este equipo', 403);
 
     const inviter = await prisma.user.findUnique({ where: { id: inviterId } });
+    if (inviter?.email === email) {
+        throw new AppError('No puedes invitarte a ti mismo', 400);
+    }
 
     let projectName = '';
     if (projectId) {

@@ -16,6 +16,7 @@ model User {
   avatarUrl       String?
   thresholdMedium Int            @default(72)
   thresholdHigh   Int            @default(24)
+  autoPriorityEnabled Boolean    @default(true)
   tasks           Task[]
   projects        Project[]
   ownedTeam       Team?          @relation("OwnedTeam")
