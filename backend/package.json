@@ -12,7 +12,7 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --ci",
     "dev": "nodemon src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "cleanup:orphaned": "ts-node src/scripts/cleanupOrphanedFiles.ts"
