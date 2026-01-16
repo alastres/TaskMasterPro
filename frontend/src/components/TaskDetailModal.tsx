@@ -2,13 +2,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Task } from '../api/tasks';
-import { X, Calendar, Flag, Tag, Clock, CheckCircle2, Circle } from 'lucide-react';
+import { X, Calendar, Flag, Tag, Clock } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import clsx from 'clsx';
-import { priorityWeight } from '../pages/ProjectDetails';
+
 
 interface TaskDetailModalProps {
     isOpen: boolean;

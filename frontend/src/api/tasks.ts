@@ -10,6 +10,7 @@ export interface Task {
     projectId?: string;
     dueDate?: string | null;
     createdAt: string;
+    updatedAt: string;
 }
 
 export interface CreateTaskPayload {
