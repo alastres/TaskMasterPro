@@ -177,6 +177,7 @@
         "passwordUpdated": "Contraseña actualizada exitosamente",
         "profileUpdated": "Perfil actualizado exitosamente",
         "thresholds": "Umbrales de Prioridad",
+        "autoPriorityEnabled": "Habilitar Prioridad Automática",
         "thresholdMedium": "Horas para Prioridad Media",
         "thresholdHigh": "Horas para Prioridad Alta",
         "thresholdsDescription": "Las tareas subirán automáticamente a Prioridad Media/Alta cuando se acerquen a su fecha de vencimiento según estas horas."

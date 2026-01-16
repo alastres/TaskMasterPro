@@ -177,6 +177,7 @@
         "passwordUpdated": "Password updated successfully",
         "profileUpdated": "Profile updated successfully",
         "thresholds": "Priority Thresholds",
+        "autoPriorityEnabled": "Enable Auto Priority",
         "thresholdMedium": "Hours for Medium Priority",
         "thresholdHigh": "Hours for High Priority",
         "thresholdsDescription": "Tasks will automatically upgrade to Medium/High priority as they near their due date based on these hours."
