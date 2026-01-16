@@ -22,6 +22,7 @@ const mockTask: Task = {
     dueDate: new Date().toISOString(),
     tags: ['tag1'],
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
 };
 
 describe('TaskCard', () => {
