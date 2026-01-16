@@ -1,26 +1,38 @@
-# 🚀 Guía de Despliegue - TaskMaster Pro
+# 🚀 Guía de Despliegue - TaskMaster Pro (Versión Gratuita 2024/2025)
 
-Este proyecto está estructurado como un monorepositorio con carpetas separadas para `frontend` y `backend`. A continuación, se detallan los pasos para desplegar cada parte.
+Este proyecto está estructurado como un monorepositorio con carpetas separadas para `frontend` y `backend`. 
 
-## 🔙 Backend (Railway)
+## 🐘 Base de Datos (Neon.tech - Recomendado)
 
-Railway es la plataforma recomendada para el backend debido a su excelente soporte para bases de datos PostgreSQL y procesos Node.js.
+Como la base de datos de Render es temporal (30 días), usaremos **Neon** para persistencia gratuita ilimitada.
 
-### Pasos:
-1. **Crear Proyecto**: En Dashboard de Railway, selecciona **"New Project"** > **"Deploy from GitHub repo"**.
-2. **Seleccionar Repo**: Elige este repositorio.
-3. **Configuración de Carpeta**:
-   - Ve a **Settings** > **General** > **Root Directory**.
-   - Escribe: `backend`.
-4. **Base de Datos**:
-   - Haz clic en **"New"** > **"Database"** > **"Add PostgreSQL"**.
-   - Railway creará una base de datos. En la pestaña **Variables** del servicio PostgreSQL, encontrarás la `DATABASE_URL`.
-5. **Variables de Entorno**:
-   - En el servicio del `backend`, añade las siguientes variables en la pestaña **Variables**:
-     - `PORT`: `3000`
-     - `DATABASE_URL`: `${{Postgres.DATABASE_URL}}` (o copia la URL directa del servicio Postgres).
-     - `JWT_SECRET`: Una cadena larga y aleatoria.
-     - `NODE_ENV`: `production`.
+1. **Crear Cuenta**: Ve a [Neon.tech](https://neon.tech/) y crea un proyecto de PostgreSQL.
+2. **Obtener URL**: Ya he generado una base de datos para ti. Copia esta "Connection String":
+   - **URI**: `postgresql://neondb_owner:npg_pg8qnT5ZsjxW@ep-restless-dew-agjf2iak-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require`
+3. **Guardar**: La usarás en el siguiente paso.
+
+---
+
+## 🔙 Backend (Render.com)
+
+Render es una excelente alternativa gratuita a Railway para hosting de Node.js.
+
+### Pasos en Render:
+1. **Crear Servicio**: Haz clic en **"New +"** > **"Web Service"**.
+2. **Conectar GitHub**: Selecciona este repositorio.
+3. **Configuración del Servicio**:
+   - **Name**: `taskmaster-backend` (o el que prefieras).
+   - **Root Directory**: `backend`
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install && npx prisma generate && npm run build`
+   - **Start Command**: `npm start`
+4. **Variables de Entorno (Advanced > Add Environment Variable)**:
+   - `DATABASE_URL`: (La URL que copiaste de Neon)
+   - `JWT_SECRET`: Una cadena larga y aleatoria (ej: `mi_clave_secreta_super_segura_123`).
+   - `NODE_ENV`: `production`
+
+> [!NOTE]
+> Las instancias gratuitas de Render se "duermen" tras 15 min de inactividad. El primer acceso después de esto puede tardar ~40 segundos.
 
 ---
 
@@ -28,20 +40,22 @@ Railway es la plataforma recomendada para el backend debido a su excelente sopor
 
 Vercel es ideal para aplicaciones React/Vite.
 
-### Pasos:
+### Pasos en Vercel:
 1. **Importar Proyecto**: En el Dashboard de Vercel, haz clic en **"Add New"** > **"Project"**.
 2. **Seleccionar Repo**: Elige este repositorio de GitHub.
 3. **Configurar Directorio**:
-   - En la sección **"Root Directory"**, haz clic en "Edit" y selecciona la carpeta `frontend`.
+   - En **"Root Directory"**, selecciona la carpeta `frontend`.
 4. **Variables de Entorno**:
-   - Despliega la sección **"Environment Variables"** y añade:
-     - `VITE_API_URL`: La URL pública que te generó Railway para el backend, terminando en `/api`.
-       - *Ejemplo:* `https://backend-production-xyz.up.railway.app/api`
+   - Añade en la sección **Environment Variables**:
+     - `VITE_API_URL`: La URL que te generó Render para el backend, añadiendo `/api` al final.
+       - *Ejemplo:* `https://taskmaster-backend.onrender.com/api`
 5. **Desplegar**: Haz clic en **"Deploy"**.
 
 ---
 
-## 🛠️ Notas importantes
-- **CORS**: El backend está configurado para aceptar peticiones. Asegúrate de que la URL del frontend esté permitida si configuraste restricciones específicas de CORS.
-- **Generación de Prisma**: El script de construcción del backend ya incluye `prisma generate`, por lo que el cliente se generará automáticamente en el servidor de Railway.
-- **Base de Datos**: Después del primer despliegue, es posible que necesites ejecutar las migraciones. Puedes hacerlo desde el sitio de Railway usando la terminal de la consola o configurando un "Deploy Command" que incluya `npx prisma migrate deploy`.
+## 🛠️ Comandos Útiles post-despliegue
+Si necesitas sincronizar la base de datos de Neon con tu esquema actual, puedes correr localmente (apuntando la `DATABASE_URL` de tu `.env` a la de Neon temporalmente):
+```bash
+npx prisma migrate deploy
+```
+O simplemente deja que Prisma maneje el auto-generado durante el build de Render.
