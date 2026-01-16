@@ -24,8 +24,10 @@ export interface AuthResponse {
             email: string;
             nickname: string;
             avatarUrl?: string;
+            role: string;
             thresholdMedium: number;
             thresholdHigh: number;
+            autoPriorityEnabled: boolean;
         }
     }
 }

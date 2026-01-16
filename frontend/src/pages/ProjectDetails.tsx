@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { getProjectById, updateProject, deleteProject } from '../api/projects';
-import { getTasks, updateTask, deleteTask, Task } from '../api/tasks';
+import { getProjectById, deleteProject } from '../api/projects';
+import { updateTask, deleteTask, Task } from '../api/tasks';
 import { ArrowLeft, Plus, Edit2, Trash2, UserPlus, List as ListIcon, LayoutGrid, SortAsc, SortDesc, Loader2, MoreVertical } from 'lucide-react';
 import CreateTaskModal from '../components/CreateTaskModal';
 import EditProjectModal from '../components/EditProjectModal';
