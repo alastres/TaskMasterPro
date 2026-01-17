@@ -1,6 +1,6 @@
 # TaskMaster Pro · Gestor de Tareas Fullstack
 
-Una aplicación profesional de gestión de tareas full-stack construida para demostrar habilidades de nivel senior con React, Node.js y TypeScript.
+Aplicación fullstack profesional de gestión de tareas con React, Node.js, TypeScript y PostgreSQL. Incluye Kanban drag & drop, gestión de proyectos y equipos, autenticación JWT, notificaciones, i18n y diseño premium con Tailwind + Framer Motion.
 
 ## 🚀 Características
 
