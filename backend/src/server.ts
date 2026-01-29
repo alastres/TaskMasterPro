@@ -12,7 +12,11 @@ const startServer = async () => {
         await prisma.$connect();
         console.log('✅ Database connected successfully');
 
-        initCronJobs();
+        if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+            initCronJobs();
+        } else {
+            console.log('Skipping local cron initialization (Serverless/Production mode)');
+        }
 
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);

@@ -60,3 +60,27 @@ Si necesitas sincronizar la base de datos de Neon con tu esquema actual, puedes 
 npx prisma migrate deploy
 ```
 O simplemente deja que Prisma maneje el auto-generado durante el build de Render.
+
+---
+
+## ⚡ Backend en Vercel (Serverless)
+
+Si prefieres desplegar el backend en Vercel, hemos adaptado la arquitectura para funcionar en entorno Serverless.
+
+### Requisitos Previos
+1. **Cloudinary**: Regístrate en [cloudinary.com](https://cloudinary.com) (gratis). Ve al Dashboard y copia: `Cloud Name`, `API Key`, `API Secret`.
+2. **Neon**: (Igual que arriba) Instancia de PostgreSQL.
+
+### Pasos en Vercel:
+1. **Importar Proyecto**: Selecciona el repo y la carpeta `backend` como Root Directory.
+2. **Variables de Entorno**:
+   - `DATABASE_URL`: Tu conexión de Neon.
+   - `JWT_SECRET`: Tu clave secreta.
+   - `CLOUDINARY_CLOUD_NAME`: Nombre de tu cloud.
+   - `CLOUDINARY_API_KEY`: Tu API Key.
+   - `CLOUDINARY_API_SECRET`: Tu API Secret.
+   - `CRON_SECRET`: Una cadena aleatoria segura (para proteger los cron jobs).
+   - `CRON_CONFIG`: `{"enabled": true}` (Opcional, para coherencia).
+3. **Cron Jobs**:
+   - Vercel detectará automáticamente el archivo `vercel.json` y programará la tarea de limpieza para ejecutarse diariamente.
+   - Puedes ver los logs en el dashboard de Vercel bajo la pestaña "Cron Jobs".

@@ -50,10 +50,8 @@ export const updateProfile = async (
 
     // If a file was uploaded, add the avatarUrl to the update data
     if (req.file) {
-        // Construct the URL. In production this would be full URL or relative path.
-        // Assuming we serve /uploads route
-        const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
-        dataToUpdate.avatarUrl = avatarUrl;
+        // Multer-storage-cloudinary provides the secure_url or path in the file object
+        dataToUpdate.avatarUrl = req.file.path;
     } else if (req.body.avatarUrl === '') {
         // Allow clearing avatar
         dataToUpdate.avatarUrl = null;
