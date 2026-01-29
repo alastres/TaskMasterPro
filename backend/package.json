@@ -15,7 +15,8 @@
     "build": "prisma generate && tsc",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "cleanup:orphaned": "ts-node src/scripts/cleanupOrphanedFiles.ts"
+    "cleanup:orphaned": "ts-node src/scripts/cleanupOrphanedFiles.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
