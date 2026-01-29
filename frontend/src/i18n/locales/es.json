@@ -180,7 +180,8 @@
         "autoPriorityEnabled": "Habilitar Prioridad Automática",
         "thresholdMedium": "Horas para Prioridad Media",
         "thresholdHigh": "Horas para Prioridad Alta",
-        "thresholdsDescription": "Las tareas subirán automáticamente a Prioridad Media/Alta cuando se acerquen a su fecha de vencimiento según estas horas."
+        "thresholdsDescription": "Las tareas subirán automáticamente a Prioridad Media/Alta cuando se acerquen a su fecha de vencimiento según estas horas.",
+        "autoPriorityDisabledHint": "La prioridad automática está deshabilitada. Las tareas mantendrán su prioridad manual."
     },
     "notifications": {
         "title": "Notificaciones",

@@ -20,19 +20,47 @@ export async function cleanOrphanedAvatars(): Promise<{ removed: number; kept: n
             },
         });
 
+
+        console.log(`Found ${users.length} users with defined avatarUrl in database`);
+
+        if (users.length === 0) {
+            console.log('No users with avatars found in DB. Aborting cleanup for safety to prevent accidental total deletion.');
+            return { removed: 0, kept: 0, errors: [] };
+        }
+
         // Extract filenames from avatarUrls
         const usedFilenames = new Set<string>();
         users.forEach(user => {
             if (user.avatarUrl) {
-                // Extract filename from URL (e.g., "http://localhost:3000/uploads/avatars/avatar-123.png" -> "avatar-123.png")
-                const filename = user.avatarUrl.split('/').pop();
-                if (filename) {
-                    usedFilenames.add(filename);
+                try {
+                    // Try to parse as URL first to handle query params and hashes correctly
+                    // We handle both absolute URLs and relative paths
+                    let filename: string | undefined;
+
+                    // Normalize backslashes to forward slashes just in case
+                    const normalizedUrl = user.avatarUrl.replace(/\\/g, '/');
+
+                    if (normalizedUrl.startsWith('http') || normalizedUrl.startsWith('/')) {
+                        // Remove query strings and hash
+                        const cleanUrl = normalizedUrl.split(/[?#]/)[0];
+                        filename = cleanUrl.split('/').pop();
+                    } else {
+                        // Fallback for just filenames
+                        filename = normalizedUrl;
+                    }
+
+                    if (filename) {
+                        usedFilenames.add(filename);
+                        // Also add decoded version (e.g., 'foo%20bar.png' -> 'foo bar.png')
+                        usedFilenames.add(decodeURIComponent(filename));
+                    }
+                } catch (e) {
+                    console.warn(`Failed to parse avatar URL: ${user.avatarUrl}`);
                 }
             }
         });
 
-        console.log(`Found ${usedFilenames.size} avatar(s) in use in database`);
+        console.log(`Identified ${usedFilenames.size} unique avatar filenames from database`);
 
         // Check if avatars directory exists
         if (!fs.existsSync(avatarsDir)) {
