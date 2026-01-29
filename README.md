@@ -138,5 +138,5 @@ npm run cleanup:orphaned
 ## 🚀 Despliegue
 
 El proyecto está preparado para ser desplegado en:
-- **Backend**: Railway (soporta Docker y Nixpacks)
+- **Backend**: Render (soporta Docker y Nixpacks)
 - **Frontend**: Vercel o Netlify (optimizado para frameworks de Vite)
