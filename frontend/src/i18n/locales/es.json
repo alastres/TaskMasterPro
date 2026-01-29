@@ -65,7 +65,11 @@
         "userDeleted": "Usuario eliminado",
         "userDeletedDesc": "El usuario se ha eliminado correctamente",
         "userDeleteError": "No se pudo eliminar el usuario",
-        "confirmDelete": "Confirmar"
+        "confirmDelete": "Confirmar",
+        "confirmDeleteTitle": "Eliminar Usuario",
+        "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer y borrará permanentemente todos sus datos, incluyendo tareas, proyectos y membresías.",
+        "deleteUser": "Eliminar Usuario",
+        "delete": "Eliminar"
     },
     "nav": {
         "dashboard": "Panel",

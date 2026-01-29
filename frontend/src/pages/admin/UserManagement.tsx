@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllUsers, updateUserRole, deleteUser } from '../../api/admin';
 import { Users, Trash2, Shield, User as UserIcon, Loader2, Search } from 'lucide-react';
+import { AlertDialog } from '../../components/ui/AlertDialog';
 import { useAuthStore } from '../../store/auth.store';
 import { useToast } from '../../components/ui/Toast';
 import { useTranslation } from 'react-i18next';
@@ -184,8 +185,8 @@ const UserManagement: React.FC = () => {
                                         onClick={() => handleToggleRole(user)}
                                         disabled={user.id === currentUser?.id || updateRoleMutation.isPending}
                                         className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${user.role === 'ADMIN'
-                                                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                                             } ${user.id === currentUser?.id
                                                 ? 'opacity-50 cursor-not-allowed'
                                                 : 'hover:opacity-80 cursor-pointer'
@@ -201,36 +202,35 @@ const UserManagement: React.FC = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     {user.id !== currentUser?.id && (
-                                        deleteConfirm === user.id ? (
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleDelete(user.id)}
-                                                    disabled={deleteMutation.isPending}
-                                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                                >
-                                                    {t('admin.confirmDelete')}
-                                                </button>
-                                                <button
-                                                    onClick={() => setDeleteConfirm(null)}
-                                                    className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
-                                                >
-                                                    {t('common.cancel')}
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                onClick={() => setDeleteConfirm(user.id)}
-                                                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        )
+                                        <button
+                                            onClick={() => setDeleteConfirm(user.id)}
+                                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                            title={t('admin.deleteUser')}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
                                     )}
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+
+                {/* Delete Confirmation Modal */}
+                <AlertDialog
+                    isOpen={!!deleteConfirm}
+                    onOpenChange={(open) => !open && setDeleteConfirm(null)}
+                    title={t('admin.confirmDeleteTitle')}
+                    description={t('admin.confirmDeleteMessage')}
+                    confirmText={t('admin.delete')}
+                    variant="danger"
+                    isLoading={deleteMutation.isPending}
+                    onConfirm={() => {
+                        if (deleteConfirm) {
+                            handleDelete(deleteConfirm);
+                        }
+                    }}
+                />
 
                 {filteredUsers.length === 0 && (
                     <div className="text-center py-12 text-gray-500 dark:text-gray-400">

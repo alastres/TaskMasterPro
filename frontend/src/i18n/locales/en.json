@@ -66,7 +66,11 @@
         "userDeleted": "User deleted",
         "userDeletedDesc": "User has been deleted successfully",
         "userDeleteError": "Could not delete user",
-        "confirmDelete": "Confirm"
+        "confirmDelete": "Confirm",
+        "confirmDeleteTitle": "Delete User",
+        "confirmDeleteMessage": "Are you sure you want to delete this user? This action cannot be undone and will permanently remove all their data, including tasks, projects, and memberships.",
+        "deleteUser": "Delete User",
+        "delete": "Delete"
     },
     "nav": {
         "dashboard": "Dashboard",
